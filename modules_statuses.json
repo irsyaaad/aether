@@ -1,0 +1,17 @@
+{
+    "Master": true,
+    "Operational": true,
+    "Request": true,
+    "DMProyeksiRequest": true,
+    "Model": true,
+    "Grouplayanan": true,
+    "Controller": true,
+    "VendorBusdevController": true,
+    "Chat": true,
+    "Sdm": true,
+    "Setting": true,
+    "Task": true,
+    "Bimbingan": true,
+    "Olahdata": true,
+    "Pelatihan": true
+}

@@ -1,0 +1,36 @@
+# AGENTS.md - Persada Laravel Project
+
+## Commands
+- **Serve**: `php artisan serve`
+- **Test all**: `php artisan test` or `./vendor/bin/phpunit`
+- **Test single file**: `./vendor/bin/phpunit tests/Feature/ExampleTest.php`
+- **Test single method**: `./vendor/bin/phpunit --filter test_method_name`
+- **Module test**: `./vendor/bin/phpunit Modules/Keuangan/Tests/`
+- **Migrate**: `php artisan migrate`
+- **Cache clear**: `php artisan config:clear && php artisan cache:clear`
+
+## Architecture
+- **Framework**: Laravel 10 with nwidart/laravel-modules for modular structure
+- **Modules**: `Modules/` (Chat, Keuangan, Operasional, Sdm) - each has Controllers, Entities, Routes, Resources
+- **Core**: `app/` (Models, Services, Helpers, Http/Controllers, Traits, Policies)
+- **Views**: Blade templates using Metronic template (located in the `public/assets` directory)
+- **Views**: Blade templates in `resources/views/` and `Modules/*/Resources/views/`
+- **Auth**: Spatie Laravel Permission for roles/permissions
+
+## Guidelines & Code Style
+- **Namespace**: `App\` for core, `Modules\ModuleName\` for modules
+- **Models**: Use `$table`, `$primaryKey`, `$fillable`, `$dates`; Indonesian naming (nm_user, id_user)
+- **Controllers**: Extend `Illuminate\Routing\Controller`, use PHPDoc blocks
+- **Packages**: yajra/datatables, maatwebsite/excel, barryvdh/laravel-dompdf, spatie/permission
+- **Permissions**:
+  - Permission keys/definitions must be stored in `config/constant.php`.
+  - Every controller must use the `App\Traits\HasAccessControl` trait.
+  - Permission check must be performed at the start of every controller function like this:
+    ```php
+    if ($denied = $this->requireAccess('jurnal.index')) {
+        return $denied;
+    }
+    ```
+- **Language Policy**:
+  - **URLs / Routing**: Must use English (e.g., `/journal`, `/company-settings`).
+  - **Forms & UI**: All form inputs, labels, placeholders, and UI texts must use Indonesian.

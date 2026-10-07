@@ -1,0 +1,11 @@
+{
+    "name": "Olahdata",
+    "alias": "olahdata",
+    "description": "Modul Layanan Olah Data Statistik & Ekonometrika Mahasiswa",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Olahdata\\Providers\\OlahdataServiceProvider"
+    ],
+    "files": []
+}

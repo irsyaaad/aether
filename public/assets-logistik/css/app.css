@@ -1,0 +1,216 @@
+/* LogisPro Theme CSS (Tailwind + Logistics UI System) */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 3.9%;
+  --primary: 348 83% 47%; /* #e11d48 Red Logistics */
+  --primary-foreground: 0 85.7% 97.3%;
+  --secondary: 0 0% 96.1%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96.1%;
+  --muted-foreground: 0 0% 45.1%;
+  --accent: 0 0% 96.1%;
+  --accent-foreground: 0 0% 9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 89.8%;
+  --input: 0 0% 89.8%;
+  --ring: 348 83% 47%;
+  --radius: 0.5rem;
+}
+
+body {
+  font-family: 'Roboto', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #f9fafb80; /* bg-gray-50/50 */
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+/* Custom Scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* DataTables Styling for LogisPro */
+table.dataTable,
+table {
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+table thead th {
+  background-color: #ffffff !important;
+  color: #6b7280 !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.75rem 1.5rem !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+}
+
+table tbody td {
+  padding: 0.875rem 1.5rem !important;
+  font-size: 0.875rem !important;
+  color: #111827 !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  vertical-align: middle !important;
+}
+
+table tbody tr:hover {
+  background-color: #f9fafb !important;
+}
+
+.dt-layout-row:last-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f3f4f6;
+  font-size: 0.875rem;
+  color: #6b7280;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.dt-paging nav {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.dt-paging button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dt-paging button.current {
+  background: #111827 !important;
+  color: #ffffff !important;
+  border-color: #111827 !important;
+}
+
+.dt-paging button:hover:not(.current) {
+  background: #f9fafb;
+}
+
+.dt-paging button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Red Logistics Utilities */
+.bg-primary { background-color: #e11d48 !important; }
+.text-primary { color: #e11d48 !important; }
+.border-primary { border-color: #e11d48 !important; }
+.hover\:bg-primary\/90:hover { background-color: #be123c !important; }
+
+/* ============================================================
+   DataTables Global Loading Indicator & Processing Styles
+   ============================================================ */
+div.dt-container,
+div.dataTables_wrapper,
+div[id$="_wrapper"] {
+  position: relative !important;
+}
+
+/* Dim table slightly during processing */
+table.dataTable.dt-table-loading {
+  opacity: 0.45 !important;
+  pointer-events: none !important;
+  transition: opacity 0.2s ease-in-out !important;
+}
+
+/* Processing indicator container */
+div.dt-processing,
+div.dataTables_processing {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 50 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: none;
+}
+
+/* Active processing state */
+div.dt-processing.is-loading,
+div.dataTables_processing.is-loading,
+div.dt-processing[style*="display: block"],
+div.dataTables_processing[style*="display: block"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Inactive processing state */
+div.dt-processing[style*="display: none"],
+div.dataTables_processing[style*="display: none"],
+div.dt-processing:not([style]):not(.is-loading),
+div.dataTables_processing:not([style]):not(.is-loading) {
+  display: none !important;
+}
+
+/* Hide default DataTables v2 bouncing 4 dots */
+div.dt-processing > div:last-child:not(.dt-spinner-container),
+div.dataTables_processing > div:last-child:not(.dt-spinner-container) {
+  display: none !important;
+}
+
+div.dt-processing::before,
+div.dataTables_processing::before {
+  display: none !important;
+}
+
+.dt-spinner-container {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+}
+
+@keyframes dt-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+

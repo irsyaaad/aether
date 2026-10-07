@@ -1,0 +1,11 @@
+{
+    "name": "Master",
+    "alias": "master",
+    "description": "Master data module for region management",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Master\\Providers\\MasterServiceProvider"
+    ],
+    "files": []
+}

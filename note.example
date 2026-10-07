@@ -1,0 +1,3 @@
+Untuk storage:link manual di hostinger :
+1. Masuk kedalam folder public
+2. ketik ln -s ../storage/app/public storage

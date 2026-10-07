@@ -1,0 +1,11 @@
+{
+    "name": "Sdm",
+    "alias": "sdm",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Sdm\\Providers\\SdmServiceProvider"
+    ],
+    "files": []
+}

@@ -1,0 +1,11 @@
+{
+    "name": "Task",
+    "alias": "task",
+    "description": "Core Task Management Module",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Task\\Providers\\TaskServiceProvider"
+    ],
+    "files": []
+}

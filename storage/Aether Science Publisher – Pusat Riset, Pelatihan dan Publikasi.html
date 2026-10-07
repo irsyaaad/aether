@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aether Science Publisher – Pusat Riset, Pelatihan dan Publikasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F6FA;--sf:#fff;--ink:#101A38;--mu:#4F5A78;--ln:#D9DEEA;--nv:#12224F;--nv2:#1B2F6B;--gd:#B98B3C;--gs:#E9D5A8;--on:#F2F0E8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B1226;--sf:#121B36;--ink:#ECEFF7;--mu:#A3ADC8;--ln:#26325A;--nv:#0A1330;--nv2:#162654}}
+:root[data-theme="dark"]{--bg:#0B1226;--sf:#121B36;--ink:#ECEFF7;--mu:#A3ADC8;--ln:#26325A;--nv:#0A1330;--nv2:#162654}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.6 "Hanken Grotesk",system-ui,sans-serif}
+a{color:inherit;text-decoration:none}a:focus-visible,button:focus-visible{outline:2px solid var(--gd);outline-offset:3px}
+.w{max-width:1120px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:Newsreader,Georgia,serif;font-weight:600;line-height:1.12;margin:0;letter-spacing:-.01em}
+header{background:var(--sf);border-bottom:1px solid var(--ln);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.nav{display:flex;align-items:center;gap:26px;height:66px}
+.logo{display:flex;align-items:center;gap:10px;font:600 26px Newsreader,serif;color:var(--nv)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .logo{color:var(--on)}}
+.logo small{display:block;font:500 10px/1 "Hanken Grotesk";letter-spacing:.14em;color:var(--gd);margin-top:3px}
+.menu{display:flex;gap:22px;margin-left:auto;font-size:15px;color:var(--mu)}.menu a:hover{color:var(--ink)}
+.btn{display:inline-block;padding:10px 20px;border-radius:6px;font:600 15px "Hanken Grotesk";border:1.5px solid var(--ln);background:none;color:var(--ink);cursor:pointer}
+.btn.f{background:var(--gd);border-color:var(--gd);color:#101A38}
+section{padding:68px 0}.hd{max-width:640px;margin-bottom:34px}.hd h2{font-size:clamp(30px,4vw,42px)}.hd p{color:var(--mu);margin:12px 0 0}
+.hero{padding:64px 0 72px;background:linear-gradient(180deg,var(--sf),var(--bg))}
+.hero .w{display:grid;grid-template-columns:1.1fr .9fr;gap:52px;align-items:center}
+.hero h1{font-size:clamp(38px,5.2vw,62px)}.lead{font-size:19px;color:var(--mu);max-width:31em;margin:20px 0 28px}
+.facts{display:flex;gap:30px;margin-top:34px;flex-wrap:wrap}.facts div{border-left:3px solid var(--gd);padding-left:12px;font-size:14px;color:var(--mu)}.facts b{display:block;font:600 22px Newsreader,serif;color:var(--ink)}
+.find{background:var(--nv);color:var(--on);border-radius:14px;padding:30px 28px;position:relative;box-shadow:0 24px 50px -28px rgba(10,19,48,.7)}
+.find::before{content:"";position:absolute;inset:10px;border:1px solid rgba(233,213,168,.28);border-radius:8px;pointer-events:none}
+.find h3{font-size:26px;color:#fff;margin-bottom:6px}.find p{margin:0 0 18px;color:#B9C1DA;font-size:15px}
+.find button{display:flex;justify-content:space-between;width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:var(--on);border-radius:8px;padding:13px 16px;margin-bottom:9px;font:500 15px "Hanken Grotesk";cursor:pointer;position:relative}
+.find button:hover{border-color:var(--gd);background:rgba(185,139,60,.18)}.find button span{color:var(--gs);font-size:13px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.tab{padding:8px 16px;border-radius:999px;border:1px solid var(--ln);background:var(--sf);font:500 14.5px "Hanken Grotesk";color:var(--ink);cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--nv);color:var(--on);border-color:var(--nv)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.pc{border:1px solid var(--ln);border-radius:10px;overflow:hidden;background:var(--sf);display:flex;flex-direction:column}
+.pc svg{display:block;width:100%}.pc>div{padding:18px 20px 20px;display:flex;flex-direction:column;flex:1}
+.tag{font-size:12.5px;color:var(--gd);font-weight:600;margin-bottom:6px}.pc h3{font-size:21px;margin-bottom:8px}.pc p{font-size:14.5px;color:var(--mu);margin:0 0 14px}
+.meta{margin-top:auto;display:flex;justify-content:space-between;border-top:1px solid var(--ln);padding-top:11px;font-size:13.5px}.meta b{color:var(--gd)}
+.eco{background:var(--sf);border-block:1px solid var(--ln)}
+.pil{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--ln);border-radius:10px;overflow:hidden}
+.pil div{padding:24px;border-right:1px solid var(--ln)}.pil div:last-child{border:0}.pil h3{font-size:21px;margin-bottom:8px}.pil p{margin:0 0 12px;font-size:14.5px;color:var(--mu)}.pil li{font-size:14px;padding:5px 0;border-top:1px solid var(--ln);list-style:none}.pil ul{margin:0;padding:0}
+.band{background:var(--nv2);color:var(--on);border-radius:14px;padding:44px;display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center}
+.band h2{font-size:clamp(28px,3.6vw,38px);color:#fff}.band p{color:#C6CDE3;margin:14px 0 22px}
+.band ul{margin:0;padding:0;list-style:none}.band li{padding:11px 0;border-top:1px solid rgba(255,255,255,.16);font-size:15.5px}
+.steps{display:grid;grid-template-columns:repeat(6,1fr);position:relative;counter-reset:s}.steps::before{content:"";position:absolute;left:0;right:0;top:19px;height:1.5px;background:var(--ln)}
+.st{position:relative;padding-right:14px}.st i{counter-increment:s;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:var(--bg);border:1.5px solid var(--gd);font:600 15px Newsreader,serif;position:relative}.st i::before{content:counter(s)}
+.st h3{font-size:19px;margin:12px 0 5px}.st p{font-size:14px;color:var(--mu);margin:0}
+.shelf{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}.shelf h3{font-size:18px;margin:12px 0 3px}.shelf p{margin:0;font-size:13.5px;color:var(--mu)}
+.cv{aspect-ratio:3/4;border-radius:3px 8px 8px 3px;box-shadow:-5px 6px 0 -1px var(--ln),0 18px 30px -20px rgba(10,19,48,.6);overflow:hidden}.cv svg{width:100%;height:100%;display:block}
+.blog{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.bl{border-top:3px solid var(--gd);padding-top:14px}.bl h3{font-size:22px;margin:6px 0 8px}.bl p{font-size:14.5px;color:var(--mu);margin:0}
+.team{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.tm{display:flex;gap:14px;align-items:center;background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:16px}
+.av{flex:none;width:56px;height:56px;border-radius:50%;background:var(--nv2);color:var(--gs);display:grid;place-items:center;font:600 20px Newsreader,serif;border:2px solid var(--gd)}.tm b{display:block;font:600 18px Newsreader,serif}.tm span{font-size:13.5px;color:var(--mu)}
+.ct{background:var(--nv);color:var(--on);padding:60px 0 28px}.ct .w>div{display:flex;justify-content:space-between;gap:36px;flex-wrap:wrap;align-items:flex-end}.ct h2{font-size:clamp(28px,4vw,42px);max-width:15em;color:#fff}.ct p{color:#C6CDE3;max-width:30em}.ct dl{margin:0;font-size:15px;line-height:2;color:#C6CDE3}.ct b{color:var(--gs);font-weight:600}
+.ft{font-size:13px;color:#8F9AB9;border-top:1px solid rgba(255,255,255,.12);margin-top:40px;padding-top:18px}
+@media(max-width:900px){.menu{display:none}.nav .btn:first-of-type{margin-left:auto}.hero .w,.band{grid-template-columns:1fr}.grid,.blog,.team{grid-template-columns:1fr}.pil{grid-template-columns:1fr 1fr}.pil div{border-bottom:1px solid var(--ln)}.steps{grid-template-columns:1fr 1fr;row-gap:26px}.steps::before{display:none}.shelf{grid-template-columns:1fr 1fr}.band{padding:30px 24px}}
+@media(max-width:520px){.w{padding:0 18px}.pil{grid-template-columns:1fr}.nav .btn.f{display:none}section{padding:50px 0}}
+
+.menu a.pr{color:#C8372D;font-weight:600}.dd{position:relative}.dd>a:after{content:" ▾";font-size:11px}
+.dd ul{display:none;position:absolute;top:100%;left:-14px;margin:0;padding:10px;list-style:none;background:var(--sf);border:1px solid var(--ln);border-radius:10px;min-width:220px;box-shadow:0 18px 30px -18px rgba(10,19,48,.5)}
+.dd:hover ul,.dd:focus-within ul{display:block}.dd li a{display:flex;justify-content:space-between;gap:12px;padding:9px 12px;border-radius:6px;font-size:14.5px}.dd li a:hover{background:var(--bg)}
+.dd em{font:600 11px "Hanken Grotesk";font-style:normal;background:var(--gs);color:#5A4116;border-radius:99px;padding:2px 8px;align-self:center}
+.trust{padding:44px 0;text-align:center}.trust h2{font-size:26px;margin-bottom:22px}.logos{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.logos div{height:64px;border:1.5px dashed var(--ln);border-radius:10px;display:grid;place-items:center;font-size:12.5px;color:var(--mu)}
+.cls{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.kc{background:var(--sf);border:1px solid var(--ln);border-top:4px solid var(--gd);border-radius:10px;padding:24px 20px;position:relative}
+.kc.pop{background:var(--nv2);color:var(--on);border-color:transparent;border-top-color:var(--gd)}.kc.pop p,.kc.pop li{color:#C6CDE3}
+.kc .ic{width:52px;height:52px;border-radius:12px;background:var(--bg);display:grid;place-items:center;margin-bottom:14px}.kc.pop .ic{background:rgba(255,255,255,.1)}
+.kc h3{font-size:22px;margin-bottom:6px}.kc p{font-size:14px;color:var(--mu);margin:0 0 12px}.kc ul{margin:0;padding:0;list-style:none;font-size:14px}.kc li{padding:6px 0;border-top:1px solid var(--ln)}.kc.pop li{border-color:rgba(255,255,255,.16)}
+.kc .bd{position:absolute;top:12px;right:12px;font:600 11.5px "Hanken Grotesk";background:var(--gd);color:#101A38;border-radius:99px;padding:3px 10px}
+.dark{background:var(--nv);color:var(--on)}.dark .hd h2{color:#fff}.dark .hd p{color:#B9C1DA}
+.posters{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.pz{background:var(--sf);border-radius:12px;padding:12px;color:var(--ink);display:flex;flex-direction:column;gap:12px}
+.pz svg{display:block;width:100%;border-radius:6px}.pz .btn{text-align:center}
+.car{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:14px}
+.ex{flex:0 0 250px;scroll-snap-align:start;background:var(--sf);border:1px solid var(--ln);border-radius:12px;overflow:hidden}
+.ex svg{display:block;width:100%}.ex div{padding:14px 16px}.ex b{font:600 18px Newsreader,serif;display:block}.ex span{font-size:13.5px;color:var(--mu)}
+.ex details{margin-top:10px;font-size:13.5px;color:var(--mu)}.ex summary{cursor:pointer;color:var(--nv2);font-weight:600}@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .ex summary{color:var(--gs)}}
+.why{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.why div{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:26px 22px;text-align:center}.why svg{margin-bottom:10px}.why h3{font-size:21px;margin-bottom:8px}.why p{margin:0;font-size:14.5px;color:var(--mu)}
+@media(max-width:900px){.cls,.posters,.why{grid-template-columns:1fr 1fr}.logos{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){.cls,.posters,.why{grid-template-columns:1fr}}
+</style></head><body>
+<header><div class="w nav">
+<a class="logo" href="#"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="M15 2 27 27h-5.2L15 12.6 8.2 27H3z" fill="currentColor"/><path d="M15 17.5 17 22h-4z" fill="#B98B3C"/><path d="M24 4v6M21 7h6" stroke="#B98B3C" stroke-width="1.6"/></svg><span>Aether<small>SCIENCE PUBLISHER</small></span></a>
+<nav class="menu" aria-label="Menu utama"><a class="pr" href="#terdekat">Promo pelatihan</a><div class="dd"><a href="#kelas">Kelas dan program</a><ul><li><a href="#kelas">Bootcamp</a></li><li><a href="#kelas">Workshop</a></li><li><a href="#kelas">Webinar gratis <em>Bersertifikat</em></a></li><li><a href="#kelas">Short class <em>baru</em></a></li><li><a href="#kelas">E-course <em>baru</em></a></li></ul></div><a href="#layanan">Olah data dan publikasi</a><a href="#corporate">Corporate service</a><a href="#blog">Blog</a></nav>
+<a class="btn" href="#kontak">Masuk</a><a class="btn f" href="#kontak">Daftar</a></div></header>
+<main>
+<section class="hero"><div class="w"><div>
+<h1>Pusat riset, pelatihan dan publikasi ilmiah</h1>
+<p class="lead">Belajar menulis artikel, mengolah data, dan menyelesaikan skripsi sampai disertasi. Lalu bawa naskah Anda terbit. Untuk mahasiswa, dosen, peneliti, dan institusi.</p>
+<a class="btn f" href="#kelas">Lihat program</a>
+<div class="facts"><div><b>4 layanan</b>dalam satu alur</div><div><b>6 tahap</b>pendampingan jelas</div><div><b>Dosen dan praktisi</b>sebagai pengajar</div></div></div>
+<aside class="find" aria-label="Pilih kebutuhan"><h3>Anda sedang di tahap mana?</h3><p>Pilih satu, kami tunjukkan program yang cocok.</p>
+<button data-f="Pendampingan">Sedang menyusun skripsi, tesis, atau disertasi<span>Pendampingan</span></button>
+<button data-f="Pelatihan">Ingin belajar menulis artikel ilmiah<span>Pelatihan</span></button>
+<button data-f="Olah data">Data sudah ada, bingung menganalisis<span>Olah data</span></button>
+<button data-f="Publikasi">Naskah siap, mencari jurnal yang tepat<span>Publikasi</span></button></aside></div></section>
+
+<section class="trust"><div class="w"><h2>Telah dipercaya oleh</h2><div class="logos"><div>Logo mitra</div><div>Logo mitra</div><div>Logo mitra</div><div>Logo mitra</div><div>Logo mitra</div><div>Logo mitra</div></div></div></section>
+
+<section id="kelas" style="padding-top:20px"><div class="w"><div class="hd" style="max-width:none;text-align:center;margin-inline:auto"><h2>Pilih jenis kelas sesuai kebutuhan Anda</h2><p>Lima jalur belajar, dari yang gratis sampai pendampingan intensif. Online maupun tatap muka.</p></div><div class="cls" id="cls"></div></div></section>
+
+<section id="terdekat" class="dark"><div class="w"><div class="hd"><h2>Program terdekat</h2><p>Jadwal, pemateri, dan harga di bawah hanya contoh tampilan.</p></div><div class="posters" id="pz"></div></div></section>
+
+<section id="expert"><div class="w"><div class="hd"><h2>Belajar langsung dari pakar</h2><p>Geser untuk melihat pemateri. Ganti placeholder dengan foto dan profil asli.</p></div><div class="car" id="car"></div></div></section>
+
+<section class="eco"><div class="w"><div class="hd" style="max-width:none;text-align:center;margin-inline:auto"><h2>Kenapa belajar di Aether</h2></div><div class="why" id="why"></div></div></section>
+
+<section id="layanan" class="eco"><div class="w"><div class="hd"><h2>Empat layanan, satu alur dari ide sampai publikasi</h2><p>Gunakan satu, atau jalani semuanya. Setiap tahap saling menyambung.</p></div>
+<div class="pil"><div><h3>Pendampingan akademik</h3><p>Dampingi tugas akhir dan penulisan ilmiah.</p><ul><li>Skripsi, tesis, disertasi</li><li>Penyuntingan akademik</li></ul></div>
+<div><h3>Riset dan data</h3><p>Rancang riset, olah data, baca hasil.</p><ul><li>Kuantitatif dan kualitatif</li><li>SEM, regresi, SLR</li></ul></div>
+<div><h3>Penerbitan ilmiah</h3><p>Dari naskah ke jurnal dan buku.</p><ul><li>Telaah sejawat</li><li>Jurnal dan buku</li></ul></div>
+<div><h3>Pengembangan pengetahuan</h3><p>Belajar bersama praktisi.</p><ul><li>Webinar dan workshop</li><li>Pelatihan inhouse</li></ul></div></div></div></section>
+
+<section id="corporate"><div class="w"><div class="band"><div><h2>Corporate service untuk kampus, lembaga, dan perusahaan</h2><p>Butuh kajian, pelatihan untuk tim, atau kerja sama penerbitan? Kami susun lingkup dan jadwalnya bersama Anda.</p><a class="btn f" href="#kontak">Ajukan kerja sama</a></div>
+<ul><li>Kajian dan riset pesanan</li><li>Pelatihan inhouse untuk dosen dan staf</li><li>Penerbitan jurnal dan buku institusi</li><li>Seminar dan kolaborasi program</li></ul></div></div></section>
+
+<section class="eco" style="border-top:1px solid var(--ln)"><div class="w"><div class="hd"><h2>Cara kerja kami</h2></div><div class="steps">
+<div class="st"><i></i><h3>Konsultasi</h3><p>Memahami tujuan Anda.</p></div><div class="st"><i></i><h3>Penilaian</h3><p>Cek kondisi naskah atau data.</p></div><div class="st"><i></i><h3>Perencanaan</h3><p>Sepakati lingkup dan jadwal.</p></div><div class="st"><i></i><h3>Pelaksanaan</h3><p>Pekerjaan berjalan.</p></div><div class="st"><i></i><h3>Telaah</h3><p>Pemeriksaan kualitas.</p></div><div class="st"><i></i><h3>Serah terima</h3><p>Hasil final dan tindak lanjut.</p></div></div></div></section>
+
+<section id="terbitan"><div class="w"><div class="hd"><h2>Terbitan Aether</h2><p>Contoh tampilan jurnal dan buku.</p></div><div class="shelf" id="shelf"></div></div></section>
+
+<section id="blog" class="eco"><div class="w"><div class="hd"><h2>Blog</h2><p>Tulisan singkat untuk peneliti. Judul di bawah adalah contoh.</p></div><div class="blog">
+<article class="bl"><div class="tag">Penulisan</div><h3>Lima kesalahan umum pada bagian pendahuluan artikel</h3><p>Sebelum submit, cek hal yang sering membuat naskah ditolak di tahap awal.</p></article>
+<article class="bl"><div class="tag">Olah data</div><h3>Kapan memakai CB-SEM dan kapan PLS-SEM</h3><p>Panduan memilih alat analisis sesuai data dan tujuan penelitian.</p></article>
+<article class="bl"><div class="tag">Publikasi</div><h3>Cara memilih jurnal yang sesuai naskah</h3><p>Langkah menilai ruang lingkup, indeks, dan waktu telaah.</p></article></div></div></section>
+
+<section id="tim"><div class="w"><div class="hd"><h2>Orang di balik Aether</h2><p>Ganti inisial dengan foto asli tiap anggota.</p></div><div class="team">
+<div class="tm"><div class="av">A</div><div><b>Atika</b><span>Direktur Utama, Strategi, Operasi dan Digital</span></div></div>
+<div class="tm"><div class="av">D</div><div><b>Denny</b><span>Direktur, Bisnis, Kemitraan dan Growth</span></div></div>
+<div class="tm"><div class="av">N</div><div><b>Nasywa</b><span>Akademik dan Penerbitan</span></div></div>
+<div class="tm"><div class="av">T</div><div><b>Tasya</b><span>Keuangan, Administrasi dan Legal</span></div></div>
+<div class="tm"><div class="av">A</div><div><b>Arrum</b><span>Pemasaran dan Growth</span></div></div>
+<div class="tm"><div class="av">K</div><div><b>Kobe dan Nadya</b><span>Dukungan Proyek dan Teknis</span></div></div></div></div></section>
+
+<section id="kontak" class="ct"><div class="w"><div><div><h2>Ceritakan kebutuhan riset Anda</h2><p>Singkat saja. Kami balas dengan langkah pertama yang paling masuk akal.</p><a class="btn f" href="mailto:aetherpersadavidya@gmail.com">Kirim email</a></div>
+<dl><dt><b>Email</b></dt><dd style="margin:0">aetherpersadavidya@gmail.com</dd><dt><b>Instagram dan TikTok</b></dt><dd style="margin:0">@aetherpersadavidya</dd></dl></div>
+<div class="ft">PT Aether Persada Vidya · Aether Science Publisher · Founded on Wisdom. Advancing Knowledge.</div></div></section>
+</main>
+<script>
+const ic=(d,c)=>`<svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const K=[["Webinar gratis","Bersertifikat","Pengantar topik riset untuk pemula.",["Gratis","Via Zoom","E-sertifikat"],'<rect x="4" y="6" width="20" height="17" rx="2"/><path d="M4 11h20M9 3v5M19 3v5"/>'],["Short class","baru","Satu topik, langsung praktik.",["1 sampai 2 pertemuan","Via Zoom","Trainer pakar"],'<circle cx="14" cy="14" r="10"/><path d="M14 8v6l4 3"/>'],["Bootcamp","Populer","Bimbingan intensif sampai output jadi.",["5 pertemuan intensif","Online via Zoom","Trainer pakar","Sertifikat"],'<rect x="4" y="6" width="20" height="17" rx="2"/><path d="M4 11h20M9 3v5M19 3v5"/>'],["Workshop","","Praktik tatap muka bersama pakar.",["2 hari intensif","Tatap muka","Sertifikat"],'<rect x="4" y="5" width="20" height="14" rx="2"/><path d="M2 23h24"/>'],["E-course","baru","Belajar fleksibel kapan saja.",["Video on-demand","Akses sesuai langganan","Materi dan template"],'<path d="M2 11l12-6 12 6-12 6z"/><path d="M7 14v6c4 3 10 3 14 0v-6"/>']];
+document.getElementById('cls').innerHTML=K.map(([n,b,d,l,i],x)=>`<article class="kc${x==2?' pop':''}">${b&&x==2?`<span class="bd">★ ${b}</span>`:''}<div class="ic">${ic(i,x==2?'#E9D5A8':'#1B2F6B')}</div><h3>${n}</h3><p>${d}</p><ul>${l.map(t=>`<li>${t}</li>`).join('')}</ul></article>`).join('');
+const Z=[["GRATIS","Fast track tesis dan disertasi dengan bantuan AI","Sen sampai Sel · 12 sampai 13 Okt · 19.00 WIB"],["GRATIS","Systematic literature review untuk pemula","Sel sampai Rab · 27 sampai 28 Okt · 19.00 WIB"],["GRATIS","Menulis artikel ilmiah untuk jurnal terindeks","Sab · 1 Nov · 09.00 WIB"],["BOOTCAMP","Olah data SEM dengan AMOS dan SmartPLS","Mulai 8 Nov · 5 pertemuan"]];
+const wr=(t,n)=>{const w=n.split(' ');let L=['','',''],i=0;w.forEach(x=>{if((L[i]+' '+x).length>19&&i<2)i++;L[i]+=(L[i]?' ':'')+x});return L.map((l,k)=>`<text x="150" y="${150+k*30}" text-anchor="middle" font-family="Newsreader,serif" font-size="24" font-weight="600" fill="#fff">${l}</text>`).join('')};
+document.getElementById('pz').innerHTML=Z.map(([t,n,d])=>`<article class="pz"><svg viewBox="0 0 300 330" role="img" aria-label="Poster ${n}"><rect width="300" height="330" fill="#12224F"/><rect x="10" y="10" width="280" height="310" fill="none" stroke="#E9D5A8" stroke-opacity=".45"/><path d="M150 24l9 19h-5l-4-8-4 8h-5z" fill="#B98B3C"/><text x="150" y="68" text-anchor="middle" font-family="Newsreader,serif" font-size="11" fill="#E9D5A8" letter-spacing="2">AETHER SCIENCE PUBLISHER</text><rect x="104" y="82" width="92" height="22" rx="11" fill="#B98B3C"/><text x="150" y="97" text-anchor="middle" font-size="12" font-weight="700" fill="#101A38" font-family="Hanken Grotesk,sans-serif">${t}</text>${wr(t,n)}<path d="M120 252h60" stroke="#B98B3C" stroke-width="2"/><text x="150" y="276" text-anchor="middle" font-size="12" fill="#E9D5A8" font-family="Hanken Grotesk,sans-serif">${d.split(' · ')[0]}</text><text x="150" y="296" text-anchor="middle" font-size="11" fill="#B9C1DA" font-family="Hanken Grotesk,sans-serif">${d.split(' · ').slice(1).join(' · ')}</text></svg><a class="btn f" href="#kontak">Daftar sekarang</a></article>`).join('');
+const E=[["Nama Pemateri, gelar","Metodologi dan penulisan ilmiah"],["Nama Pemateri, gelar","Olah data SEM dan analisis statistik"],["Nama Pemateri, gelar","Penelitian kualitatif dan NVivo"],["Nama Pemateri, gelar","Systematic literature review"],["Nama Pemateri, gelar","Strategi publikasi jurnal terindeks"],["Nama Pemateri, gelar","Penyuntingan dan etika publikasi"]];
+document.getElementById('car').innerHTML=E.map(([n,t],i)=>`<article class="ex"><svg viewBox="0 0 250 200" role="img" aria-label="Foto pemateri"><rect width="250" height="200" fill="${['#F5E9C9','#E8EDF8','#F5E9C9','#E8EDF8','#F5E9C9','#E8EDF8'][i]}"/><circle cx="125" cy="82" r="32" fill="#1B2F6B" fill-opacity=".85"/><path d="M52 200c4-48 34-66 73-66s69 18 73 66z" fill="#12224F"/></svg><div><b>${n}</b><span>${t}</span><details><summary>Detail pemateri</summary>Tulis latar belakang, afiliasi, dan topik yang diajarkan di sini.</details></div></article>`).join('');
+const Y=[["Belajar dari pakar","Pengajar dari kalangan akademisi dan praktisi publikasi.",'<circle cx="14" cy="10" r="5"/><path d="M5 25c1-6 5-8 9-8s8 2 9 8"/>'],["Online dan tatap muka","Pilih format yang sesuai jadwal dan lokasi Anda.",'<rect x="3" y="5" width="22" height="15" rx="2"/><path d="M8 25h12"/>'],["Alur belajar terstandar","Dari konsultasi sampai serah terima, setiap tahap jelas.",'<path d="M5 8h18M5 14h18M5 20h12"/>'],["Studi kasus nyata","Praktik pada naskah dan data, lalu dibimbing sampai selesai.",'<path d="M6 4h12l4 4v16H6z"/><path d="M10 14h8M10 19h8"/>']];
+document.getElementById('why').innerHTML=Y.map(([n,d,i])=>`<div>${ic(i,'#B98B3C').replace('width="28" height="28"','width="44" height="44"')}<h3>${n}</h3><p>${d}</p></div>`).join('');
+document.querySelectorAll('.find button').forEach(b=>b.onclick=()=>{const m={"Pendampingan":"layanan","Pelatihan":"kelas","Olah data":"layanan","Publikasi":"terbitan"};document.getElementById(m[b.dataset.f]).scrollIntoView()});
+const B=[["Jurnal","Jurnal Manajemen dan Inovasi","Vol. 1 No. 1","#12224F"],["Jurnal","Jurnal Pendidikan dan Riset Terapan","Vol. 1 No. 1","#1B2F6B"],["Buku","Metodologi Penelitian Kuantitatif","Panduan praktis SEM","#0F3A4A"],["Buku","Kewirausahaan Hijau pada UMKM","Bunga rampai","#3A2A14"]];
+document.getElementById('shelf').innerHTML=B.map(([t,n,s,c])=>{const w=n.split(' '),h=Math.ceil(w.length/2);return `<div><div class="cv"><svg viewBox="0 0 300 400" role="img" aria-label="Sampul ${n}"><rect width="300" height="400" fill="${c}"/><rect x="16" y="16" width="268" height="368" fill="none" stroke="#E9D5A8" stroke-opacity=".5"/><path d="M150 54l16 34h-9l-7-15-7 15h-9z" fill="#B98B3C"/><text x="150" y="128" text-anchor="middle" font-family="Newsreader,serif" font-size="13" fill="#E9D5A8">AETHER SCIENCE PUBLISHER</text><text x="150" y="206" text-anchor="middle" font-family="Newsreader,serif" font-size="25" font-weight="600" fill="#fff">${w.slice(0,h).join(' ')}</text><text x="150" y="238" text-anchor="middle" font-family="Newsreader,serif" font-size="25" font-weight="600" fill="#fff">${w.slice(h).join(' ')}</text><path d="M110 266h80" stroke="#B98B3C" stroke-width="2"/><text x="150" y="292" text-anchor="middle" font-family="Newsreader,serif" font-style="italic" font-size="15" fill="#E9D5A8">${s}</text></svg></div><h3>${n}</h3><p>${t} · ${s}</p></div>`}).join('');
+</script></body></html>

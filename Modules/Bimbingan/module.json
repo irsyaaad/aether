@@ -1,0 +1,11 @@
+{
+    "name": "Bimbingan",
+    "alias": "bimbingan",
+    "description": "Modul Bimbingan Skripsi, Tesis, dan Tugas Akhir Mahasiswa",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Bimbingan\\Providers\\BimbinganServiceProvider"
+    ],
+    "files": []
+}

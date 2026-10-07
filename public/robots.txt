@@ -1,0 +1,23 @@
+# Robots.txt for Persada Duta Express
+User-agent: *
+Allow: /
+Allow: /layanan
+Allow: /keunggulan
+Allow: /berita
+Allow: /berita/*
+Allow: /images/
+Allow: /css/
+Allow: /js/
+
+# Disallow internal authentication and admin paths
+Disallow: /auth/
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /register
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /storage/*.log
+
+# Sitemap Location
+Sitemap: http://persadaduta.test/sitemap.xml
