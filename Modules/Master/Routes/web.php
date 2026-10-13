@@ -10,6 +10,10 @@ use Modules\Master\Http\Controllers\DesaController;
 
 Route::group(['prefix' => 'master', 'middleware' => ['auth']], function () {
 
+    // Master Chart of Accounts (CoA)
+    Route::get('coa/get-data', [\Modules\Master\Http\Controllers\MasterCoaController::class, 'getData'])->name('master.coa.get-data');
+    Route::resource('coa', \Modules\Master\Http\Controllers\MasterCoaController::class)->names('master.coa');
+
     // Master Program Akademik & Bimbingan (Dynamic CRUD)
     Route::get('programs/get-data', [\Modules\Master\Http\Controllers\MasterProgramController::class, 'getData'])->name('master.programs.get-data');
     Route::resource('programs', \Modules\Master\Http\Controllers\MasterProgramController::class)->names([

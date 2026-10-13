@@ -141,7 +141,7 @@ if (! function_exists('terbilang')) {
 
     function penyebut($nilai)
     {
-        $nilai = abs($nilai);
+        $nilai = (int) floor(abs($nilai));
         $huruf = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
         $temp  = "";
         if ($nilai < 12) {

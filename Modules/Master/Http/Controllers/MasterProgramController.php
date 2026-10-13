@@ -5,8 +5,6 @@ namespace Modules\Master\Http\Controllers;
 use App\Traits\HasAccessControl;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Modules\Master\Entities\MasterProgram;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -14,85 +12,14 @@ class MasterProgramController extends Controller
 {
     use HasAccessControl;
 
-    public function __construct()
-    {
-        $this->ensureTableExists();
-    }
-
-    private function ensureTableExists()
-    {
-        if (!Schema::hasTable('master_programs')) {
-            Schema::create('master_programs', function (Blueprint $table) {
-                $table->bigIncrements('id');
-                $table->string('kode_program', 50)->unique();
-                $table->string('nama_program', 150);
-                $table->string('kategori', 50)->nullable(); // Skripsi, Tesis, Disertasi, Olahdata, Workshop
-                $table->string('jenjang', 50)->nullable(); // S1, S2, S3, Umum
-                $table->text('deskripsi')->nullable();
-                $table->decimal('biaya_standar', 15, 2)->default(0);
-                $table->integer('durasi_sesi')->default(60); // menit
-                $table->boolean('is_active')->default(true);
-                $table->softDeletes();
-                $table->timestamps();
-            });
-
-            // Seed initial program items
-            MasterProgram::insert([
-                [
-                    'kode_program' => 'PRG-SKR-01',
-                    'nama_program' => 'Pendampingan Skripsi S1 (Kuantitatif & Bab 4-5)',
-                    'kategori' => 'Bimbingan Skripsi',
-                    'jenjang' => 'S1 (Sarjana)',
-                    'deskripsi' => 'Paket bimbingan intensif 1-on-1 analisis statistik skripsi sampai dinyatakan lulus sidang.',
-                    'biaya_standar' => 650000,
-                    'durasi_sesi' => 90,
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'kode_program' => 'PRG-TSS-01',
-                    'nama_program' => 'Bimbingan Tesis S2 (SEM-PLS & Ekonometrika Lanjutan)',
-                    'kategori' => 'Bimbingan Tesis',
-                    'jenjang' => 'S2 (Magister)',
-                    'deskripsi' => 'Pendampingan tesis model kompleks mediasi-moderasi, data panel, dan publikasi jurnal bereputasi.',
-                    'biaya_standar' => 1250000,
-                    'durasi_sesi' => 90,
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'kode_program' => 'PRG-OD-PLS',
-                    'nama_program' => 'Olah Data SEM-PLS 4 Full Output & Interpretasi',
-                    'kategori' => 'Olah Data',
-                    'jenjang' => 'S1 / S2',
-                    'deskripsi' => 'Pemrosesan data SmartPLS lengkap uji validitas konvergen, diskriminan, inner model, dan narasi pembahasan.',
-                    'biaya_standar' => 450000,
-                    'durasi_sesi' => 60,
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-                [
-                    'kode_program' => 'PRG-WRK-01',
-                    'nama_program' => 'Workshop Hands-on Analisis Kualitatif NVivo',
-                    'kategori' => 'Pelatihan',
-                    'jenjang' => 'Semua Jenjang',
-                    'deskripsi' => 'Pelatihan thematic coding, node hierarchy, dan triangulasi data dengan sertifikat kelulusan.',
-                    'biaya_standar' => 250000,
-                    'durasi_sesi' => 120,
-                    'is_active' => true,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ],
-            ]);
-        }
-    }
-
     public function index()
     {
-        return view('master::programs.index');
+        $showcasePrograms = MasterProgram::where('is_active', true)
+            ->orderBy('is_populer', 'desc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return view('master::programs.index', compact('showcasePrograms'));
     }
 
     public function getData(Request $request)
@@ -110,16 +37,40 @@ class MasterProgramController extends Controller
         return DataTables::of($query)
             ->addIndexColumn()
             ->editColumn('nama_program', function ($row) {
+                $badgeHtml = '';
+                if ($row->is_populer) {
+                    $badgeHtml = '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 ml-1.5">⭐ Populer</span>';
+                } elseif (!empty($row->badge)) {
+                    $badgeHtml = '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-[#1768B5] ml-1.5">' . e($row->badge) . '</span>';
+                }
+
+                $targetBabHtml = $row->target_bab ? '<div class="text-[11px] text-gray-500 mt-0.5"><i data-lucide="bookmark" class="inline w-3 h-3 text-sky-500"></i> ' . e($row->target_bab) . '</div>' : '';
+
                 return '<div class="flex flex-col">
-                            <span class="font-bold text-gray-900 text-sm">' . e($row->nama_program) . '</span>
+                            <div class="flex items-center">
+                                <span class="font-bold text-gray-900 text-sm">' . e($row->nama_program) . '</span>
+                                ' . $badgeHtml . '
+                            </div>
                             <span class="text-xs text-sky-600 font-mono mt-0.5">' . e($row->kode_program) . '</span>
+                            ' . $targetBabHtml . '
                         </div>';
             })
             ->editColumn('kategori', function ($row) {
                 return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 text-[#1768B5] border border-sky-200">' . e($row->kategori ?? 'Umum') . '</span>';
             })
             ->editColumn('biaya_standar', function ($row) {
-                return '<span class="font-bold text-gray-900 text-sm">Rp ' . number_format($row->biaya_standar, 0, ',', '.') . '</span>';
+                return '<div class="flex flex-col">
+                            <span class="font-black text-gray-900 text-sm">Rp ' . number_format($row->biaya_standar, 0, ',', '.') . '</span>
+                            <span class="text-[11px] text-gray-400">per paket</span>
+                        </div>';
+            })
+            ->editColumn('durasi_sesi', function ($row) {
+                $sesi = $row->jumlah_sesi ?: 1;
+                $durasi = $row->durasi_sesi ?: 60;
+                return '<div class="flex flex-col text-xs">
+                            <span class="font-bold text-gray-800">' . $sesi . ' Pertemuan</span>
+                            <span class="text-gray-500 text-[11px]">@' . $durasi . ' Menit/sesi</span>
+                        </div>';
             })
             ->editColumn('is_active', function ($row) {
                 if ($row->is_active) {
@@ -141,13 +92,15 @@ class MasterProgramController extends Controller
                             </button>
                         </div>';
             })
-            ->rawColumns(['nama_program', 'kategori', 'biaya_standar', 'is_active', 'actions'])
+            ->rawColumns(['nama_program', 'kategori', 'biaya_standar', 'durasi_sesi', 'is_active', 'actions'])
             ->make(true);
     }
 
     public function show($id)
     {
         $program = MasterProgram::findOrFail($id);
+        $program->fasilitas_array = $program->fasilitas_array;
+        $program->formatted_biaya = $program->formatted_biaya;
         return response()->json($program);
     }
 
@@ -158,19 +111,27 @@ class MasterProgramController extends Controller
             'nama_program' => 'required|string|max:150',
             'kategori' => 'required|string|max:50',
             'jenjang' => 'nullable|string|max:50',
+            'target_bab' => 'nullable|string|max:255',
+            'badge' => 'nullable|string|max:50',
             'deskripsi' => 'nullable|string',
+            'fasilitas' => 'nullable|string',
             'biaya_standar' => 'required|numeric|min:0',
             'durasi_sesi' => 'nullable|integer|min:15',
+            'jumlah_sesi' => 'nullable|integer|min:1',
+            'is_populer' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
         ]);
 
         $validated['is_active'] = $request->has('is_active') ? true : false;
+        $validated['is_populer'] = $request->has('is_populer') ? true : false;
+        $validated['durasi_sesi'] = $validated['durasi_sesi'] ?? 60;
+        $validated['jumlah_sesi'] = $validated['jumlah_sesi'] ?? 1;
 
         $program = MasterProgram::create($validated);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Program akademik berhasil ditambahkan.',
+            'message' => 'Program akademik & bimbingan berhasil ditambahkan.',
             'data' => $program
         ]);
     }
@@ -184,19 +145,27 @@ class MasterProgramController extends Controller
             'nama_program' => 'required|string|max:150',
             'kategori' => 'required|string|max:50',
             'jenjang' => 'nullable|string|max:50',
+            'target_bab' => 'nullable|string|max:255',
+            'badge' => 'nullable|string|max:50',
             'deskripsi' => 'nullable|string',
+            'fasilitas' => 'nullable|string',
             'biaya_standar' => 'required|numeric|min:0',
             'durasi_sesi' => 'nullable|integer|min:15',
+            'jumlah_sesi' => 'nullable|integer|min:1',
+            'is_populer' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
         ]);
 
         $validated['is_active'] = $request->has('is_active') ? true : false;
+        $validated['is_populer'] = $request->has('is_populer') ? true : false;
+        $validated['durasi_sesi'] = $validated['durasi_sesi'] ?? 60;
+        $validated['jumlah_sesi'] = $validated['jumlah_sesi'] ?? 1;
 
         $program->update($validated);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Program akademik berhasil diperbarui.',
+            'message' => 'Program akademik & bimbingan berhasil diperbarui.',
             'data' => $program
         ]);
     }

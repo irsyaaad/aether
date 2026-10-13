@@ -142,6 +142,33 @@
                     </div>
                     @endif
 
+                    <!-- Keuangan -->
+                    @php
+                        $hasKasMasuk = check_access('kas-bank-masuk.index');
+                        $hasKasKeluar = check_access('kas-bank-keluar.index');
+                        $hasKeuanganGroup = $hasKasMasuk || $hasKasKeluar;
+                    @endphp
+
+                    @if($hasKeuanganGroup)
+                    <div class="flex flex-col gap-1 mb-3">
+                        <div class="mb-1 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            Keuangan
+                        </div>
+                        @if($hasKasMasuk)
+                        <a href="{{ route('kas-bank-masuk.index') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition-colors font-medium text-sm {{ request()->is('kas-bank-masuk*') ? 'bg-rose-50 text-primary font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                            <i data-lucide="arrow-down-left" class="h-4 w-4 {{ request()->is('kas-bank-masuk*') ? 'text-primary' : 'text-slate-400' }}"></i>
+                            Kas / Bank Masuk
+                        </a>
+                        @endif
+                        @if($hasKasKeluar)
+                        <a href="{{ route('kas-bank-keluar.index') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl transition-colors font-medium text-sm {{ request()->is('kas-bank-keluar*') ? 'bg-rose-50 text-primary font-semibold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' }}">
+                            <i data-lucide="arrow-up-right" class="h-4 w-4 {{ request()->is('kas-bank-keluar*') ? 'text-primary' : 'text-slate-400' }}"></i>
+                            Kas / Bank Keluar
+                        </a>
+                        @endif
+                    </div>
+                    @endif
+
                     <!-- Setting -->
                     @php
                         $hasPerusahaan = check_access('perusahaan.index') || check_access('perusahaan.update');

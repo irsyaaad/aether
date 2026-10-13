@@ -24,16 +24,27 @@ class RoleMenu extends Model
 
     public static function checkAccess($permission)
     {
-        if (Session("role")["id_role"] == 1) {
-            return true;
-        } else {
-            $data = self::where("id_role", Session("role")["id_role"])
-                ->where("permission", $permission)->get()->first();
-            if (isset($data)) {
-                return true;
-            } else {
-                return false;
-            }
+        $roleId = session('role')['id_role'] ?? null;
+        if (!$roleId && \Illuminate\Support\Facades\Auth::check()) {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $roleUser = \Illuminate\Support\Facades\DB::table('role_user')
+                ->where('id_user', $user->id_user ?? $user->id ?? 0)
+                ->whereNull('deleted_at')
+                ->first();
+            $roleId = $roleUser ? $roleUser->id_role : null;
         }
+
+        if ($roleId == 1) {
+            return true;
+        }
+
+        if ($roleId) {
+            $data = self::where('id_role', $roleId)
+                ->where('permission', $permission)
+                ->first();
+            return !is_null($data);
+        }
+
+        return false;
     }
 }

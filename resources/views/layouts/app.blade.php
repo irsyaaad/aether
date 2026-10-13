@@ -63,6 +63,7 @@
         }
     </script>
     <link href="{{ asset('assets-logistik/css/app.css') }}?v=1.2" rel="stylesheet"/>
+    <link href="{{ asset('assets/vendors/select2/select2.min.css') }}" rel="stylesheet"/>
     <style>
         @keyframes dt-spin {
             0% { transform: rotate(0deg); }
@@ -174,6 +175,9 @@
                                 <span class="text-[10px] bg-sky-100 text-[#1768B5] px-1.5 py-0.5 rounded-full font-bold">1-on-1</span>
                             </a>
                             <div class="ml-7 flex flex-col gap-0.5 border-l border-gray-200 pl-2 mt-0.5">
+                                <a href="{{ route('bimbingan.programs') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('bimbingan/programs*') || request()->is('bimbingan/katalog*') ? 'text-[#1768B5] font-bold' : '' }}">
+                                    <span>• Pilihan &amp; Katalog Program</span>
+                                </a>
                                 <a href="{{ route('bimbingan.create') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('bimbingan/pengajuan*') ? 'text-[#1768B5] font-bold' : '' }}">
                                     <span>• Ajukan Sesi Bimbingan</span>
                                 </a>
@@ -319,13 +323,43 @@
                         </a>
                     </div>
 
+                    <!-- Transaksi Keuangan -->
+                    @php
+                        $hasKasMasuk = check_access('kas-bank-masuk.index');
+                        $hasKasKeluar = check_access('kas-bank-keluar.index');
+                        $hasKeuanganGroup = $hasKasMasuk || $hasKasKeluar;
+                    @endphp
+
+                    @if($hasKeuanganGroup)
+                    <div class="flex flex-col gap-1 mb-2">
+                        <div class="mb-1 px-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                            Keuangan
+                        </div>
+
+                        @if($hasKasMasuk)
+                        <a href="{{ route('kas-bank-masuk.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('kas-bank-masuk*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <i data-lucide="arrow-down-left" class="h-4 w-4 {{ request()->is('kas-bank-masuk*') ? 'text-emerald-600' : 'text-gray-400' }}"></i>
+                            Kas / Bank Masuk
+                        </a>
+                        @endif
+
+                        @if($hasKasKeluar)
+                        <a href="{{ route('kas-bank-keluar.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('kas-bank-keluar*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <i data-lucide="arrow-up-right" class="h-4 w-4 {{ request()->is('kas-bank-keluar*') ? 'text-rose-600' : 'text-gray-400' }}"></i>
+                            Kas / Bank Keluar
+                        </a>
+                        @endif
+                    </div>
+                    @endif
+
                     <!-- Setting -->
                     @php
                         $hasPerusahaan = check_access('perusahaan.index') || check_access('perusahaan.update');
                         $hasUser = check_access('user.index');
                         $hasRole = check_access('role.index');
                         $hasRoleMenu = check_access('role.index') || check_access('role-menu.index') || check_access('role.update');
-                        $hasSettingGroup = $hasPerusahaan || $hasUser || $hasRole || $hasRoleMenu;
+                        $hasCoa = check_access('master.coa.index') || check_access('coa.index') || (session('role')['id_role'] ?? 0) == 1;
+                        $hasSettingGroup = $hasPerusahaan || $hasUser || $hasRole || $hasRoleMenu || $hasCoa;
                     @endphp
 
                     @if($hasSettingGroup)
@@ -333,6 +367,12 @@
                         <div class="mb-1 px-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
                             Setting
                         </div>
+                        @if($hasCoa)
+                        <a href="{{ route('master.coa.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/coa*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <i data-lucide="book-marked" class="h-4 w-4 {{ request()->is('master/coa*') ? 'text-primary' : 'text-gray-400' }}"></i>
+                            Master CoA
+                        </a>
+                        @endif
                         @if($hasPerusahaan)
                         <a href="{{ url('setting/perusahaan') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('setting/perusahaan*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="settings" class="h-4 w-4 {{ request()->is('setting/perusahaan*') ? 'text-primary' : 'text-gray-400' }}"></i>
@@ -428,6 +468,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/vendors/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/vendors/select2/select2.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/datatables-net/dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/apexcharts/apexcharts.min.js') }}"></script>
     <script src="{{ asset('assets-logistik/js/logistik.js') }}"></script>

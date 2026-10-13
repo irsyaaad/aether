@@ -1,0 +1,14 @@
+{
+    "name": "persada/keuangan",
+    "description": "Module Keuangan untuk Transaksi Kas/Bank Masuk dan Keluar",
+    "keywords": ["keuangan", "kas", "bank"],
+    "type": "module",
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Keuangan\\": ""
+        }
+    }
+}

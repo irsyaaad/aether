@@ -373,8 +373,9 @@
             $hasUser = check_access('user.index');
             $hasRole = check_access('role.index');
             $hasRoleMenu = check_access('role.index') || check_access('role-menu.index') || check_access('role.update');
-            $hasSettings = $hasPerusahaan || $hasUser || $hasRole || $hasRoleMenu;
-            $settingsActive = request()->is('perusahaan*') || request()->is('setting/perusahaan*') || request()->is('user*') || request()->is('roles*') || request()->is('role-menu*');
+            $hasCoa = check_access('master.coa.index') || check_access('coa.index') || (session('role')['id_role'] ?? 0) == 1;
+            $hasSettings = $hasPerusahaan || $hasUser || $hasRole || $hasRoleMenu || $hasCoa;
+            $settingsActive = request()->is('master/coa*') || request()->is('perusahaan*') || request()->is('setting/perusahaan*') || request()->is('user*') || request()->is('roles*') || request()->is('role-menu*');
         @endphp
         @if($hasSettings)
         <div class="kt-menu-item{{ $settingsActive ? ' active' : '' }}"
@@ -392,6 +393,13 @@
                 </span>
             </div>
             <div class="kt-menu-default kt-menu-dropdown gap-0.5 w-[220px] kt-scrollable-y-auto lg:overflow-visible max-h-[50vh]">
+                @if($hasCoa)
+                <div class="kt-menu-item{{ request()->is('master/coa*') ? ' active' : '' }}">
+                    <a class="kt-menu-link" href="{{ route('master.coa.index') }}">
+                        <span class="kt-menu-title">Master CoA</span>
+                    </a>
+                </div>
+                @endif
                 @if($hasPerusahaan)
                 <div class="kt-menu-item{{ request()->is('perusahaan*') || request()->is('setting/perusahaan*') ? ' active' : '' }}">
                     <a class="kt-menu-link" href="{{ url('setting/perusahaan') }}">
