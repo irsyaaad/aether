@@ -29,6 +29,7 @@ class KasBankFunctionalTest extends TestCase
     public function test_kas_bank_routes_are_registered()
     {
         $this->assertTrue(Route::has('kas-bank-masuk.index'));
+        $this->assertTrue(Route::has('kas-bank-masuk.stats'));
         $this->assertTrue(Route::has('kas-bank-masuk.data'));
         $this->assertTrue(Route::has('kas-bank-masuk.store'));
         $this->assertTrue(Route::has('kas-bank-masuk.show'));
@@ -36,6 +37,7 @@ class KasBankFunctionalTest extends TestCase
         $this->assertTrue(Route::has('kas-bank-masuk.destroy'));
 
         $this->assertTrue(Route::has('kas-bank-keluar.index'));
+        $this->assertTrue(Route::has('kas-bank-keluar.stats'));
         $this->assertTrue(Route::has('kas-bank-keluar.data'));
         $this->assertTrue(Route::has('kas-bank-keluar.store'));
         $this->assertTrue(Route::has('kas-bank-keluar.show'));
@@ -341,5 +343,63 @@ class KasBankFunctionalTest extends TestCase
         $resLawanKeluar = $this->getJson(route('kas-bank.select2.lawan', ['jenis' => 'keluar', 'q' => 'Operasional']));
         $resLawanKeluar->assertStatus(200);
         $this->assertNotEmpty($resLawanKeluar->json('results'));
+    }
+
+    /**
+     * 8. Uji Endpoint AJAX Server-Side Stats & Saldo Kas/Bank (Tanpa N+1)
+     */
+    public function test_stats_ajax_endpoints_return_aggregated_metrics_and_balances()
+    {
+        $this->actingAs($this->adminUser);
+        session(['role' => ['id_role' => 1]]);
+
+        // A. Test Stats Kas Masuk
+        $resMasuk = $this->getJson(route('kas-bank-masuk.stats'));
+        $resMasuk->assertStatus(200);
+        $resMasuk->assertJsonStructure([
+            'status',
+            'data' => [
+                'total_bulan_ini',
+                'total_bulan_ini_formatted',
+                'count_bulan_ini',
+                'total_hari_ini',
+                'total_hari_ini_formatted',
+                'total_akumulasi',
+                'total_akumulasi_formatted',
+                'total_akun',
+                'saldo_kas_bank' => [
+                    '*' => [
+                        'id',
+                        'kode_akun',
+                        'nama_akun',
+                        'saldo_awal',
+                        'total_masuk',
+                        'total_masuk_formatted',
+                        'total_keluar',
+                        'total_keluar_formatted',
+                        'saldo_akhir',
+                        'saldo_akhir_formatted',
+                    ]
+                ]
+            ]
+        ]);
+
+        // B. Test Stats Kas Keluar
+        $resKeluar = $this->getJson(route('kas-bank-keluar.stats'));
+        $resKeluar->assertStatus(200);
+        $resKeluar->assertJsonStructure([
+            'status',
+            'data' => [
+                'total_bulan_ini',
+                'total_bulan_ini_formatted',
+                'count_bulan_ini',
+                'total_hari_ini',
+                'total_hari_ini_formatted',
+                'total_akumulasi',
+                'total_akumulasi_formatted',
+                'total_akun',
+                'saldo_kas_bank'
+            ]
+        ]);
     }
 }

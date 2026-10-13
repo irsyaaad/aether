@@ -125,13 +125,16 @@
     </div>
 
     <!-- Quick Stat Cards -->
+    <!-- Quick Stat Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Card 1: Total Bulan Ini -->
         <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider">Kas Masuk Bulan Ini</p>
-                <h3 class="text-xl font-black text-gray-900 mt-1">Rp {{ number_format($stats['total_bulan_ini'], 0, ',', '.') }}</h3>
-                <span class="text-[10px] text-gray-500">{{ $stats['count_bulan_ini'] }} transaksi bulan ini</span>
+                <h3 class="text-xl font-black text-gray-900 mt-1" id="stat-total-bulan-ini">
+                    <span class="inline-block w-24 h-6 bg-slate-200 rounded animate-pulse"></span>
+                </h3>
+                <span class="text-[10px] text-gray-500" id="stat-count-bulan-ini">Memuat data...</span>
             </div>
             <div class="h-11 w-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                 <i data-lucide="trending-up" class="h-5 w-5"></i>
@@ -142,7 +145,9 @@
         <div class="bg-white p-4 rounded-xl border border-teal-100 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-[11px] font-bold text-teal-600 uppercase tracking-wider">Kas Masuk Hari Ini</p>
-                <h3 class="text-xl font-black text-gray-900 mt-1">Rp {{ number_format($stats['total_hari_ini'], 0, ',', '.') }}</h3>
+                <h3 class="text-xl font-black text-gray-900 mt-1" id="stat-total-hari-ini">
+                    <span class="inline-block w-24 h-6 bg-slate-200 rounded animate-pulse"></span>
+                </h3>
                 <span class="text-[10px] text-gray-500">Penerimaan hari ini</span>
             </div>
             <div class="h-11 w-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
@@ -154,7 +159,9 @@
         <div class="bg-white p-4 rounded-xl border border-blue-100 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-[11px] font-bold text-blue-600 uppercase tracking-wider">Total Akumulasi Masuk</p>
-                <h3 class="text-xl font-black text-gray-900 mt-1">Rp {{ number_format($stats['total_akumulasi'], 0, ',', '.') }}</h3>
+                <h3 class="text-xl font-black text-gray-900 mt-1" id="stat-total-akumulasi">
+                    <span class="inline-block w-24 h-6 bg-slate-200 rounded animate-pulse"></span>
+                </h3>
                 <span class="text-[10px] text-blue-500">Seluruh riwayat transaksi</span>
             </div>
             <div class="h-11 w-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -166,7 +173,7 @@
         <div class="bg-white p-4 rounded-xl border border-indigo-100 shadow-xs flex items-center justify-between">
             <div>
                 <p class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">Akun Kas & Bank</p>
-                <h3 class="text-xl font-black text-gray-900 mt-1">{{ count($kasBankList) }} Akun</h3>
+                <h3 class="text-xl font-black text-gray-900 mt-1" id="stat-total-akun">{{ count($kasBankList) }} Akun</h3>
                 <span class="text-[10px] text-indigo-500">Terdaftar di CoA Neraca</span>
             </div>
             <div class="h-11 w-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
@@ -184,24 +191,11 @@
             </span>
             <span class="text-[11px] text-gray-400">Saldo Awal + Masuk - Keluar</span>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            @foreach($saldoKasBank as $kb)
-            <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/70 flex items-center justify-between">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-gray-800">{{ $kb['nama_akun'] }}</span>
-                        <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white text-gray-600 border border-gray-200">{{ $kb['kode_akun'] }}</span>
-                    </div>
-                    <div class="text-xs text-gray-500 mt-0.5">
-                        Masuk: <span class="text-emerald-600 font-semibold font-mono">+{{ number_format($kb['total_masuk'], 0, ',', '.') }}</span>
-                        | Keluar: <span class="text-rose-600 font-semibold font-mono">-{{ number_format($kb['total_keluar'], 0, ',', '.') }}</span>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <span class="text-xs font-mono font-bold text-gray-900">Rp {{ number_format($kb['saldo_akhir'], 0, ',', '.') }}</span>
-                </div>
+        <div id="container-saldo-kas-bank" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div class="col-span-full py-4 text-center text-xs text-gray-400">
+                <i data-lucide="loader-2" class="w-5 h-5 animate-spin mx-auto text-emerald-600 mb-1"></i>
+                Memuat saldo akun kas & bank...
             </div>
-            @endforeach
         </div>
     </div>
 
@@ -338,7 +332,48 @@
                 lucide.createIcons();
             }
         });
+
+        loadStats();
     });
+
+    function loadStats() {
+        $.get("{{ route('kas-bank-masuk.stats') }}", function(res) {
+            if (res.status === 'success') {
+                var d = res.data;
+                $('#stat-total-bulan-ini').text('Rp ' + d.total_bulan_ini_formatted);
+                $('#stat-count-bulan-ini').text(d.count_bulan_ini + ' transaksi bulan ini');
+                $('#stat-total-hari-ini').text('Rp ' + d.total_hari_ini_formatted);
+                $('#stat-total-akumulasi').text('Rp ' + d.total_akumulasi_formatted);
+                $('#stat-total-akun').text(d.total_akun + ' Akun');
+
+                var saldoHtml = '';
+                if (d.saldo_kas_bank && d.saldo_kas_bank.length > 0) {
+                    $.each(d.saldo_kas_bank, function(idx, kb) {
+                        saldoHtml += `
+                            <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/70 flex items-center justify-between">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-gray-800">${kb.nama_akun}</span>
+                                        <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white text-gray-600 border border-gray-200">${kb.kode_akun}</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-0.5">
+                                        Masuk: <span class="text-emerald-600 font-semibold font-mono">+${kb.total_masuk_formatted}</span>
+                                        | Keluar: <span class="text-rose-600 font-semibold font-mono">-${kb.total_keluar_formatted}</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-mono font-bold text-gray-900">Rp ${kb.saldo_akhir_formatted}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    saldoHtml = '<div class="col-span-full py-2 text-center text-xs text-gray-400">Belum ada akun kas & bank terdaftar.</div>';
+                }
+                $('#container-saldo-kas-bank').html(saldoHtml);
+            }
+        });
+    }
 
     function applyFilter() {
         table.ajax.reload();
@@ -424,6 +459,7 @@
                     success: function(res) {
                         if (res.status === 'success') {
                             table.ajax.reload(null, false);
+                            loadStats();
                             Swal.fire('Terhapus!', res.message, 'success');
                         }
                     },

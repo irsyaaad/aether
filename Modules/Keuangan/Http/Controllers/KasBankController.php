@@ -25,24 +25,6 @@ class KasBankController extends Controller
             return $denied;
         }
 
-        $now = Carbon::now();
-
-        // Statistik Kas Masuk
-        $stats = [
-            'total_bulan_ini' => TransaksiKasBank::masuk()
-                ->whereYear('tanggal', $now->year)
-                ->whereMonth('tanggal', $now->month)
-                ->sum('nominal'),
-            'total_hari_ini' => TransaksiKasBank::masuk()
-                ->whereDate('tanggal', $now->toDateString())
-                ->sum('nominal'),
-            'count_bulan_ini' => TransaksiKasBank::masuk()
-                ->whereYear('tanggal', $now->year)
-                ->whereMonth('tanggal', $now->month)
-                ->count(),
-            'total_akumulasi' => TransaksiKasBank::masuk()->sum('nominal'),
-        ];
-
         // Pilihan Akun Kas / Bank (Ambil dari CoA yang kas bank)
         $kasBankList = MasterCoa::kasBank()->orderBy('kode_akun')->get();
 
@@ -50,19 +32,59 @@ class KasBankController extends Controller
         $bebanList = MasterCoa::beban()->orderBy('kode_akun')->get();
         $pendapatanList = MasterCoa::pendapatan()->orderBy('kode_akun')->get();
 
-        // Rekap Saldo Kas & Bank Terkini
-        $saldoKasBank = $this->calculateSaldoKasBank($kasBankList);
-
-        $defaultNoTransaksi = TransaksiKasBank::generateNomorTransaksi('masuk', $now->toDateString());
-
         return view('keuangan::kas-bank.masuk', compact(
-            'stats',
             'kasBankList',
             'bebanList',
-            'pendapatanList',
-            'saldoKasBank',
-            'defaultNoTransaksi'
+            'pendapatanList'
         ));
+    }
+
+    /**
+     * AJAX Endpoint: Ringkasan Statistik & Saldo Kas Masuk (No N+1)
+     */
+    public function getStatsMasuk(Request $request)
+    {
+        if (!$this->hasAccess('kas-bank-masuk.index')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $now = Carbon::now();
+        $year = $now->year;
+        $month = $now->month;
+        $today = $now->toDateString();
+
+        $monthStats = TransaksiKasBank::masuk()
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $month)
+            ->selectRaw('COUNT(*) as count_bulan_ini, COALESCE(SUM(nominal), 0) as total_bulan_ini')
+            ->first();
+
+        $todayTotal = (float) TransaksiKasBank::masuk()
+            ->whereDate('tanggal', $today)
+            ->sum('nominal');
+
+        $akumulasiTotal = (float) TransaksiKasBank::masuk()->sum('nominal');
+
+        $kasBankList = MasterCoa::kasBank()->orderBy('kode_akun')->get();
+        $saldoKasBank = $this->calculateSaldoKasBank($kasBankList);
+
+        $totalBulanIni = (float) ($monthStats->total_bulan_ini ?? 0);
+        $countBulanIni = (int) ($monthStats->count_bulan_ini ?? 0);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_bulan_ini' => $totalBulanIni,
+                'total_bulan_ini_formatted' => number_format($totalBulanIni, 0, ',', '.'),
+                'count_bulan_ini' => $countBulanIni,
+                'total_hari_ini' => $todayTotal,
+                'total_hari_ini_formatted' => number_format($todayTotal, 0, ',', '.'),
+                'total_akumulasi' => $akumulasiTotal,
+                'total_akumulasi_formatted' => number_format($akumulasiTotal, 0, ',', '.'),
+                'total_akun' => count($kasBankList),
+                'saldo_kas_bank' => $saldoKasBank,
+            ],
+        ]);
     }
 
     /**
@@ -267,39 +289,64 @@ class KasBankController extends Controller
         $now = Carbon::now();
 
         // Statistik Kas Keluar
-        $stats = [
-            'total_bulan_ini' => TransaksiKasBank::keluar()
-                ->whereYear('tanggal', $now->year)
-                ->whereMonth('tanggal', $now->month)
-                ->sum('nominal'),
-            'total_hari_ini' => TransaksiKasBank::keluar()
-                ->whereDate('tanggal', $now->toDateString())
-                ->sum('nominal'),
-            'count_bulan_ini' => TransaksiKasBank::keluar()
-                ->whereYear('tanggal', $now->year)
-                ->whereMonth('tanggal', $now->month)
-                ->count(),
-            'total_akumulasi' => TransaksiKasBank::keluar()->sum('nominal'),
-        ];
-
         // Pilihan Akun Kas / Bank (Ambil dari CoA yang kas bank)
         $kasBankList = MasterCoa::kasBank()->orderBy('kode_akun')->get();
 
         // Pilihan Akun Lawan (Ambil dari CoA yang beban operasional)
         $bebanList = MasterCoa::beban()->orderBy('kode_akun')->get();
 
-        // Rekap Saldo Kas & Bank Terkini
+        return view('keuangan::kas-bank.keluar', compact(
+            'kasBankList',
+            'bebanList'
+        ));
+    }
+
+    /**
+     * AJAX Endpoint: Ringkasan Statistik & Saldo Kas Keluar (No N+1)
+     */
+    public function getStatsKeluar(Request $request)
+    {
+        if (!$this->hasAccess('kas-bank-keluar.index')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $now = Carbon::now();
+        $year = $now->year;
+        $month = $now->month;
+        $today = $now->toDateString();
+
+        $monthStats = TransaksiKasBank::keluar()
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $month)
+            ->selectRaw('COUNT(*) as count_bulan_ini, COALESCE(SUM(nominal), 0) as total_bulan_ini')
+            ->first();
+
+        $todayTotal = (float) TransaksiKasBank::keluar()
+            ->whereDate('tanggal', $today)
+            ->sum('nominal');
+
+        $akumulasiTotal = (float) TransaksiKasBank::keluar()->sum('nominal');
+
+        $kasBankList = MasterCoa::kasBank()->orderBy('kode_akun')->get();
         $saldoKasBank = $this->calculateSaldoKasBank($kasBankList);
 
-        $defaultNoTransaksi = TransaksiKasBank::generateNomorTransaksi('keluar', $now->toDateString());
+        $totalBulanIni = (float) ($monthStats->total_bulan_ini ?? 0);
+        $countBulanIni = (int) ($monthStats->count_bulan_ini ?? 0);
 
-        return view('keuangan::kas-bank.keluar', compact(
-            'stats',
-            'kasBankList',
-            'bebanList',
-            'saldoKasBank',
-            'defaultNoTransaksi'
-        ));
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_bulan_ini' => $totalBulanIni,
+                'total_bulan_ini_formatted' => number_format($totalBulanIni, 0, ',', '.'),
+                'count_bulan_ini' => $countBulanIni,
+                'total_hari_ini' => $todayTotal,
+                'total_hari_ini_formatted' => number_format($todayTotal, 0, ',', '.'),
+                'total_akumulasi' => $akumulasiTotal,
+                'total_akumulasi_formatted' => number_format($akumulasiTotal, 0, ',', '.'),
+                'total_akun' => count($kasBankList),
+                'saldo_kas_bank' => $saldoKasBank,
+            ],
+        ]);
     }
 
     /**
@@ -645,26 +692,41 @@ class KasBankController extends Controller
     }
 
     /**
-     * Menghitung saldo berjalan masing-masing akun Kas / Bank
+     * Menghitung saldo berjalan masing-masing akun Kas / Bank (Optimized, No N+1)
      */
     protected function calculateSaldoKasBank($kasBankList)
     {
+        // 1 query untuk agregasi seluruh total masuk per akun kas bank
+        $masukPerAccount = TransaksiKasBank::masuk()
+            ->selectRaw('kas_bank_id, SUM(nominal) as total')
+            ->groupBy('kas_bank_id')
+            ->pluck('total', 'kas_bank_id');
+
+        // 1 query untuk agregasi seluruh total keluar per akun kas bank
+        $keluarPerAccount = TransaksiKasBank::keluar()
+            ->selectRaw('kas_bank_id, SUM(nominal) as total')
+            ->groupBy('kas_bank_id')
+            ->pluck('total', 'kas_bank_id');
+
         $balances = [];
 
         foreach ($kasBankList as $kb) {
-            $totalMasuk = TransaksiKasBank::masuk()->where('kas_bank_id', $kb->id)->sum('nominal');
-            $totalKeluar = TransaksiKasBank::keluar()->where('kas_bank_id', $kb->id)->sum('nominal');
+            $totalMasuk = (float) ($masukPerAccount[$kb->id] ?? 0);
+            $totalKeluar = (float) ($keluarPerAccount[$kb->id] ?? 0);
             $saldoAwal = (float) $kb->saldo_awal;
-            $saldoAkhir = $saldoAwal + (float) $totalMasuk - (float) $totalKeluar;
+            $saldoAkhir = $saldoAwal + $totalMasuk - $totalKeluar;
 
             $balances[] = [
                 'id' => $kb->id,
                 'kode_akun' => $kb->kode_akun,
                 'nama_akun' => $kb->nama_akun,
                 'saldo_awal' => $saldoAwal,
-                'total_masuk' => (float) $totalMasuk,
-                'total_keluar' => (float) $totalKeluar,
+                'total_masuk' => $totalMasuk,
+                'total_masuk_formatted' => number_format($totalMasuk, 0, ',', '.'),
+                'total_keluar' => $totalKeluar,
+                'total_keluar_formatted' => number_format($totalKeluar, 0, ',', '.'),
                 'saldo_akhir' => $saldoAkhir,
+                'saldo_akhir_formatted' => number_format($saldoAkhir, 0, ',', '.'),
             ];
         }
 

@@ -8,6 +8,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Transaksi Kas & Bank Masuk
     Route::get('kas-bank-masuk', [KasBankController::class, 'indexMasuk'])->name('kas-bank-masuk.index');
     Route::get('kas-bank-masuk/data', [KasBankController::class, 'getDataMasuk'])->name('kas-bank-masuk.data');
+    Route::get('kas-bank-masuk/stats', [KasBankController::class, 'getStatsMasuk'])->name('kas-bank-masuk.stats');
     Route::get('kas-bank-masuk/create', [KasBankController::class, 'createMasuk'])->name('kas-bank-masuk.create');
     Route::post('kas-bank-masuk', [KasBankController::class, 'storeMasuk'])->name('kas-bank-masuk.store');
     Route::get('kas-bank-masuk/{id}', [KasBankController::class, 'show'])->name('kas-bank-masuk.show');
@@ -18,6 +19,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Transaksi Kas & Bank Keluar
     Route::get('kas-bank-keluar', [KasBankController::class, 'indexKeluar'])->name('kas-bank-keluar.index');
     Route::get('kas-bank-keluar/data', [KasBankController::class, 'getDataKeluar'])->name('kas-bank-keluar.data');
+    Route::get('kas-bank-keluar/stats', [KasBankController::class, 'getStatsKeluar'])->name('kas-bank-keluar.stats');
     Route::get('kas-bank-keluar/create', [KasBankController::class, 'createKeluar'])->name('kas-bank-keluar.create');
     Route::post('kas-bank-keluar', [KasBankController::class, 'storeKeluar'])->name('kas-bank-keluar.store');
     Route::get('kas-bank-keluar/{id}', [KasBankController::class, 'show'])->name('kas-bank-keluar.show');
