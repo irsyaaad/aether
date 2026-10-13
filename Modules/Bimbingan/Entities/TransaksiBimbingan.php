@@ -50,4 +50,14 @@ class TransaksiBimbingan extends Model
     {
         return $this->belongsTo(MasterProgram::class, 'program_id');
     }
+
+    public function mentor()
+    {
+        return $this->belongsTo(\Modules\Master\Entities\MasterMentor::class, 'mentor_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
 }

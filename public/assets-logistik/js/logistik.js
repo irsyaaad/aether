@@ -16,6 +16,11 @@ document.addEventListener('DOMContentLoaded', function () {
     function openSidebar() {
         if (sidebar) sidebar.classList.remove('-translate-x-full');
         if (sidebarBackdrop) sidebarBackdrop.classList.remove('hidden');
+        if (typeof scrollActiveSidebarMenu === 'function') {
+            setTimeout(function () {
+                scrollActiveSidebarMenu({ smooth: true });
+            }, 150);
+        }
     }
 
     function closeSidebar() {
@@ -192,5 +197,109 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     initDataTablesLoading();
+
+    // 7. Auto-scroll & Auto-focus to Active Sidebar Menu Item
+    function scrollActiveSidebarMenu(options) {
+        var smooth = options && options.smooth !== undefined ? options.smooth : true;
+
+        var sidebar = document.getElementById('logis-sidebar') || document.getElementById('sidebar');
+        if (!sidebar) return;
+
+        var navContainer = document.getElementById('logis-sidebar-nav')
+            || sidebar.querySelector('.overflow-y-auto')
+            || document.getElementById('sidebar_menu_wrapper')
+            || sidebar.querySelector('[data-kt-scrollable="true"]');
+        if (!navContainer) return;
+
+        // Priority 1: explicitly marked .active, [data-sidebar-active="true"], .kt-menu-item.active
+        var activeElements = navContainer.querySelectorAll('.active, [data-sidebar-active="true"], .kt-menu-item.active, [data-kt-menu-item-here="true"]');
+        var activeItem = null;
+
+        if (activeElements.length > 0) {
+            var activeLinks = Array.from(activeElements).filter(function (el) { return el.tagName === 'A'; });
+            if (activeLinks.length > 0) {
+                activeItem = activeLinks[activeLinks.length - 1];
+            } else {
+                activeItem = activeElements[activeElements.length - 1];
+            }
+        }
+
+        // Priority 2: Fallback to color/background highlight classes if .active class was not rendered
+        if (!activeItem) {
+            var highlighted = navContainer.querySelectorAll('a[class*="bg-primary/"], a[class*="bg-[#1768B5]"], a[class*="bg-rose-50"], a[class*="bg-gray-100"]');
+            if (highlighted.length > 0) {
+                activeItem = highlighted[highlighted.length - 1];
+            }
+        }
+
+        // Priority 3: Fallback by comparing href with window.location
+        if (!activeItem) {
+            var currentPath = window.location.pathname.replace(/\/+$/, '');
+            var links = navContainer.querySelectorAll('a[href]');
+            var bestMatch = null;
+            var longestMatchLen = 0;
+
+            links.forEach(function (link) {
+                var href = link.getAttribute('href');
+                if (!href || href === '#' || href.startsWith('javascript:')) return;
+                try {
+                    var url = new URL(link.href, window.location.origin);
+                    var linkPath = url.pathname.replace(/\/+$/, '');
+                    if (linkPath && currentPath === linkPath) {
+                        bestMatch = link;
+                        longestMatchLen = linkPath.length;
+                    } else if (linkPath && linkPath !== '' && linkPath !== '/' && currentPath.startsWith(linkPath) && linkPath.length > longestMatchLen) {
+                        bestMatch = link;
+                        longestMatchLen = linkPath.length;
+                    }
+                } catch (e) {}
+            });
+            if (bestMatch) {
+                activeItem = bestMatch;
+            }
+        }
+
+        if (!activeItem) return;
+
+        if (!activeItem.classList.contains('active')) {
+            activeItem.classList.add('active');
+        }
+
+        // Calculate scroll offset to comfortably center the active item inside navContainer
+        var containerRect = navContainer.getBoundingClientRect();
+        var itemRect = activeItem.getBoundingClientRect();
+
+        var relativeTop = (itemRect.top - containerRect.top) + navContainer.scrollTop;
+        var targetScrollTop = relativeTop - (navContainer.clientHeight / 2) + (activeItem.clientHeight / 2);
+        var maxScrollTop = navContainer.scrollHeight - navContainer.clientHeight;
+        var clampedScrollTop = Math.max(0, Math.min(targetScrollTop, maxScrollTop));
+
+        var isOutOfView = (
+            itemRect.top < containerRect.top + 20 ||
+            itemRect.bottom > containerRect.bottom - 20
+        );
+
+        if (isOutOfView || Math.abs(navContainer.scrollTop - clampedScrollTop) > 20) {
+            if (typeof navContainer.scrollTo === 'function') {
+                navContainer.scrollTo({
+                    top: clampedScrollTop,
+                    behavior: smooth ? 'smooth' : 'auto'
+                });
+            } else {
+                navContainer.scrollTop = clampedScrollTop;
+            }
+        }
+    }
+
+    window.scrollActiveSidebarMenu = scrollActiveSidebarMenu;
+
+    // Run auto-scroll on page initialization
+    setTimeout(function () {
+        scrollActiveSidebarMenu({ smooth: false });
+    }, 60);
+
+    setTimeout(function () {
+        scrollActiveSidebarMenu({ smooth: true });
+    }, 280);
 });
 

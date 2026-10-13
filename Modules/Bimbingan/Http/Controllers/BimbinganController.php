@@ -162,6 +162,17 @@ class BimbinganController extends Controller
 
         $nomorTiket = 'BMB-' . date('Ym') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
 
+        $mentorId = null;
+        if ($request->filled('mentor_id')) {
+            $mentorId = $request->mentor_id;
+        } elseif (!empty($validated['mentor'])) {
+            $mentorClean = trim(explode('(', explode(',', $validated['mentor'])[0])[0]);
+            $foundMentor = MasterMentor::where('nama_lengkap', 'like', '%' . $mentorClean . '%')->first();
+            if ($foundMentor) {
+                $mentorId = $foundMentor->id;
+            }
+        }
+
         TransaksiBimbingan::create([
             'nomor_tiket' => $nomorTiket,
             'user_id' => Auth::id(),
@@ -170,13 +181,18 @@ class BimbinganController extends Controller
             'topik_bidang' => $validated['topik_bab'],
             'paket_bimbingan' => $namaProgram,
             'program_id' => $program ? $program->id : null,
+            'mentor_id' => $mentorId,
             'jadwal_konsultasi' => $validated['tanggal_preferensi'],
-            'link_zoom' => $validated['media'] === 'Google Meet' ? 'https://meet.google.com/aether-bmb' : null,
+            'link_zoom' => ($validated['media'] ?? '') === 'Google Meet' ? 'https://meet.google.com/aether-bmb' : null,
             'keluhan_kendala' => $validated['catatan'] ?? null,
             'status' => 'Menunggu Review',
             'biaya' => $biaya,
             'status_pembayaran' => 'Menunggu Pembayaran',
         ]);
+
+        if ($request->input('redirect_to') === 'dashboard') {
+            return redirect()->route('dashboard')->with('success', 'Pengajuan bimbingan untuk paket [' . $namaProgram . '] berhasil dikirim. Sesi konsultasi telah tertandai di kalender dashboard Anda!');
+        }
 
         return redirect()->route('bimbingan.index')->with('success', 'Pengajuan bimbingan untuk paket [' . $namaProgram . '] berhasil dikirim. Mentor akan mengonfirmasi jadwal Anda segera!');
     }

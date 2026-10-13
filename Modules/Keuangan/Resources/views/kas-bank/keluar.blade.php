@@ -152,6 +152,16 @@
                     Reset
                 </button>
             </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="exportExcel()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition shadow-xs">
+                    <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                    Export Excel
+                </button>
+                <button type="button" onclick="cetakRekap()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition shadow-xs">
+                    <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                    Cetak Rekapan
+                </button>
+            </div>
         </div>
 
         <!-- Table -->
@@ -294,6 +304,33 @@
         $('#filter-kas-bank').val('');
         $('#filter-lawan').val('');
         table.ajax.reload();
+    }
+
+    function getFilterParams() {
+        var params = new URLSearchParams();
+        var startDate = $('#filter-start-date').val();
+        var endDate = $('#filter-end-date').val();
+        var kasBank = $('#filter-kas-bank').val();
+        var lawan = $('#filter-lawan').val();
+
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
+        if (kasBank) params.append('kas_bank_id', kasBank);
+        if (lawan) params.append('lawan_coa_id', lawan);
+
+        return params.toString();
+    }
+
+    function cetakRekap() {
+        var qs = getFilterParams();
+        var url = "{{ route('kas-bank-keluar.cetak') }}" + (qs ? '?' + qs : '');
+        window.open(url, '_blank');
+    }
+
+    function exportExcel() {
+        var qs = getFilterParams();
+        var url = "{{ route('kas-bank-keluar.export-excel') }}" + (qs ? '?' + qs : '');
+        window.location.href = url;
     }
 
     function showDetail(id) {

@@ -30,6 +30,8 @@ class KasBankFunctionalTest extends TestCase
     {
         $this->assertTrue(Route::has('kas-bank-masuk.index'));
         $this->assertTrue(Route::has('kas-bank-masuk.stats'));
+        $this->assertTrue(Route::has('kas-bank-masuk.cetak'));
+        $this->assertTrue(Route::has('kas-bank-masuk.export-excel'));
         $this->assertTrue(Route::has('kas-bank-masuk.data'));
         $this->assertTrue(Route::has('kas-bank-masuk.store'));
         $this->assertTrue(Route::has('kas-bank-masuk.show'));
@@ -38,6 +40,8 @@ class KasBankFunctionalTest extends TestCase
 
         $this->assertTrue(Route::has('kas-bank-keluar.index'));
         $this->assertTrue(Route::has('kas-bank-keluar.stats'));
+        $this->assertTrue(Route::has('kas-bank-keluar.cetak'));
+        $this->assertTrue(Route::has('kas-bank-keluar.export-excel'));
         $this->assertTrue(Route::has('kas-bank-keluar.data'));
         $this->assertTrue(Route::has('kas-bank-keluar.store'));
         $this->assertTrue(Route::has('kas-bank-keluar.show'));
@@ -401,5 +405,50 @@ class KasBankFunctionalTest extends TestCase
                 'saldo_kas_bank'
             ]
         ]);
+    }
+
+    /**
+     * 9. Uji Endpoint Cetak HTML & Export Excel Rekap Transaksi
+     */
+    public function test_cetak_html_and_export_excel_endpoints()
+    {
+        $this->actingAs($this->adminUser);
+        session(['role' => ['id_role' => 1]]);
+
+        // A. Cetak HTML Kas Masuk
+        $cetakMasuk = $this->get(route('kas-bank-masuk.cetak'));
+        $cetakMasuk->assertStatus(200);
+        $cetakMasuk->assertSee('REKAPITULASI KAS & BANK MASUK');
+        $cetakMasuk->assertSee('Total Rekapitulasi');
+        $cetakMasuk->assertSee('logo_aether');
+
+        // B. Export Excel Kas Masuk
+        $excelMasuk = $this->get(route('kas-bank-masuk.export-excel'));
+        $excelMasuk->assertStatus(200);
+        $this->assertStringContainsString('.xlsx', $excelMasuk->headers->get('content-disposition') ?? '');
+
+        // C. Cetak HTML Kas Keluar
+        $cetakKeluar = $this->get(route('kas-bank-keluar.cetak'));
+        $cetakKeluar->assertStatus(200);
+        $cetakKeluar->assertSee('REKAPITULASI KAS & BANK KELUAR');
+        $cetakKeluar->assertSee('Total Rekapitulasi');
+        $cetakKeluar->assertSee('logo_aether');
+
+        // D. Export Excel Kas Keluar
+        $excelKeluar = $this->get(route('kas-bank-keluar.export-excel'));
+        $excelKeluar->assertStatus(200);
+        $this->assertStringContainsString('.xlsx', $excelKeluar->headers->get('content-disposition') ?? '');
+
+        // E. Cetak & Export dengan Filter
+        $filterParams = [
+            'start_date' => date('Y-m-01'),
+            'end_date' => date('Y-m-d'),
+            'kas_bank_id' => $this->kasBankCoa->id,
+        ];
+        $cetakFiltered = $this->get(route('kas-bank-masuk.cetak', $filterParams));
+        $cetakFiltered->assertStatus(200);
+
+        $excelFiltered = $this->get(route('kas-bank-keluar.export-excel', $filterParams));
+        $excelFiltered->assertStatus(200);
     }
 }

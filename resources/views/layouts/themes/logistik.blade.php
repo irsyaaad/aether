@@ -63,7 +63,7 @@
                 </div>
 
                 <!-- Navigation Groups -->
-                <div class="flex flex-col gap-1 p-4 h-[calc(100vh-14rem)] overflow-y-auto custom-scrollbar">
+                <div id="logis-sidebar-nav" class="flex flex-col gap-1 p-4 h-[calc(100vh-14rem)] overflow-y-auto custom-scrollbar scroll-smooth">
                     <!-- Dashboard -->
                     <div class="flex flex-col gap-1 mb-2">
                         <div class="mb-1 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -292,7 +292,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ asset('assets-logistik/js/logistik.js') }}"></script>
+    <script src="{{ asset('assets-logistik/js/logistik.js') }}?v=1.3"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof lucide !== 'undefined') {

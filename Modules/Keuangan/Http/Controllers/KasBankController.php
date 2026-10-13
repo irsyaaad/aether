@@ -9,7 +9,9 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Modules\Keuangan\Entities\TransaksiKasBank;
+use Modules\Keuangan\Exports\TransaksiKasBankExport;
 use Modules\Master\Entities\MasterCoa;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class KasBankController extends Controller
@@ -88,16 +90,12 @@ class KasBankController extends Controller
     }
 
     /**
-     * DataTables Data untuk Kas Masuk
+     * Build base query for Transaksi Kas Bank with filters and eager loading
      */
-    public function getDataMasuk(Request $request)
+    protected function buildTransaksiQuery(Request $request, string $jenis)
     {
-        if (!$this->hasAccess('kas-bank-masuk.index')) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
         $query = TransaksiKasBank::with(['kasBank', 'lawanCoa', 'user'])
-            ->masuk();
+            ->where('jenis', $jenis);
 
         if ($request->filled('start_date')) {
             $query->whereDate('tanggal', '>=', $request->start_date);
@@ -114,6 +112,121 @@ class KasBankController extends Controller
         if ($request->filled('lawan_coa_id')) {
             $query->where('lawan_coa_id', $request->lawan_coa_id);
         }
+
+        return $query;
+    }
+
+    /**
+     * Get filter metadata descriptions for print and excel export
+     */
+    protected function getFilterMeta(Request $request, string $jenis): array
+    {
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+
+        if ($startDate && $endDate) {
+            $periode = Carbon::parse($startDate)->format('d/m/Y') . ' s/d ' . Carbon::parse($endDate)->format('d/m/Y');
+        } elseif ($startDate) {
+            $periode = 'Mulai ' . Carbon::parse($startDate)->format('d/m/Y');
+        } elseif ($endDate) {
+            $periode = 'Sampai ' . Carbon::parse($endDate)->format('d/m/Y');
+        } else {
+            $periode = 'Semua Periode';
+        }
+
+        $kasBankText = 'Semua Akun Kas/Bank';
+        if ($request->filled('kas_bank_id')) {
+            $kb = MasterCoa::find($request->kas_bank_id);
+            if ($kb) {
+                $kasBankText = $kb->kode_akun . ' - ' . $kb->nama_akun;
+            }
+        }
+
+        $lawanText = ($jenis === 'masuk') ? 'Semua Akun Lawan' : 'Semua Akun Beban';
+        if ($request->filled('lawan_coa_id')) {
+            $lw = MasterCoa::find($request->lawan_coa_id);
+            if ($lw) {
+                $lawanText = $lw->kode_akun . ' - ' . $lw->nama_akun;
+            }
+        }
+
+        return [
+            'periode'   => $periode,
+            'kas_bank'  => $kasBankText,
+            'lawan_coa' => $lawanText,
+        ];
+    }
+
+    /**
+     * Cetak Laporan Rekapitulasi Kas Masuk (HTML Printable)
+     */
+    public function cetakMasuk(Request $request)
+    {
+        if ($denied = $this->requireAccess('kas-bank-masuk.index')) {
+            return $denied;
+        }
+
+        $transactions = $this->buildTransaksiQuery($request, 'masuk')
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $meta = $this->getFilterMeta($request, 'masuk');
+        $totalNominal = (float) $transactions->sum('nominal');
+
+        $rekapPerAkun = $transactions->groupBy('kas_bank_id')->map(function ($items) {
+            $first = $items->first();
+            return [
+                'nama_akun' => $first->kasBank->nama_akun ?? 'Tanpa Akun',
+                'kode_akun' => $first->kasBank->kode_akun ?? '-',
+                'count'     => $items->count(),
+                'total'     => (float) $items->sum('nominal'),
+            ];
+        })->values();
+
+        $excelUrl = route('kas-bank-masuk.export-excel', $request->query());
+
+        return view('keuangan::kas-bank.cetak-rekap', [
+            'title'        => 'Laporan Rekapitulasi Kas Masuk',
+            'jenis'        => 'masuk',
+            'transactions' => $transactions,
+            'meta'         => $meta,
+            'totalNominal' => $totalNominal,
+            'rekapPerAkun' => $rekapPerAkun,
+            'excelUrl'     => $excelUrl,
+        ]);
+    }
+
+    /**
+     * Export Excel Rekapitulasi Kas Masuk
+     */
+    public function exportExcelMasuk(Request $request)
+    {
+        if ($denied = $this->requireAccess('kas-bank-masuk.index')) {
+            return $denied;
+        }
+
+        $transactions = $this->buildTransaksiQuery($request, 'masuk')
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $meta = $this->getFilterMeta($request, 'masuk');
+        $filename = 'Rekap_Kas_Masuk_' . date('Ymd_His') . '.xlsx';
+
+        return Excel::download(new TransaksiKasBankExport('masuk', $transactions, $meta), $filename);
+    }
+
+    /**
+     * DataTables Data untuk Kas Masuk
+     */
+    public function getDataMasuk(Request $request)
+    {
+        if (!$this->hasAccess('kas-bank-masuk.index')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $query = $this->buildTransaksiQuery($request, 'masuk');
 
         $canUpdate = $this->hasAccess('kas-bank-masuk.update');
         $canDelete = $this->hasAccess('kas-bank-masuk.delete') || $this->hasAccess('kas-bank-masuk.destroy');
@@ -350,6 +463,66 @@ class KasBankController extends Controller
     }
 
     /**
+     * Cetak Laporan Rekapitulasi Kas Keluar (HTML Printable)
+     */
+    public function cetakKeluar(Request $request)
+    {
+        if ($denied = $this->requireAccess('kas-bank-keluar.index')) {
+            return $denied;
+        }
+
+        $transactions = $this->buildTransaksiQuery($request, 'keluar')
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $meta = $this->getFilterMeta($request, 'keluar');
+        $totalNominal = (float) $transactions->sum('nominal');
+
+        $rekapPerAkun = $transactions->groupBy('kas_bank_id')->map(function ($items) {
+            $first = $items->first();
+            return [
+                'nama_akun' => $first->kasBank->nama_akun ?? 'Tanpa Akun',
+                'kode_akun' => $first->kasBank->kode_akun ?? '-',
+                'count'     => $items->count(),
+                'total'     => (float) $items->sum('nominal'),
+            ];
+        })->values();
+
+        $excelUrl = route('kas-bank-keluar.export-excel', $request->query());
+
+        return view('keuangan::kas-bank.cetak-rekap', [
+            'title'        => 'Laporan Rekapitulasi Kas Keluar',
+            'jenis'        => 'keluar',
+            'transactions' => $transactions,
+            'meta'         => $meta,
+            'totalNominal' => $totalNominal,
+            'rekapPerAkun' => $rekapPerAkun,
+            'excelUrl'     => $excelUrl,
+        ]);
+    }
+
+    /**
+     * Export Excel Rekapitulasi Kas Keluar
+     */
+    public function exportExcelKeluar(Request $request)
+    {
+        if ($denied = $this->requireAccess('kas-bank-keluar.index')) {
+            return $denied;
+        }
+
+        $transactions = $this->buildTransaksiQuery($request, 'keluar')
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $meta = $this->getFilterMeta($request, 'keluar');
+        $filename = 'Rekap_Kas_Keluar_' . date('Ymd_His') . '.xlsx';
+
+        return Excel::download(new TransaksiKasBankExport('keluar', $transactions, $meta), $filename);
+    }
+
+    /**
      * DataTables Data untuk Kas Keluar
      */
     public function getDataKeluar(Request $request)
@@ -358,24 +531,7 @@ class KasBankController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $query = TransaksiKasBank::with(['kasBank', 'lawanCoa', 'user'])
-            ->keluar();
-
-        if ($request->filled('start_date')) {
-            $query->whereDate('tanggal', '>=', $request->start_date);
-        }
-
-        if ($request->filled('end_date')) {
-            $query->whereDate('tanggal', '<=', $request->end_date);
-        }
-
-        if ($request->filled('kas_bank_id')) {
-            $query->where('kas_bank_id', $request->kas_bank_id);
-        }
-
-        if ($request->filled('lawan_coa_id')) {
-            $query->where('lawan_coa_id', $request->lawan_coa_id);
-        }
+        $query = $this->buildTransaksiQuery($request, 'keluar');
 
         $canUpdate = $this->hasAccess('kas-bank-keluar.update');
         $canDelete = $this->hasAccess('kas-bank-keluar.delete') || $this->hasAccess('kas-bank-keluar.destroy');

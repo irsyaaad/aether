@@ -69,6 +69,13 @@ class LogUserActivity
         unset($payload['password_confirmation']);
         unset($payload['_token']);
 
+        // Konversi objek file agar aman di-encode ke JSON
+        array_walk_recursive($payload, function (&$value) {
+            if ($value instanceof \Illuminate\Http\UploadedFile) {
+                $value = $value->getClientOriginalName();
+            }
+        });
+
         return count($payload) > 0 ? $payload : null;
     }
 }

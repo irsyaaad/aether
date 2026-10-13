@@ -52,91 +52,123 @@
     <!-- Program Offerings Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($programs as $program)
-        <div class="bg-white rounded-3xl border {{ $program->is_populer ? 'border-amber-400 ring-2 ring-amber-400/30 shadow-xl' : 'border-gray-200 shadow-sm' }} p-6 flex flex-col justify-between transition hover:-translate-y-1 hover:shadow-xl relative overflow-hidden group">
-            @if($program->is_populer)
-            <div class="absolute top-0 right-0">
-                <div class="bg-gradient-to-l from-amber-500 to-amber-400 text-white text-[11px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-bl-2xl shadow-sm flex items-center gap-1">
-                    <span>⭐</span>
-                    <span>{{ $program->badge ?: 'Paling Populer' }}</span>
+        <div class="bg-white rounded-3xl border {{ $program->is_populer ? 'border-amber-400 ring-2 ring-amber-400/30 shadow-xl' : 'border-gray-200 shadow-sm' }} flex flex-col justify-between transition hover:-translate-y-1 hover:shadow-xl relative overflow-hidden group">
+            <!-- Banner Image or Gradient Top -->
+            @if($program->banner_url)
+            <div class="h-48 w-full overflow-hidden bg-gray-100 relative shrink-0">
+                <img src="{{ $program->banner_url }}" alt="{{ $program->nama_program }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent"></div>
+                @if($program->is_populer)
+                <div class="absolute top-3.5 right-3.5">
+                    <div class="bg-gradient-to-l from-amber-500 to-amber-400 text-white text-[11px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md flex items-center gap-1">
+                        <span>⭐</span>
+                        <span>{{ $program->badge ?: 'Paling Populer' }}</span>
+                    </div>
                 </div>
+                @elseif($program->badge)
+                <div class="absolute top-3.5 right-3.5">
+                    <div class="bg-gradient-to-l from-[#2B8BD1] to-[#1768B5] text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
+                        {{ $program->badge }}
+                    </div>
+                </div>
+                @endif
             </div>
-            @elseif($program->badge)
-            <div class="absolute top-0 right-0">
-                <div class="bg-gradient-to-l from-[#2B8BD1] to-[#1768B5] text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-bl-2xl shadow-xs">
-                    {{ $program->badge }}
+            @else
+            <div class="h-32 w-full bg-gradient-to-r from-[#102654] via-[#1768B5] to-[#2B8BD1] relative flex items-center justify-between p-6 overflow-hidden shrink-0">
+                <i data-lucide="graduation-cap" class="w-28 h-28 text-white/10 absolute -right-4 -bottom-6"></i>
+                <div class="text-white z-10">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-black uppercase tracking-wider bg-white/20 text-white border border-white/20">
+                        {{ $program->kategori }}
+                    </span>
                 </div>
+                @if($program->is_populer)
+                <div class="z-10">
+                    <div class="bg-gradient-to-l from-amber-500 to-amber-400 text-white text-[11px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full shadow-md flex items-center gap-1">
+                        <span>⭐</span>
+                        <span>{{ $program->badge ?: 'Paling Populer' }}</span>
+                    </div>
+                </div>
+                @elseif($program->badge)
+                <div class="z-10">
+                    <div class="bg-white/20 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full border border-white/30">
+                        {{ $program->badge }}
+                    </div>
+                </div>
+                @endif
             </div>
             @endif
 
-            <div>
-                <!-- Badge Tag & Level -->
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-50 text-[#1768B5] border border-sky-100">
-                        {{ $program->kategori }}
-                    </span>
-                    <span class="text-xs font-bold text-gray-400">{{ $program->jenjang }}</span>
-                </div>
-
-                <!-- Program Title -->
-                <h3 class="text-lg font-black text-gray-900 group-hover:text-[#1768B5] transition leading-snug mb-1">
-                    {{ $program->nama_program }}
-                </h3>
-
-                <!-- Target Bab / Cakupan -->
-                @if($program->target_bab)
-                <div class="inline-flex items-center gap-1.5 text-xs text-sky-700 font-semibold mb-3">
-                    <i data-lucide="check-circle" class="w-3.5 h-3.5 text-sky-600"></i>
-                    <span>Cakupan: {{ $program->target_bab }}</span>
-                </div>
-                @endif
-
-                <!-- Description -->
-                <p class="text-xs text-gray-500 leading-relaxed mb-5">
-                    {{ $program->deskripsi }}
-                </p>
-
-                <!-- Pricing Box -->
-                <div class="bg-gradient-to-br from-gray-50 to-sky-50/30 rounded-2xl p-4 border border-gray-100 mb-5">
-                    <span class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Tarif Paket</span>
-                    <div class="flex items-baseline gap-1 mt-0.5">
-                        <span class="text-2xl font-black text-gray-900">{{ $program->formatted_biaya }}</span>
-                        <span class="text-xs text-gray-500 font-semibold">/ paket</span>
-                    </div>
-                    <div class="flex items-center gap-3 mt-2.5 text-xs text-gray-600 font-medium pt-2 border-t border-gray-200/60">
-                        <span class="inline-flex items-center gap-1.5">
-                            <i data-lucide="calendar" class="w-4 h-4 text-[#1768B5]"></i>
-                            <strong>{{ $program->jumlah_sesi ?: 1 }}x</strong> Pertemuan
+            <div class="p-6 flex-1 flex flex-col justify-between">
+                <div>
+                    <!-- Badge Tag & Level -->
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-sky-50 text-[#1768B5] border border-sky-100">
+                            {{ $program->kategori }}
                         </span>
-                        <span class="text-gray-300">•</span>
-                        <span class="inline-flex items-center gap-1.5">
-                            <i data-lucide="clock" class="w-4 h-4 text-[#1768B5]"></i>
-                            <strong>@ {{ $program->durasi_sesi ?: 60 }}</strong> Menit/Sesi
-                        </span>
+                        <span class="text-xs font-bold text-gray-400">{{ $program->jenjang }}</span>
+                    </div>
+
+                    <!-- Program Title -->
+                    <h3 class="text-lg font-black text-gray-900 group-hover:text-[#1768B5] transition leading-snug mb-1">
+                        {{ $program->nama_program }}
+                    </h3>
+
+                    <!-- Target Bab / Cakupan -->
+                    @if($program->target_bab)
+                    <div class="inline-flex items-center gap-1.5 text-xs text-sky-700 font-semibold mb-3">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5 text-sky-600"></i>
+                        <span>Cakupan: {{ $program->target_bab }}</span>
+                    </div>
+                    @endif
+
+                    <!-- Description -->
+                    <div class="text-xs text-gray-500 leading-relaxed mb-5 prose prose-xs max-w-none">
+                        {!! $program->deskripsi !!}
+                    </div>
+
+                    <!-- Pricing Box -->
+                    <div class="bg-gradient-to-br from-gray-50 to-sky-50/30 rounded-2xl p-4 border border-gray-100 mb-5">
+                        <span class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Tarif Paket</span>
+                        <div class="flex items-baseline gap-1 mt-0.5">
+                            <span class="text-2xl font-black text-gray-900">{{ $program->formatted_biaya }}</span>
+                            <span class="text-xs text-gray-500 font-semibold">/ paket</span>
+                        </div>
+                        <div class="flex items-center gap-3 mt-2.5 text-xs text-gray-600 font-medium pt-2 border-t border-gray-200/60">
+                            <span class="inline-flex items-center gap-1.5">
+                                <i data-lucide="calendar" class="w-4 h-4 text-[#1768B5]"></i>
+                                <strong>{{ $program->jumlah_sesi ?: 1 }}x</strong> Pertemuan
+                            </span>
+                            <span class="text-gray-300">•</span>
+                            <span class="inline-flex items-center gap-1.5">
+                                <i data-lucide="clock" class="w-4 h-4 text-[#1768B5]"></i>
+                                <strong>@ {{ $program->durasi_sesi ?: 60 }}</strong> Menit/Sesi
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Facilities Checklist -->
+                    <div class="space-y-2.5 mb-6">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Keuntungan &amp; Fasilitas:</h4>
+                        <ul class="space-y-2 text-xs text-gray-700">
+                            @foreach($program->fasilitas_array as $fasilitas)
+                            <li class="flex items-start gap-2.5">
+                                <div class="h-4 w-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i data-lucide="check" class="w-3 h-3"></i>
+                                </div>
+                                <span class="leading-tight">{{ $fasilitas }}</span>
+                            </li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
 
-                <!-- Facilities Checklist -->
-                <div class="space-y-2.5 mb-6">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400">Keuntungan &amp; Fasilitas:</h4>
-                    <ul class="space-y-2 text-xs text-gray-700">
-                        @foreach($program->fasilitas_array as $fasilitas)
-                        <li class="flex items-start gap-2.5">
-                            <div class="h-4 w-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
-                                <i data-lucide="check" class="w-3 h-3"></i>
-                            </div>
-                            <span class="leading-tight">{{ $fasilitas }}</span>
-                        </li>
-                        @endforeach
-                    </ul>
+                <!-- CTA Action -->
+                <div class="pt-4 border-t border-gray-100">
+                    <a href="{{ route('bimbingan.create', ['program_id' => $program->id]) }}" class="w-full py-3 px-4 rounded-xl {{ $program->is_populer ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md' : 'bg-gradient-to-r from-[#2B8BD1] to-[#1768B5] hover:from-[#1768B5] hover:to-[#102654] text-white shadow-xs' }} font-bold text-xs flex items-center justify-center gap-2 transition">
+                        <span>Pilih Program Ini</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
                 </div>
-            </div>
-
-            <!-- CTA Action -->
-            <div class="pt-4 border-t border-gray-100">
-                <a href="{{ route('bimbingan.create', ['program_id' => $program->id]) }}" class="w-full py-3 px-4 rounded-xl {{ $program->is_populer ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md' : 'bg-gradient-to-r from-[#2B8BD1] to-[#1768B5] hover:from-[#1768B5] hover:to-[#102654] text-white shadow-xs' }} font-bold text-xs flex items-center justify-center gap-2 transition">
-                    <span>Pilih Program Ini</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </a>
             </div>
         </div>
         @empty

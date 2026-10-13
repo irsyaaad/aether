@@ -15,6 +15,7 @@ class MasterProgram extends Model
     protected $fillable = [
         'kode_program',
         'nama_program',
+        'banner',
         'kategori',
         'jenjang',
         'deskripsi',
@@ -39,6 +40,27 @@ class MasterProgram extends Model
         'deleted_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'banner_url',
+        'formatted_biaya',
+        'ringkasan_sesi',
+        'fasilitas_html',
+    ];
+
+    /**
+     * Get banner URL accessor
+     */
+    public function getBannerUrlAttribute(): ?string
+    {
+        if ($this->banner) {
+            if (str_starts_with($this->banner, 'http://') || str_starts_with($this->banner, 'https://')) {
+                return $this->banner;
+            }
+            return asset('storage/' . $this->banner);
+        }
+        return null;
+    }
+
     /**
      * Get list of facilities as an array
      */
@@ -56,9 +78,56 @@ class MasterProgram extends Model
             }
         }
 
+        // If HTML containing <li> tags
+        if (stripos($this->fasilitas, '<li') !== false) {
+            preg_match_all('/<li[^>]*>(.*?)<\/li>/is', $this->fasilitas, $matches);
+            if (!empty($matches[1])) {
+                $items = array_map(function ($item) {
+                    return trim(html_entity_decode(strip_tags($item)));
+                }, $matches[1]);
+                return array_values(array_filter($items, fn($item) => $item !== ''));
+            }
+        }
+
+        // If HTML containing paragraphs, divs or line breaks
+        if (stripos($this->fasilitas, '<p') !== false || stripos($this->fasilitas, '<div') !== false || stripos($this->fasilitas, '<br') !== false) {
+            $formatted = preg_replace('/<(?:br|\/p|\/div)\s*\/?>/i', "\n", $this->fasilitas);
+            $clean = strip_tags($formatted);
+            $lines = preg_split('/\r\n|\r|\n/', $clean);
+            return array_values(array_filter(array_map('trim', array_map('html_entity_decode', $lines)), fn($item) => $item !== ''));
+        }
+
         // Multiline string
         $lines = preg_split('/\r\n|\r|\n/', $this->fasilitas);
         return array_values(array_filter(array_map('trim', $lines), fn($item) => $item !== ''));
+    }
+
+    /**
+     * Get facilities formatted as HTML (for rich text editors like CKEditor)
+     */
+    public function getFasilitasHtmlAttribute(): string
+    {
+        if (empty($this->fasilitas)) {
+            return '';
+        }
+
+        // If already HTML
+        if (stripos($this->fasilitas, '<') !== false) {
+            return $this->fasilitas;
+        }
+
+        // Convert plain multiline to <ul><li>...</li></ul>
+        $items = $this->fasilitas_array;
+        if (empty($items)) {
+            return '';
+        }
+
+        $html = '<ul>';
+        foreach ($items as $item) {
+            $html .= '<li>' . htmlspecialchars($item, ENT_QUOTES, 'UTF-8') . '</li>';
+        }
+        $html .= '</ul>';
+        return $html;
     }
 
     /**

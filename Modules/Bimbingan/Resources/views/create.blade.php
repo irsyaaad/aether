@@ -48,6 +48,7 @@
                             data-target="{{ $prog->target_bab ?: 'Bimbingan Skripsi' }}"
                             data-kategori="{{ $prog->kategori }}"
                             data-badge="{{ $prog->badge }}"
+                            data-banner="{{ $prog->banner_url }}"
                             data-deskripsi="{{ $prog->deskripsi }}"
                             data-fasilitas="{{ json_encode($prog->fasilitas_array) }}"
                             {{ (old('program_id', $selectedProgram ? $selectedProgram->id : '') == $prog->id) ? 'selected' : '' }}>
@@ -58,14 +59,17 @@
 
                 <!-- Dynamic Preview Card for Selected Program -->
                 <div id="program-preview-box" class="bg-white rounded-xl p-4 border border-sky-200 shadow-xs space-y-3">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span id="preview-kategori" class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-sky-100 text-[#1768B5]">Bimbingan</span>
-                                <span id="preview-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 hidden">Populer</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-3">
+                        <div class="flex items-center gap-3">
+                            <img id="preview-banner-img" src="" alt="Banner" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shadow-xs hidden shrink-0">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span id="preview-kategori" class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-sky-100 text-[#1768B5]">Bimbingan</span>
+                                    <span id="preview-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 hidden">Populer</span>
+                                </div>
+                                <h4 id="preview-nama" class="text-sm font-black text-gray-900 mt-1">Nama Program</h4>
+                                <p id="preview-target" class="text-xs text-sky-700 font-medium">Cakupan Bab</p>
                             </div>
-                            <h4 id="preview-nama" class="text-sm font-black text-gray-900 mt-1">Nama Program</h4>
-                            <p id="preview-target" class="text-xs text-sky-700 font-medium">Cakupan Bab</p>
                         </div>
                         <div class="text-right">
                             <span class="text-[11px] text-gray-400 font-semibold block">Total Biaya Paket:</span>
@@ -191,6 +195,16 @@
             badgeEl.classList.remove('hidden');
         } else {
             badgeEl.classList.add('hidden');
+        }
+
+        const bannerUrl = selected.getAttribute('data-banner');
+        const bannerImgEl = document.getElementById('preview-banner-img');
+        if (bannerUrl && bannerUrl !== 'null' && bannerUrl.trim() !== '') {
+            bannerImgEl.src = bannerUrl;
+            bannerImgEl.classList.remove('hidden');
+        } else {
+            bannerImgEl.src = '';
+            bannerImgEl.classList.add('hidden');
         }
 
         const rawFasilitas = selected.getAttribute('data-fasilitas');

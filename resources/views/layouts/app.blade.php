@@ -147,13 +147,13 @@
                 </div>
 
                 <!-- Navigation Groups -->
-                <div class="flex flex-col gap-1 p-4 h-[calc(100vh-14rem)] overflow-y-auto">
+                <div id="logis-sidebar-nav" class="flex flex-col gap-1 p-4 h-[calc(100vh-14rem)] overflow-y-auto scroll-smooth">
                     <!-- Dashboard -->
                     <div class="flex flex-col gap-1 mb-2">
                         <div class="mb-1 px-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
                             Dashboard
                         </div>
-                        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('dashboard*') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('dashboard*') ? 'active bg-primary/10 text-primary font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="layout-dashboard" class="h-4 w-4 {{ request()->is('dashboard*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Monitoring Riset Mahasiswa
                         </a>
@@ -167,7 +167,7 @@
 
                         <!-- 1. Bimbingan -->
                         <div class="flex flex-col">
-                            <a href="{{ route('bimbingan.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('bimbingan*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <a href="{{ route('bimbingan.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('bimbingan*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                                 <div class="flex items-center gap-3">
                                     <i data-lucide="graduation-cap" class="h-4 w-4 {{ request()->is('bimbingan*') ? 'text-[#1768B5]' : 'text-gray-500' }}"></i>
                                     <span>Bimbingan Skripsi</span>
@@ -175,13 +175,13 @@
                                 <span class="text-[10px] bg-sky-100 text-[#1768B5] px-1.5 py-0.5 rounded-full font-bold">1-on-1</span>
                             </a>
                             <div class="ml-7 flex flex-col gap-0.5 border-l border-gray-200 pl-2 mt-0.5">
-                                <a href="{{ route('bimbingan.programs') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('bimbingan/programs*') || request()->is('bimbingan/katalog*') ? 'text-[#1768B5] font-bold' : '' }}">
+                                <a href="{{ route('bimbingan.programs') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('bimbingan/programs*') || request()->is('bimbingan/katalog*') ? 'active text-[#1768B5] font-bold' : '' }}">
                                     <span>• Pilihan &amp; Katalog Program</span>
                                 </a>
-                                <a href="{{ route('bimbingan.create') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('bimbingan/pengajuan*') ? 'text-[#1768B5] font-bold' : '' }}">
+                                <a href="{{ route('bimbingan.create') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('bimbingan/pengajuan*') ? 'active text-[#1768B5] font-bold' : '' }}">
                                     <span>• Ajukan Sesi Bimbingan</span>
                                 </a>
-                                <a href="{{ route('bimbingan.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5">
+                                <a href="{{ route('bimbingan.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ (request()->routeIs('bimbingan.index') || request()->is('bimbingan')) && !request()->is('bimbingan/programs*') && !request()->is('bimbingan/katalog*') && !request()->is('bimbingan/pengajuan*') ? 'active text-[#1768B5] font-bold' : '' }}">
                                     <span>• Jadwal &amp; Riwayat Konsultasi</span>
                                 </a>
                             </div>
@@ -189,7 +189,7 @@
 
                         <!-- 2. Olah Data -->
                         <div class="flex flex-col mt-1">
-                            <a href="{{ route('olahdata.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('olahdata*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <a href="{{ route('olahdata.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('olahdata*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                                 <div class="flex items-center gap-3">
                                     <i data-lucide="bar-chart-2" class="h-4 w-4 {{ request()->is('olahdata*') ? 'text-[#1768B5]' : 'text-gray-500' }}"></i>
                                     <span>Olah Data Riset</span>
@@ -197,10 +197,10 @@
                                 <span class="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full font-bold">SPSS/PLS</span>
                             </a>
                             <div class="ml-7 flex flex-col gap-0.5 border-l border-gray-200 pl-2 mt-0.5">
-                                <a href="{{ route('olahdata.create') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('olahdata/upload-dataset*') ? 'text-[#1768B5] font-bold' : '' }}">
+                                <a href="{{ route('olahdata.create') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('olahdata/upload-dataset*') ? 'active text-[#1768B5] font-bold' : '' }}">
                                     <span>• Upload Dataset Baru</span>
                                 </a>
-                                <a href="{{ route('olahdata.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5">
+                                <a href="{{ route('olahdata.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ (request()->routeIs('olahdata.index') || request()->is('olahdata')) && !request()->is('olahdata/upload-dataset*') ? 'active text-[#1768B5] font-bold' : '' }}">
                                     <span>• Progres &amp; Output Bab 4</span>
                                 </a>
                             </div>
@@ -208,7 +208,7 @@
 
                         <!-- 3. Pelatihan -->
                         <div class="flex flex-col mt-1">
-                            <a href="{{ route('pelatihan.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('pelatihan*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <a href="{{ route('pelatihan.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('pelatihan*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                                 <div class="flex items-center gap-3">
                                     <i data-lucide="award" class="h-4 w-4 {{ request()->is('pelatihan*') ? 'text-[#1768B5]' : 'text-gray-500' }}"></i>
                                     <span>Pelatihan &amp; Workshop</span>
@@ -216,13 +216,13 @@
                                 <span class="text-[10px] bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded-full font-bold">Kelas</span>
                             </a>
                             <div class="ml-7 flex flex-col gap-0.5 border-l border-gray-200 pl-2 mt-0.5">
-                                <a href="{{ route('pelatihan.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5">
+                                <a href="{{ route('pelatihan.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ (request()->routeIs('pelatihan.index') || request()->is('pelatihan')) && !request()->is('pelatihan/kelas-saya*') && !request()->is('pelatihan/sertifikat*') ? 'active text-[#1768B5] font-bold' : '' }}">
                                     <span>• Katalog Workshop &amp; Kelas</span>
                                 </a>
-                                <a href="{{ route('pelatihan.kelas-saya') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5">
+                                <a href="{{ route('pelatihan.kelas-saya') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('pelatihan/kelas-saya*') ? 'active text-[#1768B5] font-bold' : '' }}">
                                     <span>• Kelas Terdaftar Saya</span>
                                 </a>
-                                <a href="{{ route('pelatihan.sertifikat') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5">
+                                <a href="{{ route('pelatihan.sertifikat') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('pelatihan/sertifikat*') ? 'active text-[#1768B5] font-bold' : '' }}">
                                     <span>• E-Sertifikat Kelulusan</span>
                                 </a>
                             </div>
@@ -246,37 +246,37 @@
                             Manajemen Tugas
                         </div>
                         @if($hasMyTasks)
-                        <a href="{{ route('tasks.my-tasks.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('my-tasks*') ? 'bg-primary/10 text-primary font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('tasks.my-tasks.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('my-tasks*') ? 'active bg-primary/10 text-primary font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="list-todo" class="h-4 w-4 {{ request()->is('my-tasks*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Tugas Saya
                         </a>
                         @endif
                         @if($hasTasks)
-                        <a href="{{ route('tasks.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('tasks*') && !request()->is('task-assignment*') && !request()->is('task-monitoring*') && !request()->is('my-tasks*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('tasks.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('tasks*') && !request()->is('task-assignment*') && !request()->is('task-monitoring*') && !request()->is('my-tasks*') ? 'active bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="check-square" class="h-4 w-4 {{ request()->is('tasks*') && !request()->is('task-assignment*') && !request()->is('task-monitoring*') && !request()->is('my-tasks*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Daftar Tugas
                         </a>
                         @endif
                         @if($hasPlotting)
-                        <a href="{{ route('tasks.assignment.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('task-assignment*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('tasks.assignment.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('task-assignment*') ? 'active bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="user-check" class="h-4 w-4 {{ request()->is('task-assignment*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Plotting Tugas
                         </a>
                         @endif
                         @if($hasMonitoring)
-                        <a href="{{ route('tasks.monitoring.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('task-monitoring*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('tasks.monitoring.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('task-monitoring*') ? 'active bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="clipboard-check" class="h-4 w-4 {{ request()->is('task-monitoring*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Monitoring Submission
                         </a>
                         @endif
                         @if($hasCategories)
-                        <a href="{{ route('task-categories.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('task-categories*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('task-categories.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('task-categories*') ? 'active bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="tags" class="h-4 w-4 {{ request()->is('task-categories*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Kategori Tugas
                         </a>
                         @endif
                         @if($hasPriorities)
-                        <a href="{{ route('task-priorities.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('task-priorities*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('task-priorities.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('task-priorities*') ? 'active bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="alert-circle" class="h-4 w-4 {{ request()->is('task-priorities*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Prioritas Tugas
                         </a>
@@ -293,31 +293,31 @@
                         </div>
 
                         <!-- Master Program & Paket Layanan -->
-                        <a href="{{ route('master.programs.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/programs*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('master.programs.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/programs*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="layers" class="h-4 w-4 {{ request()->is('master/programs*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
                             Master Program Riset
                         </a>
 
                         <!-- Master Mentor & Konsultan -->
-                        <a href="{{ route('master.mentors.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/mentors*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('master.mentors.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/mentors*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="user-check" class="h-4 w-4 {{ request()->is('master/mentors*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
                             Master Mentor Ahli
                         </a>
 
                         <!-- Master Kelas & Workshop -->
-                        <a href="{{ route('master.kelas.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/kelas*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('master.kelas.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/kelas*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="award" class="h-4 w-4 {{ request()->is('master/kelas*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
                             Master Kelas &amp; Workshop
                         </a>
 
                         <!-- Master Materi & Silabus -->
-                        <a href="{{ route('master.materi.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/materi*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('master.materi.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/materi*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="book-open" class="h-4 w-4 {{ request()->is('master/materi*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
                             Master Materi Silabus
                         </a>
 
                         <!-- Master Metode Riset -->
-                        <a href="{{ route('master.metode.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/metode*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('master.metode.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/metode*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="microscope" class="h-4 w-4 {{ request()->is('master/metode*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
                             Master Metode Riset
                         </a>
@@ -327,26 +327,58 @@
                     @php
                         $hasKasMasuk = check_access('kas-bank-masuk.index');
                         $hasKasKeluar = check_access('kas-bank-keluar.index');
-                        $hasKeuanganGroup = $hasKasMasuk || $hasKasKeluar;
+                        $hasJurnal = check_access('jurnal.index');
+                        $hasNeraca = check_access('neraca.index');
+                        $hasRugiLaba = check_access('rugi-laba.index');
+                        $hasCashFlow = check_access('cashflow.index');
+                        $hasKeuanganGroup = $hasKasMasuk || $hasKasKeluar || $hasJurnal || $hasNeraca || $hasRugiLaba || $hasCashFlow;
                     @endphp
 
                     @if($hasKeuanganGroup)
                     <div class="flex flex-col gap-1 mb-2">
                         <div class="mb-1 px-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                            Keuangan
+                            Keuangan &amp; Akuntansi
                         </div>
 
                         @if($hasKasMasuk)
-                        <a href="{{ route('kas-bank-masuk.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('kas-bank-masuk*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('kas-bank-masuk.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('kas-bank-masuk*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="arrow-down-left" class="h-4 w-4 {{ request()->is('kas-bank-masuk*') ? 'text-emerald-600' : 'text-gray-400' }}"></i>
                             Kas / Bank Masuk
                         </a>
                         @endif
 
                         @if($hasKasKeluar)
-                        <a href="{{ route('kas-bank-keluar.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('kas-bank-keluar*') ? 'bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('kas-bank-keluar.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('kas-bank-keluar*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="arrow-up-right" class="h-4 w-4 {{ request()->is('kas-bank-keluar*') ? 'text-rose-600' : 'text-gray-400' }}"></i>
                             Kas / Bank Keluar
+                        </a>
+                        @endif
+
+                        @if($hasJurnal)
+                        <a href="{{ route('jurnal.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('jurnal*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <i data-lucide="book-open" class="h-4 w-4 {{ request()->is('jurnal*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
+                            Jurnal Umum
+                        </a>
+                        @endif
+
+                        @if($hasNeraca)
+                        <a href="{{ route('neraca.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('neraca*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <i data-lucide="scale" class="h-4 w-4 {{ request()->is('neraca*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
+                            Neraca Keuangan
+                        </a>
+                        @endif
+
+                        @if($hasRugiLaba)
+                        <a href="{{ route('rugi-laba.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('rugi-laba*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <i data-lucide="trending-up" class="h-4 w-4 {{ request()->is('rugi-laba*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
+                            Laba Rugi
+                        </a>
+                        @endif
+
+                        @if($hasCashFlow)
+                        <a href="{{ route('cashflow.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('cashflow*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <i data-lucide="wallet" class="h-4 w-4 {{ request()->is('cashflow*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
+                            Arus Kas (Cash Flow)
                         </a>
                         @endif
                     </div>
@@ -368,31 +400,31 @@
                             Setting
                         </div>
                         @if($hasCoa)
-                        <a href="{{ route('master.coa.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/coa*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ route('master.coa.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/coa*') ? 'active bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="book-marked" class="h-4 w-4 {{ request()->is('master/coa*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Master CoA
                         </a>
                         @endif
                         @if($hasPerusahaan)
-                        <a href="{{ url('setting/perusahaan') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('setting/perusahaan*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ url('setting/perusahaan') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('setting/perusahaan*') ? 'active bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="settings" class="h-4 w-4 {{ request()->is('setting/perusahaan*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Setting Akun
                         </a>
                         @endif
                         @if($hasUser)
-                        <a href="{{ url('user') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('user*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ url('user') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('user*') ? 'active bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="user-cog" class="h-4 w-4 {{ request()->is('user*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Manajemen User
                         </a>
                         @endif
                         @if($hasRole)
-                        <a href="{{ url('roles') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('roles*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ url('roles') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('roles*') ? 'active bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="shield" class="h-4 w-4 {{ request()->is('roles*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Manajemen Role
                         </a>
                         @endif
                         @if($hasRoleMenu)
-                        <a href="{{ url('role-menu') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('role-menu*') ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <a href="{{ url('role-menu') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('role-menu*') ? 'active bg-gray-100 text-gray-900 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="key-round" class="h-4 w-4 {{ request()->is('role-menu*') ? 'text-primary' : 'text-gray-400' }}"></i>
                             Hak Akses & Permission
                         </a>
@@ -471,7 +503,7 @@
     <script src="{{ asset('assets/vendors/select2/select2.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/datatables-net/dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/apexcharts/apexcharts.min.js') }}"></script>
-    <script src="{{ asset('assets-logistik/js/logistik.js') }}"></script>
+    <script src="{{ asset('assets-logistik/js/logistik.js') }}?v=1.3"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof lucide !== 'undefined') {

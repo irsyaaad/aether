@@ -43,9 +43,11 @@
         <!-- Header -->
         <div class="border-b-2 border-gray-800 pb-4 flex items-start justify-between">
             <div class="flex items-center gap-3">
-                <div class="h-12 w-12 rounded-xl {{ $transaksi->jenis === 'masuk' ? 'bg-emerald-600' : 'bg-rose-600' }} text-white flex items-center justify-center font-black text-lg">
-                    {{ $transaksi->jenis === 'masuk' ? 'KM' : 'KK' }}
-                </div>
+                @php
+                    $logoPath = public_path('images/logo_aether.png');
+                    $logoSrc = file_exists($logoPath) ? asset('images/logo_aether.png') : asset('images/logo_aether.jpeg');
+                @endphp
+                <img src="{{ $logoSrc }}" alt="Aether" class="h-12 w-auto object-contain">
                 <div>
                     <h2 class="text-lg font-black tracking-tight text-gray-900 uppercase">AETHER ACADEMIC & RESEARCH</h2>
                     <p class="text-[11px] text-gray-500">Pusat Bimbingan Skripsi, Konsultasi Riset & Publikasi Ilmiah</p>

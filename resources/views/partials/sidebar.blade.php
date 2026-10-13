@@ -141,3 +141,35 @@
     <!-- End of Sidebar Footer -->
 </div>
 <!-- End of Sidebar -->
+
+<script>
+    (function () {
+        function scrollMetronicActiveMenu() {
+            var wrapper = document.getElementById('sidebar_menu_wrapper');
+            if (!wrapper) return;
+            var activeItem = wrapper.querySelector('.kt-menu-item.active, .active');
+            if (!activeItem) return;
+
+            var containerRect = wrapper.getBoundingClientRect();
+            var itemRect = activeItem.getBoundingClientRect();
+            var relativeTop = (itemRect.top - containerRect.top) + wrapper.scrollTop;
+            var targetScrollTop = relativeTop - (wrapper.clientHeight / 2) + (activeItem.clientHeight / 2);
+            var maxScrollTop = wrapper.scrollHeight - wrapper.clientHeight;
+            var clampedScrollTop = Math.max(0, Math.min(targetScrollTop, maxScrollTop));
+
+            if (typeof wrapper.scrollTo === 'function') {
+                wrapper.scrollTo({ top: clampedScrollTop, behavior: 'smooth' });
+            } else {
+                wrapper.scrollTop = clampedScrollTop;
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () {
+                setTimeout(scrollMetronicActiveMenu, 100);
+            });
+        } else {
+            setTimeout(scrollMetronicActiveMenu, 100);
+        }
+    })();
+</script>

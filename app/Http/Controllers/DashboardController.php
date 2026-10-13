@@ -22,6 +22,9 @@ use Modules\Task\Entities\TaskPriority;
 use Modules\Task\Entities\TaskSubmission;
 use Modules\Task\Services\TaskRecurringService;
 use Modules\Task\Services\TaskStatusService;
+use Modules\Bimbingan\Entities\TransaksiBimbingan;
+use Modules\Master\Entities\MasterMentor;
+use Modules\Master\Entities\MasterProgram;
 use Yajra\DataTables\Facades\DataTables;
 
 class DashboardController extends Controller
@@ -353,6 +356,73 @@ class DashboardController extends Controller
             }
         }
 
+        // Academic Bimbingan Sessions for User Dashboard & Interactive Calendar
+        $bimbinganQuery = TransaksiBimbingan::with(['program', 'mentor'])
+            ->orderBy('jadwal_konsultasi', 'asc');
+
+        if (!$isSuperAdmin && $user) {
+            $userSessionExists = TransaksiBimbingan::where('user_id', $user->id_user)->exists();
+            if ($userSessionExists) {
+                $bimbinganQuery->where('user_id', $user->id_user);
+            }
+        }
+
+        $bimbinganSessions = $bimbinganQuery->get();
+
+        $academicStats = (object)[
+            'total_sesi'      => $bimbinganSessions->count(),
+            'dijadwalkan'     => $bimbinganSessions->where('status', 'Dijadwalkan')->count(),
+            'menunggu'        => $bimbinganSessions->whereIn('status', ['Menunggu Review', 'Menunggu Konfirmasi'])->count(),
+            'selesai'         => $bimbinganSessions->where('status', 'Selesai')->count(),
+        ];
+
+        $calendarEvents = $bimbinganSessions->map(function ($s) {
+            $dateStr = $s->jadwal_konsultasi ? $s->jadwal_konsultasi->format('Y-m-d') : null;
+            $timeStr = $s->jadwal_konsultasi ? $s->jadwal_konsultasi->format('H:i') . ' WIB' : 'TBA';
+            $formattedDate = $s->jadwal_konsultasi ? $s->jadwal_konsultasi->translatedFormat('d M Y') : '-';
+            $status = $s->status ?? 'Menunggu Review';
+
+            $badgeColor = 'amber';
+            if ($status === 'Dijadwalkan' || $status === 'Terkonfirmasi') {
+                $badgeColor = 'sky';
+            } elseif ($status === 'Selesai') {
+                $badgeColor = 'emerald';
+            } elseif ($status === 'Dibatalkan') {
+                $badgeColor = 'rose';
+            }
+
+            $mentorName = $s->mentor?->nama_lengkap ?? 'Mentor Riset Aether';
+            if ($s->mentor && $s->mentor->gelar) {
+                $mentorName .= ', ' . $s->mentor->gelar;
+            }
+            $programName = $s->program?->nama_program ?? ($s->paket_bimbingan ?: 'Pendampingan Skripsi');
+
+            return [
+                'id'              => $s->id,
+                'nomor_tiket'     => $s->nomor_tiket,
+                'title'           => $s->judul_skripsi,
+                'nama_mahasiswa'  => $s->nama_mahasiswa,
+                'program'         => $programName,
+                'mentor'          => $mentorName,
+                'date'            => $dateStr,
+                'time'            => $timeStr,
+                'formatted_date'  => $formattedDate,
+                'datetime_raw'    => $s->jadwal_konsultasi ? $s->jadwal_konsultasi->toIso8601String() : null,
+                'status'          => $status,
+                'badge_color'     => $badgeColor,
+                'topik_bidang'    => $s->topik_bidang ?: 'Konsultasi Riset & Bab',
+                'media'           => $s->link_zoom ? 'Google Meet (Online)' : 'Online Video Meeting',
+                'link_zoom'       => $s->link_zoom,
+                'keluhan_kendala' => $s->keluhan_kendala,
+                'catatan_mentor'  => $s->catatan_mentor,
+                'biaya'           => $s->biaya ? 'Rp ' . number_format($s->biaya, 0, ',', '.') : '-',
+                'status_pembayaran' => $s->status_pembayaran ?? 'Menunggu Pembayaran',
+            ];
+        })->filter(fn($e) => !empty($e['date']))->values();
+
+        $activePrograms = MasterProgram::where('is_active', true)->orderBy('is_populer', 'desc')->orderBy('id', 'asc')->get();
+        $activeMentors = MasterMentor::where('is_active', true)->orderBy('nama_lengkap', 'asc')->get();
+
         return view('dashboard', compact(
             'totalTasks',
             'completedTasks',
@@ -381,7 +451,12 @@ class DashboardController extends Controller
             'dateTo',
             'isSuperAdmin',
             'myEmployee',
-            'myTaskStats'
+            'myTaskStats',
+            'bimbinganSessions',
+            'academicStats',
+            'calendarEvents',
+            'activePrograms',
+            'activeMentors'
         ));
     }
 
