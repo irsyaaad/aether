@@ -972,15 +972,28 @@ class KasBankController extends Controller
         }
 
         $totalCount = $query->count();
-        $items = $query->orderBy('kode_akun', 'asc')
-            ->skip(($page - 1) * $perPage)
+
+        // Untuk Kas Masuk, dahulukan akun Pendapatan (4xxx) sebelum akun Pengembalian Beban (5xxx)
+        if ($jenis === 'masuk') {
+            $query->orderByRaw("CASE WHEN tipe = 'Pendapatan' OR kode_akun LIKE '4%' THEN 1 ELSE 2 END ASC")
+                  ->orderBy('kode_akun', 'asc');
+        } else {
+            $query->orderBy('kode_akun', 'asc');
+        }
+
+        $items = $query->skip(($page - 1) * $perPage)
             ->take($perPage)
             ->get();
 
-        $results = $items->map(function ($item) {
+        $results = $items->map(function ($item) use ($jenis) {
+            $prefix = '';
+            if ($jenis === 'masuk') {
+                $isPendapatan = ($item->tipe === 'Pendapatan' || str_starts_with($item->kode_akun, '4'));
+                $prefix = $isPendapatan ? '[PENDAPATAN] ' : '[PENGEMBALIAN BEBAN] ';
+            }
             return [
                 'id' => $item->id,
-                'text' => $item->kode_akun . ' - ' . $item->nama_akun,
+                'text' => $prefix . $item->kode_akun . ' - ' . $item->nama_akun,
                 'kode_akun' => $item->kode_akun,
                 'nama_akun' => $item->nama_akun,
                 'kategori' => $item->kategori,

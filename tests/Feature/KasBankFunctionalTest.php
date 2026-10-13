@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Route;
 use Modules\Keuangan\Entities\TransaksiKasBank;
 use Modules\Master\Entities\MasterCoa;
@@ -10,8 +11,11 @@ use Tests\TestCase;
 
 class KasBankFunctionalTest extends TestCase
 {
+    use DatabaseTransactions;
+
     protected $adminUser;
     protected $kasBankCoa;
+    protected $pendapatanCoa;
     protected $bebanCoa;
 
     protected function setUp(): void
@@ -20,6 +24,7 @@ class KasBankFunctionalTest extends TestCase
 
         $this->adminUser = User::first() ?? User::factory()->create();
         $this->kasBankCoa = MasterCoa::kasBank()->first();
+        $this->pendapatanCoa = MasterCoa::pendapatan()->first();
         $this->bebanCoa = MasterCoa::beban()->first();
     }
 
@@ -64,12 +69,12 @@ class KasBankFunctionalTest extends TestCase
         $payload = [
             'tanggal'           => date('Y-m-d'),
             'kas_bank_id'       => $this->kasBankCoa->id,
-            'lawan_coa_id'      => $this->bebanCoa->id,
+            'lawan_coa_id'      => $this->pendapatanCoa->id,
             'nominal'           => '1.750.000',
             'metode_pembayaran' => 'Transfer Bank',
             'penerima_pembayar' => 'Klien Konsultasi Skripsi',
             'nomor_referensi'   => 'REF-KM-TEST-001',
-            'keterangan'        => 'Pengembalian / Penerimaan Uji Coba',
+            'keterangan'        => 'Penerimaan Pembayaran Uji Coba',
         ];
 
         $response = $this->post(route('kas-bank-masuk.store'), $payload);
@@ -84,16 +89,16 @@ class KasBankFunctionalTest extends TestCase
         $this->assertNotNull($transaksi);
         $this->assertEquals('masuk', $transaksi->jenis);
         $this->assertEquals($this->kasBankCoa->id, $transaksi->kas_bank_id);
-        $this->assertEquals($this->bebanCoa->id, $transaksi->lawan_coa_id);
+        $this->assertEquals($this->pendapatanCoa->id, $transaksi->lawan_coa_id);
         $this->assertEquals(1750000, (float)$transaksi->nominal);
 
         // Debet: Kas/Bank (Aset Lancar bertambah)
         $this->assertEquals($this->kasBankCoa->nama_akun, $transaksi->kasBank->nama_akun);
         $this->assertEquals('Aset', $transaksi->kasBank->tipe);
 
-        // Kredit: Lawan CoA (Beban Operasional)
-        $this->assertEquals($this->bebanCoa->nama_akun, $transaksi->lawanCoa->nama_akun);
-        $this->assertEquals('Beban', $transaksi->lawanCoa->tipe);
+        // Kredit: Lawan CoA (Pendapatan Jasa)
+        $this->assertEquals($this->pendapatanCoa->nama_akun, $transaksi->lawanCoa->nama_akun);
+        $this->assertEquals('Pendapatan', $transaksi->lawanCoa->tipe);
 
         // B. READ: Tampil via Show API, DataTables, dan Voucher
         $showResponse = $this->get(route('kas-bank-masuk.show', $transaksiId));
@@ -103,7 +108,7 @@ class KasBankFunctionalTest extends TestCase
             'data' => [
                 'id' => $transaksiId,
                 'kas_bank_id' => $this->kasBankCoa->id,
-                'lawan_coa_id' => $this->bebanCoa->id,
+                'lawan_coa_id' => $this->pendapatanCoa->id,
             ]
         ]);
 
@@ -116,7 +121,7 @@ class KasBankFunctionalTest extends TestCase
         $voucherResponse->assertSee('BUKTI KAS / BANK MASUK');
         $voucherResponse->assertSee($transaksi->nomor_transaksi);
         $voucherResponse->assertSee($this->kasBankCoa->nama_akun);
-        $voucherResponse->assertSee($this->bebanCoa->nama_akun);
+        $voucherResponse->assertSee($this->pendapatanCoa->nama_akun);
 
         // C. UPDATE: Perbarui Transaksi
         $updatePayload = [

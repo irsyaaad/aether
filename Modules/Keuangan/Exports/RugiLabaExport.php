@@ -152,6 +152,17 @@ class RugiLabaExport implements FromCollection, WithHeadings, WithStyles, WithTi
             'nominal'       => (float) $this->report['laba_bersih'],
         ]);
 
+        if ($this->report['total_beban'] < 0) {
+            $data->push([
+                'kode_akun'     => '',
+                'nama_akun'     => '* Catatan: Total beban bernilai minus karena mutasi kredit (pengembalian beban) melampaui pengeluaran, sehingga menambah hasil usaha bersih.',
+                'kategori'      => '',
+                'mutasi_debit'  => '',
+                'mutasi_kredit' => '',
+                'nominal'       => '',
+            ]);
+        }
+
         return $data;
     }
 

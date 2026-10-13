@@ -154,8 +154,8 @@
                     </div>
                     @endforeach
                 </div>
-                <div class="bg-rose-50 px-4 py-2 flex justify-between font-black text-rose-950 border-t border-rose-200">
-                    <span>TOTAL BEBAN OPERASIONAL</span>
+                <div class="{{ $report['total_beban'] < 0 ? 'bg-amber-50 text-amber-950 border-amber-200' : 'bg-rose-50 text-rose-950 border-rose-200' }} px-4 py-2 flex justify-between font-black border-t">
+                    <span>TOTAL BEBAN OPERASIONAL {{ $report['total_beban'] < 0 ? '(KREDIT BERSIH)' : '' }}</span>
                     <span class="font-mono text-sm">Rp {{ number_format($report['total_beban'], 0, ',', '.') }}</span>
                 </div>
             </div>
@@ -169,6 +169,15 @@
                     <span class="text-sm {{ $report['is_laba'] ? 'text-emerald-950' : 'text-rose-950' }}">
                         {{ strtoupper($report['status_label']) }}
                     </span>
+                    @if($report['total_beban'] < 0)
+                    <span class="block text-[11px] font-normal text-slate-600 mt-1">
+                        Rumus: Rp {{ number_format($report['total_pendapatan'], 0, ',', '.') }} - (Rp {{ number_format($report['total_beban'], 0, ',', '.') }}) = Rp {{ number_format($report['laba_bersih'], 0, ',', '.') }} (Pendapatan + Pemulihan Beban)
+                    </span>
+                    @else
+                    <span class="block text-[11px] font-normal text-slate-600 mt-1">
+                        Rumus: Total Pendapatan - Total Beban
+                    </span>
+                    @endif
                 </div>
                 <span class="text-xl font-mono {{ $report['is_laba'] ? 'text-emerald-900' : 'text-rose-900' }}">
                     Rp {{ number_format($report['laba_bersih'], 0, ',', '.') }}

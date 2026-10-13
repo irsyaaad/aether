@@ -59,16 +59,24 @@
         </div>
 
         <!-- Card 2: Total Beban -->
-        <div class="bg-white p-4 rounded-xl border border-rose-100 shadow-xs flex items-center justify-between">
+        <div class="bg-white p-4 rounded-xl border {{ $report['total_beban'] < 0 ? 'border-amber-200 bg-amber-50/20' : 'border-rose-100' }} shadow-xs flex items-center justify-between">
             <div>
-                <p class="text-[11px] font-bold text-rose-600 uppercase tracking-wider">Total Beban Operasional</p>
-                <h3 class="text-xl font-black text-rose-950 mt-1 font-mono-num" id="stat-total-beban">
+                <p class="text-[11px] font-bold {{ $report['total_beban'] < 0 ? 'text-amber-700' : 'text-rose-600' }} uppercase tracking-wider">
+                    Total Beban Operasional {{ $report['total_beban'] < 0 ? '(Kredit Bersih)' : '' }}
+                </p>
+                <h3 class="text-xl font-black {{ $report['total_beban'] < 0 ? 'text-amber-900' : 'text-rose-950' }} mt-1 font-mono-num" id="stat-total-beban">
                     Rp {{ number_format($report['total_beban'], 0, ',', '.') }}
                 </h3>
+                @if($report['total_beban'] < 0)
+                <span class="text-[10px] text-amber-600 font-semibold block mt-0.5">
+                    * Mutasi Kredit (Penerimaan/Refund) > Debit Pengeluaran
+                </span>
+                @else
                 <span class="text-[10px] text-rose-500">Beban Operasional &amp; Riset</span>
+                @endif
             </div>
-            <div class="h-11 w-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-                <i data-lucide="arrow-up-right" class="h-5 w-5"></i>
+            <div class="h-11 w-11 rounded-xl {{ $report['total_beban'] < 0 ? 'bg-amber-100 text-amber-700' : 'bg-rose-50 text-rose-600' }} flex items-center justify-center">
+                <i data-lucide="{{ $report['total_beban'] < 0 ? 'info' : 'arrow-up-right' }}" class="h-5 w-5"></i>
             </div>
         </div>
 
@@ -204,12 +212,17 @@
                             <div class="flex items-center gap-2">
                                 <span class="font-mono text-[11px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100">{{ $acc->kode_akun }}</span>
                                 <span class="font-bold text-slate-800 group-hover:text-rose-700 transition">{{ $acc->nama_akun }}</span>
+                                @if($acc->nominal < 0)
+                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200" title="Mutasi Kredit (Penerimaan) lebih besar dari Debit (Pengeluaran)">
+                                    Pengembalian / Kredit Bersih
+                                </span>
+                                @endif
                             </div>
                             <span class="text-[10px] text-slate-400 mt-0.5 ml-0.5">{{ $acc->transaksi_count }} transaksi pada periode ini</span>
                         </div>
                         <div class="text-right">
-                            <span class="font-mono font-bold text-slate-900">Rp {{ number_format($acc->nominal, 0, ',', '.') }}</span>
-                            <span class="block text-[10px] text-slate-400">Debit: {{ number_format($acc->mutasi_debit, 0, ',', '.') }} | Kredit: {{ number_format($acc->mutasi_kredit, 0, ',', '.') }}</span>
+                            <span class="font-mono font-bold {{ $acc->nominal < 0 ? 'text-amber-700' : 'text-slate-900' }}">Rp {{ number_format($acc->nominal, 0, ',', '.') }}</span>
+                            <span class="block text-[10px] text-slate-400">Debit (Keluar): {{ number_format($acc->mutasi_debit, 0, ',', '.') }} | Kredit (Masuk/Refund): {{ number_format($acc->mutasi_kredit, 0, ',', '.') }}</span>
                         </div>
                     </div>
                     @endforeach
@@ -220,9 +233,13 @@
             @endforelse
         </div>
 
-        <div class="px-5 py-3.5 bg-rose-50 border-t border-b border-rose-100 flex items-center justify-between">
-            <span class="text-xs font-black text-rose-900 uppercase tracking-wide">TOTAL BEBAN OPERASIONAL</span>
-            <span class="text-sm font-black text-rose-950 font-mono">Rp {{ number_format($report['total_beban'], 0, ',', '.') }}</span>
+        <div class="px-5 py-3.5 {{ $report['total_beban'] < 0 ? 'bg-amber-50 border-amber-200' : 'bg-rose-50 border-rose-100' }} border-t border-b flex items-center justify-between">
+            <span class="text-xs font-black {{ $report['total_beban'] < 0 ? 'text-amber-900' : 'text-rose-900' }} uppercase tracking-wide">
+                TOTAL BEBAN OPERASIONAL {{ $report['total_beban'] < 0 ? '(KREDIT BERSIH)' : '' }}
+            </span>
+            <span class="text-sm font-black {{ $report['total_beban'] < 0 ? 'text-amber-950' : 'text-rose-950' }} font-mono">
+                Rp {{ number_format($report['total_beban'], 0, ',', '.') }}
+            </span>
         </div>
 
         <!-- 3. GRAND TOTAL: LABA / RUGI BERSIH -->
@@ -244,7 +261,14 @@
                 <span class="text-2xl font-black font-mono-num {{ $report['is_laba'] ? 'text-emerald-700' : 'text-rose-700' }}">
                     Rp {{ number_format($report['laba_bersih'], 0, ',', '.') }}
                 </span>
-                <span class="block text-xs text-slate-500 mt-0.5">Total Pendapatan - Total Beban</span>
+                <span class="block text-xs font-semibold text-slate-600 mt-1 font-mono-num">
+                    {{ $report['formula_penjelasan'] ?? ('Total Pendapatan - Total Beban: Rp ' . number_format($report['total_pendapatan'], 0, ',', '.') . ' - Rp ' . number_format($report['total_beban'], 0, ',', '.')) }}
+                </span>
+                @if($report['total_beban'] < 0)
+                <span class="block text-[11px] text-amber-700 mt-0.5 italic">
+                    * Catatan: Beban bernilai minus karena mutasi kredit (pengembalian beban) melampaui pengeluaran, sehingga menambah hasil usaha bersih.
+                </span>
+                @endif
             </div>
         </div>
     </div>

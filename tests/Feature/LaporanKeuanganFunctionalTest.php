@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Modules\Keuangan\Entities\Jurnal;
@@ -13,6 +14,8 @@ use Tests\TestCase;
 
 class LaporanKeuanganFunctionalTest extends TestCase
 {
+    use DatabaseTransactions;
+
     protected $adminUser;
     protected $kasBankCoa;
     protected $pendapatanCoa;

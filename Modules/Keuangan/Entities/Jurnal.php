@@ -444,12 +444,16 @@ class Jurnal extends Model
                 'categories' => array_values($bebanCategories),
                 'total'      => $totalBeban,
             ],
-            'total_pendapatan' => $totalPendapatan,
-            'total_beban'      => $totalBeban,
-            'laba_bersih'      => $labaBersih,
-            'is_laba'          => $isLaba,
-            'status_label'     => $isLaba ? 'Laba Bersih' : 'Rugi Bersih',
-            'filters'          => [
+            'total_pendapatan'   => $totalPendapatan,
+            'total_beban'        => $totalBeban,
+            'is_beban_kredit'    => ($totalBeban < 0),
+            'laba_bersih'        => $labaBersih,
+            'is_laba'            => $isLaba,
+            'status_label'       => $isLaba ? 'Laba Bersih' : 'Rugi Bersih',
+            'formula_penjelasan' => ($totalBeban < 0)
+                ? 'Rp ' . number_format($totalPendapatan, 0, ',', '.') . ' - (-Rp ' . number_format(abs($totalBeban), 0, ',', '.') . ') = Rp ' . number_format($labaBersih, 0, ',', '.') . ' (Pendapatan + Pemulihan/Pengembalian Beban Bersih)'
+                : 'Rp ' . number_format($totalPendapatan, 0, ',', '.') . ' - Rp ' . number_format($totalBeban, 0, ',', '.') . ' = Rp ' . number_format($labaBersih, 0, ',', '.'),
+            'filters'            => [
                 'start_date' => $startDate,
                 'end_date'   => $endDate,
             ],
