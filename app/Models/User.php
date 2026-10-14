@@ -90,6 +90,31 @@ class User extends Authenticatable
         return $this->belongsTo(\Modules\Sdm\Entities\Karyawan::class, 'karyawan_id', 'id');
     }
 
+    public function getActiveRoleNameAttribute()
+    {
+        $sessionRole = session('role');
+        if (is_array($sessionRole) && !empty($sessionRole['nm_role'])) {
+            return $sessionRole['nm_role'];
+        }
+        if (is_object($sessionRole) && !empty($sessionRole->nm_role)) {
+            return $sessionRole->nm_role;
+        }
+
+        $roleUser = \App\Models\RoleUser::where('id_user', $this->id_user)
+            ->whereNull('deleted_at')
+            ->orderBy('id_ru', 'asc')
+            ->first();
+
+        if ($roleUser) {
+            $role = \App\Models\Role::find($roleUser->id_role);
+            if ($role && !empty($role->nm_role)) {
+                return $role->nm_role;
+            }
+        }
+
+        return 'User';
+    }
+
     public static function getDataPetugasSurvey()
     {
         return self::join('role_user', 'users.id_user', '=', 'role_user.id_user')

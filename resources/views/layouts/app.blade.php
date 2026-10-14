@@ -160,12 +160,21 @@
                     </div>
 
                     <!-- LAYANAN UTAMA AKADEMIK & MAHASISWA -->
+                    @php
+                        $hasBimbingan = check_access('bimbingan.index');
+                        $hasOlahdata = check_access('olahdata.index');
+                        $hasPelatihan = check_access('pelatihan.index');
+                        $hasAkademikGroup = $hasBimbingan || $hasOlahdata || $hasPelatihan;
+                    @endphp
+
+                    @if($hasAkademikGroup)
                     <div class="flex flex-col gap-1 mb-2">
                         <div class="mb-1 px-2 text-[11px] font-bold uppercase tracking-wider text-sky-600">
                             Layanan Akademik
                         </div>
 
                         <!-- 1. Bimbingan -->
+                        @if($hasBimbingan)
                         <div class="flex flex-col">
                             <a href="{{ route('bimbingan.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('bimbingan*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                                 <div class="flex items-center gap-3">
@@ -181,13 +190,21 @@
                                 <a href="{{ route('bimbingan.create') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('bimbingan/pengajuan*') ? 'active text-[#1768B5] font-bold' : '' }}">
                                     <span>• Ajukan Sesi Bimbingan</span>
                                 </a>
-                                <a href="{{ route('bimbingan.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ (request()->routeIs('bimbingan.index') || request()->is('bimbingan')) && !request()->is('bimbingan/programs*') && !request()->is('bimbingan/katalog*') && !request()->is('bimbingan/pengajuan*') ? 'active text-[#1768B5] font-bold' : '' }}">
+                                <a href="{{ route('bimbingan.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ (request()->routeIs('bimbingan.index') || request()->is('bimbingan')) && !request()->is('bimbingan/programs*') && !request()->is('bimbingan/katalog*') && !request()->is('bimbingan/pengajuan*') && !request()->is('bimbingan/invoices*') && !request()->is('bimbingan/pembayaran*') ? 'active text-[#1768B5] font-bold' : '' }}">
                                     <span>• Jadwal &amp; Riwayat Konsultasi</span>
+                                </a>
+                                <a href="{{ route('bimbingan.invoices.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('bimbingan/invoices*') ? 'active text-[#1768B5] font-bold' : '' }}">
+                                    <span>• Rekap Invoice Program</span>
+                                </a>
+                                <a href="{{ route('bimbingan.pembayaran.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('bimbingan/pembayaran*') ? 'active text-[#1768B5] font-bold' : '' }}">
+                                    <span>• List Pembayaran Program</span>
                                 </a>
                             </div>
                         </div>
+                        @endif
 
                         <!-- 2. Olah Data -->
+                        @if($hasOlahdata)
                         <div class="flex flex-col mt-1">
                             <a href="{{ route('olahdata.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('olahdata*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                                 <div class="flex items-center gap-3">
@@ -205,8 +222,10 @@
                                 </a>
                             </div>
                         </div>
+                        @endif
 
                         <!-- 3. Pelatihan -->
+                        @if($hasPelatihan)
                         <div class="flex flex-col mt-1">
                             <a href="{{ route('pelatihan.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('pelatihan*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                                 <div class="flex items-center gap-3">
@@ -227,7 +246,9 @@
                                 </a>
                             </div>
                         </div>
+                        @endif
                     </div>
+                    @endif
 
                     <!-- Manajemen Tugas -->
                     @php
@@ -237,7 +258,7 @@
                         $hasMonitoring = check_access('tasks.monitoring.index') || check_access('task-monitoring.index') || check_access('tasks.index') || check_access('tasks.update');
                         $hasCategories = check_access('task-categories.index') || check_access('task_categories.index');
                         $hasPriorities = check_access('task-priorities.index') || check_access('task_priorities.index');
-                        $hasTaskGroup = $hasMyTasks || $hasTasks || $hasPlotting || $hasMonitoring || $hasCategories || $hasPriorities;
+                        $hasTaskGroup = false; // Menu-menu pada kelompok Manajemen Tugas di-hide sementara
                     @endphp
 
                     @if($hasTaskGroup)
@@ -287,41 +308,62 @@
 
 
                     <!-- Master Data Akademik -->
+                    @php
+                        $hasMasterPrograms = check_access('master.programs.index');
+                        $hasMasterMentors = check_access('master.mentors.index');
+                        $hasMasterKelas = check_access('master.kelas.index');
+                        $hasMasterMateri = check_access('master.materi.index');
+                        $hasMasterMetode = check_access('master.metode.index');
+                        $hasMasterGroup = $hasMasterPrograms || $hasMasterMentors || $hasMasterKelas || $hasMasterMateri || $hasMasterMetode;
+                    @endphp
+
+                    @if($hasMasterGroup)
                     <div class="flex flex-col gap-1 mb-2">
                         <div class="mb-1 px-2 text-[11px] font-bold uppercase tracking-wider text-gray-400">
                             Master Data
                         </div>
 
                         <!-- Master Program & Paket Layanan -->
+                        @if($hasMasterPrograms)
                         <a href="{{ route('master.programs.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/programs*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="layers" class="h-4 w-4 {{ request()->is('master/programs*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
                             Master Program Riset
                         </a>
+                        @endif
 
                         <!-- Master Mentor & Konsultan -->
+                        @if($hasMasterMentors)
                         <a href="{{ route('master.mentors.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/mentors*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="user-check" class="h-4 w-4 {{ request()->is('master/mentors*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
                             Master Mentor Ahli
                         </a>
+                        @endif
 
                         <!-- Master Kelas & Workshop -->
+                        @if($hasMasterKelas)
                         <a href="{{ route('master.kelas.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/kelas*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="award" class="h-4 w-4 {{ request()->is('master/kelas*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
                             Master Kelas &amp; Workshop
                         </a>
+                        @endif
 
                         <!-- Master Materi & Silabus -->
+                        @if($hasMasterMateri)
                         <a href="{{ route('master.materi.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/materi*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="book-open" class="h-4 w-4 {{ request()->is('master/materi*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
                             Master Materi Silabus
                         </a>
+                        @endif
 
                         <!-- Master Metode Riset -->
+                        @if($hasMasterMetode)
                         <a href="{{ route('master.metode.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('master/metode*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
                             <i data-lucide="microscope" class="h-4 w-4 {{ request()->is('master/metode*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
                             Master Metode Riset
                         </a>
+                        @endif
                     </div>
+                    @endif
 
                     <!-- Transaksi Keuangan -->
                     @php
@@ -381,6 +423,16 @@
                             Arus Kas (Cash Flow)
                         </a>
                         @endif
+
+                        <a href="{{ route('bimbingan.invoices.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('bimbingan/invoices*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <i data-lucide="receipt" class="h-4 w-4 {{ request()->is('bimbingan/invoices*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
+                            Rekap Invoice Program
+                        </a>
+
+                        <a href="{{ route('bimbingan.pembayaran.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('bimbingan/pembayaran*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                            <i data-lucide="credit-card" class="h-4 w-4 {{ request()->is('bimbingan/pembayaran*') ? 'text-[#1768B5]' : 'text-gray-400' }}"></i>
+                            List Pembayaran Program
+                        </a>
                     </div>
                     @endif
 
@@ -440,9 +492,12 @@
                     <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gray-200">
                         <i data-lucide="user" class="h-5 w-5 text-gray-600"></i>
                     </div>
-                    <div class="flex flex-col overflow-hidden">
-                        <span class="text-sm font-semibold text-gray-900 truncate">{{ Auth::user()->nm_user ?? 'User Persada' }}</span>
-                        <span class="text-xs text-gray-500 truncate">{{ Auth::user()->username ?? 'admin' }}</span>
+                    <div class="flex flex-col overflow-hidden min-w-0">
+                        <span class="text-sm font-semibold text-gray-900 truncate" title="{{ Auth::user()->nm_user ?? 'User Persada' }}">{{ Auth::user()->nm_user ?? 'User Persada' }}</span>
+                        <span class="text-xs font-medium text-primary truncate flex items-center gap-1" title="Role: {{ Auth::user()->active_role_name ?? (session('role')['nm_role'] ?? 'User') }}">
+                            <i data-lucide="shield" class="h-3 w-3 shrink-0"></i>
+                            <span class="truncate">{{ Auth::user()->active_role_name ?? (session('role')['nm_role'] ?? 'User') }}</span>
+                        </span>
                     </div>
                 </div>
                 <a href="{{ url('auth/logout') }}" class="mt-3 flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700">

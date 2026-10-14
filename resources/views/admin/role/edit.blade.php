@@ -11,10 +11,10 @@
             <div class="flex items-center gap-3">
                 <h2 class="text-xl font-bold tracking-tight text-gray-900">{{ $role->nm_role }}</h2>
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-primary border border-rose-200 uppercase tracking-wider font-mono">
-                    {{ $role->app_id ?? 'ERP' }}
+                    ID Role: {{ $role->id_role }}
                 </span>
             </div>
-            <p class="text-sm text-gray-500 mt-1">Konfigurasi nama role, aplikasi, dan pembagian hak izin akses modul & fitur.</p>
+            <p class="text-sm text-gray-500 mt-1">Konfigurasi nama role dan pembagian hak izin akses modul & fitur.</p>
         </div>
         <div>
             <a href="{{ route('roles.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
@@ -23,6 +23,13 @@
             </a>
         </div>
     </div>
+
+    @if (session('success'))
+        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center gap-2">
+            <i data-lucide="check-circle" class="h-5 w-5 text-emerald-600 shrink-0"></i>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
 
     @if ($errors->any())
         <div class="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
@@ -34,7 +41,7 @@
         </div>
     @endif
 
-    <!-- Form Edit Nama Role & App ID -->
+    <!-- Form Edit Nama Role -->
     <div class="rounded-md border border-gray-200 bg-white shadow-sm p-6">
         <form action="{{ route('roles.update', $role->id_role) }}" method="POST">
             @csrf
@@ -78,12 +85,22 @@
                         <i data-lucide="key" class="h-5 w-5 text-primary"></i>
                         <span>Konfigurasi Hak Akses Fitur & Menu</span>
                     </h3>
-                    <p class="text-xs text-gray-500 mt-0.5">Tentukan wewenang create, read, update, dan delete untuk role ini.</p>
+                    <p class="text-xs text-gray-500 mt-0.5">Tentukan wewenang create, read, update, dan delete untuk role ini sesuai menu sidebar.</p>
                 </div>
-                <button type="submit" class="inline-flex items-center gap-2 rounded-md px-5 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 shadow-sm transition-colors shrink-0">
-                    <i data-lucide="check" class="h-4 w-4"></i>
-                    <span>Simpan Hak Akses</span>
-                </button>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" id="btn-check-all" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                        <i data-lucide="check-square" class="h-3.5 w-3.5 text-primary"></i>
+                        <span>Pilih Semua</span>
+                    </button>
+                    <button type="button" id="btn-uncheck-all" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                        <i data-lucide="square" class="h-3.5 w-3.5 text-gray-400"></i>
+                        <span>Batal Semua</span>
+                    </button>
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-md px-5 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 shadow-sm transition-colors shrink-0">
+                        <i data-lucide="check" class="h-4 w-4"></i>
+                        <span>Simpan Hak Akses</span>
+                    </button>
+                </div>
             </div>
 
             <div class="overflow-x-auto border border-gray-200 rounded-lg">
@@ -100,15 +117,22 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 text-sm">
                         @foreach ($permissions as $module => $submodules)
+                            @php $moduleSlug = Str::slug($module); @endphp
                             <tr class="bg-gray-100/75 perm-row font-semibold text-gray-800" data-module="{{ $module }}">
-                                <td colspan="6" class="py-2.5 px-4">
+                                <td colspan="5" class="py-2.5 px-4">
                                     <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700">
                                         <i data-lucide="folder" class="h-4 w-4 text-primary"></i>
                                         MODUL: {{ $module }}
                                     </span>
                                 </td>
+                                <td class="py-2.5 px-3 text-center bg-gray-200/50">
+                                    <button type="button" class="btn-check-module text-xs text-primary hover:underline font-semibold" data-module-slug="{{ $moduleSlug }}" title="Pilih Semua Modul {{ $module }}">
+                                        Pilih Modul
+                                    </button>
+                                </td>
                             </tr>
                             @foreach ($submodules as $prefix => $routes)
+                                @php $cleanPrefix = str_replace('.', '-', $prefix); @endphp
                                 <tr class="perm-row hover:bg-gray-50 transition-colors" data-module="{{ $module }}">
                                     <td class="py-3 px-4 font-medium text-gray-800 pl-8">
                                         <div class="flex items-center gap-2">
@@ -125,7 +149,7 @@
                                                 <input type="checkbox" name="permissions[]" value="{{ $method }}"
                                                     id="perm-{{ str_replace('.', '-', $method) }}"
                                                     {{ in_array($method, $rolePermissions) ? 'checked' : '' }}
-                                                    class="permission-item row-{{ $prefix }} h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
+                                                    class="permission-item mod-{{ $moduleSlug }} row-{{ $cleanPrefix }} h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
                                             @else
                                                 <span class="text-gray-300">-</span>
                                             @endif
@@ -133,7 +157,7 @@
                                     @endforeach
 
                                     <td class="py-3 px-3 text-center bg-gray-50/50">
-                                        <input type="checkbox" data-prefix="{{ $prefix }}" id="check-row-{{ $prefix }}"
+                                        <input type="checkbox" data-prefix="{{ $cleanPrefix }}" id="check-row-{{ $cleanPrefix }}"
                                             class="check-row h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" title="Pilih Semua Aksi">
                                     </td>
                                 </tr>
@@ -158,7 +182,7 @@
                                                         <input type="checkbox" name="permissions[]" value="{{ $method }}"
                                                             id="perm-{{ str_replace('.', '-', $method) }}"
                                                             {{ in_array($method, $rolePermissions) ? 'checked' : '' }}
-                                                            class="permission-item row-{{ $prefix }} h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary">
+                                                            class="permission-item mod-{{ $moduleSlug }} row-{{ $cleanPrefix }} h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary">
                                                         <span>{{ $routes['actions'][$action] }}</span>
                                                     </label>
                                                 @endforeach
@@ -186,40 +210,6 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        // App filter for permissions
-        var modules = @json(array_keys($permissions));
-
-        function getAllowedModules(appId) {
-            if (appId === 'hris') {
-                return ['SDM'];
-            }
-            if (appId === 'erp') {
-                return modules.filter(function(m) {
-                    return m !== 'SDM';
-                });
-            }
-            return null;
-        }
-
-        function applyAppFilter(appId) {
-            var allowed = getAllowedModules(appId);
-
-            if (!allowed) {
-                $('.perm-row').removeClass('hidden');
-                return;
-            }
-
-            $('.perm-row').each(function() {
-                var module = $(this).data('module');
-                var showRow = allowed.indexOf(module) !== -1;
-                $(this).toggleClass('hidden', !showRow);
-                if (!showRow) {
-                    $(this).find('input.permission-item, input.check-row').prop('checked', false);
-                }
-            });
-            syncCheckRows();
-        }
-
         // Check all for row
         $(document).on('change', '.check-row', function() {
             var prefix = $(this).data('prefix');
@@ -241,11 +231,25 @@
             syncCheckRows();
         });
 
-        $('#app_id').on('change', function() {
-            applyAppFilter($(this).val());
+        // Check/Uncheck entire module
+        $(document).on('click', '.btn-check-module', function() {
+            var slug = $(this).data('module-slug');
+            var items = $('.mod-' + slug);
+            var allChecked = items.length > 0 && items.filter(':checked').length === items.length;
+            items.prop('checked', !allChecked);
+            syncCheckRows();
         });
 
-        applyAppFilter($('#app_id').val());
+        // Global Check all / Uncheck all
+        $('#btn-check-all').on('click', function() {
+            $('.permission-item').prop('checked', true);
+            syncCheckRows();
+        });
+
+        $('#btn-uncheck-all').on('click', function() {
+            $('.permission-item').prop('checked', false);
+            syncCheckRows();
+        });
     });
 </script>
 @endpush

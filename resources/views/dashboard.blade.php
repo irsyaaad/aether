@@ -36,72 +36,124 @@
         </div>
     </div>
 
-    <!-- Academic Bimbingan Sesi KPI Summary Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- 1. Total Sesi Bimbingan -->
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-xs hover:shadow-md transition">
+    <!-- Academic Bimbingan & Program KPI Summary Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        <!-- 1. Program Aktif -->
+        <a href="{{ route('bimbingan.programs') }}" class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs hover:shadow-md hover:border-emerald-300 transition flex flex-col justify-between group">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Sesi Bimbingan</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider group-hover:text-emerald-700 transition">Program Aktif</span>
+                <div class="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-100 transition">
+                    <i data-lucide="layers" class="h-4.5 w-4.5"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-2xl font-black text-gray-900 group-hover:text-emerald-700 transition">{{ number_format($userActivePrograms->count()) }}</div>
+                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-emerald-600 font-medium truncate">
+                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                    <span>Paket aktif</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 2. Program Menunggu Pembayaran -->
+        @if(isset($userPendingPrograms) && $userPendingPrograms->isNotEmpty())
+        <a href="{{ route('bimbingan.payment.instruction', $userPendingPrograms->first()->id) }}" class="rounded-2xl border-2 border-amber-300 bg-gradient-to-br from-amber-50/80 via-white to-amber-50/40 p-4 sm:p-5 shadow-xs hover:shadow-md hover:border-amber-400 transition flex flex-col justify-between group">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider group-hover:text-amber-900 transition">Menunggu Bayar</span>
+                <div class="h-9 w-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center animate-pulse">
+                    <i data-lucide="credit-card" class="h-4.5 w-4.5"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-2xl font-black text-amber-700">{{ number_format($userPendingPrograms->count()) }}</div>
+                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-amber-800 font-bold truncate">
+                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0 animate-ping"></span>
+                    <span>Bayar sekarang &rarr;</span>
+                </div>
+            </div>
+        </a>
+        @else
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Menunggu Bayar</span>
+                <div class="h-9 w-9 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center">
+                    <i data-lucide="credit-card" class="h-4.5 w-4.5"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <div class="text-2xl font-black text-gray-400">0</div>
+                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-gray-400 truncate">
+                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-gray-300 shrink-0"></span>
+                    <span>Semua tagihan lunas</span>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- 3. Total Sesi Bimbingan -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Sesi</span>
                 <div class="h-9 w-9 rounded-xl bg-sky-50 text-[#1768B5] flex items-center justify-center">
-                    <i data-lucide="graduation-cap" class="h-5 w-5"></i>
+                    <i data-lucide="graduation-cap" class="h-4.5 w-4.5"></i>
                 </div>
             </div>
             <div class="mt-3">
                 <div class="text-2xl font-black text-gray-900">{{ number_format($academicStats->total_sesi) }}</div>
-                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-gray-500">
-                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-sky-500"></span>
-                    <span>Riwayat pengajuan konsultasi</span>
+                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-gray-500 truncate">
+                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-sky-500 shrink-0"></span>
+                    <span>Riwayat pengajuan</span>
                 </div>
             </div>
         </div>
 
-        <!-- 2. Sesi Terjadwal (Dijadwalkan) -->
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-xs hover:shadow-md transition">
+        <!-- 4. Sesi Terjadwal (Dijadwalkan) -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Sesi Terjadwal</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Sesi Terjadwal</span>
                 <div class="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                    <i data-lucide="calendar-check" class="h-5 w-5"></i>
+                    <i data-lucide="calendar-check" class="h-4.5 w-4.5"></i>
                 </div>
             </div>
             <div class="mt-3">
                 <div class="text-2xl font-black text-blue-600">{{ number_format($academicStats->dijadwalkan) }}</div>
-                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-blue-600 font-semibold">
-                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-blue-500"></span>
-                    <span>Terkonfirmasi &amp; Siap Masuk Ruang</span>
+                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-blue-600 font-semibold truncate">
+                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0"></span>
+                    <span>Siap konsultasi</span>
                 </div>
             </div>
         </div>
 
-        <!-- 3. Menunggu Review / Konfirmasi -->
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-xs hover:shadow-md transition">
+        <!-- 5. Menunggu Review / Konfirmasi -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Menunggu Review</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Menunggu Review</span>
                 <div class="h-9 w-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                    <i data-lucide="clock" class="h-5 w-5"></i>
+                    <i data-lucide="clock" class="h-4.5 w-4.5"></i>
                 </div>
             </div>
             <div class="mt-3">
                 <div class="text-2xl font-black text-amber-600">{{ number_format($academicStats->menunggu) }}</div>
-                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-amber-600 font-medium">
-                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-amber-500"></span>
-                    <span>Proses review jadwal oleh mentor</span>
+                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-amber-600 font-medium truncate">
+                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                    <span>Review mentor</span>
                 </div>
             </div>
         </div>
 
-        <!-- 4. Sesi Selesai -->
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-xs hover:shadow-md transition">
+        <!-- 6. Sesi Selesai -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Tuntas / Selesai</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Tuntas / Selesai</span>
                 <div class="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                    <i data-lucide="check-circle-2" class="h-5 w-5"></i>
+                    <i data-lucide="check-circle-2" class="h-4.5 w-4.5"></i>
                 </div>
             </div>
             <div class="mt-3">
                 <div class="text-2xl font-black text-emerald-600">{{ number_format($academicStats->selesai) }}</div>
-                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-emerald-600 font-medium">
-                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                    <span>Konsultasi tuntas terlaksana</span>
+                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-emerald-600 font-medium truncate">
+                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                    <span>Selesai terlaksana</span>
                 </div>
             </div>
         </div>
@@ -280,15 +332,49 @@
                 @csrf
                 <input type="hidden" name="redirect_to" value="dashboard">
 
+                @if($isRole99 && (!isset($userActivePrograms) || $userActivePrograms->isEmpty()))
+                <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-start gap-2.5">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                    <div>
+                        <span class="font-bold block mb-0.5">
+                            @if(isset($userPendingPrograms) && $userPendingPrograms->isNotEmpty())
+                                Paket Program Sedang Menunggu Pembayaran
+                            @else
+                                Program Belum Dibeli
+                            @endif
+                        </span>
+                        @if(isset($userPendingPrograms) && $userPendingPrograms->isNotEmpty())
+                            <span>Anda memiliki <strong>{{ $userPendingPrograms->count() }} paket program</strong> yang sudah dipesan namun belum diselesaikan pembayarannya. Selesaikan pembayaran dan unggah bukti transfer agar paket program aktif dan dapat dipilih untuk konsultasi.</span>
+                            <div class="mt-2">
+                                <a href="{{ route('bimbingan.payment.instruction', $userPendingPrograms->first()->id) }}" class="inline-flex items-center gap-1 font-bold text-[#1768B5] hover:underline">
+                                    <span>Bayar Program Pending Sekarang &rarr;</span>
+                                </a>
+                            </div>
+                        @else
+                            <span>Khusus mahasiswa (Role 99), Anda belum memiliki program bimbingan yang aktif. Silakan pilih dan beli program bimbingan terlebih dahulu untuk dapat mengajukan sesi konsultasi.</span>
+                            <div class="mt-2">
+                                <a href="{{ route('bimbingan.programs') }}" class="inline-flex items-center gap-1 font-bold text-[#1768B5] hover:underline">
+                                    <span>Buka Katalog Program &amp; Beli Sekarang &rarr;</span>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
+
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-[#1768B5] mb-1.5">Pilih Paket Program Bimbingan *</label>
-                    <select id="modal_program_id" name="program_id" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs font-medium focus:ring-2 focus:ring-[#1768B5] focus:outline-none bg-white">
-                        <option value="">-- Pilih Paket Program --</option>
-                        @foreach($activePrograms as $prog)
-                            <option value="{{ $prog->id }}">
-                                {{ $prog->nama_program }} — {{ $prog->formatted_biaya }} ({{ $prog->jumlah_sesi ?: 1 }} Sesi)
-                            </option>
-                        @endforeach
+                    <select id="modal_program_id" name="program_id" required class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs font-medium focus:ring-2 focus:ring-[#1768B5] focus:outline-none bg-white">
+                        @if($isRole99 && (!isset($userActivePrograms) || $userActivePrograms->isEmpty()))
+                            <option value="">-- Anda belum memiliki program bimbingan yang dibeli --</option>
+                        @else
+                            <option value="">-- Pilih Paket Program --</option>
+                            @foreach($modalPrograms as $prog)
+                                <option value="{{ $prog->id }}">
+                                    {{ $prog->nama_program }} — {{ $prog->formatted_biaya }} ({{ $prog->jumlah_sesi ?: 1 }} Sesi)
+                                </option>
+                            @endforeach
+                        @endif
                     </select>
                 </div>
 
@@ -348,10 +434,17 @@
                     <button type="button" onclick="closeQuickSessionModal()" class="px-4 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition">
                         Batal
                     </button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2B8BD1] to-[#1768B5] hover:from-[#1768B5] hover:to-[#102654] text-white text-xs font-black shadow-md flex items-center gap-1.5 transition">
-                        <i data-lucide="check-circle" class="w-4 h-4"></i>
-                        <span>Kirim &amp; Tandai di Kalender</span>
-                    </button>
+                    @if($isRole99 && (!isset($userActivePrograms) || $userActivePrograms->isEmpty()))
+                        <a href="{{ route('bimbingan.programs') }}" class="px-5 py-2.5 rounded-xl bg-[#1768B5] hover:bg-[#102654] text-white text-xs font-black shadow-md flex items-center gap-1.5 transition">
+                            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                            <span>Beli Program Terlebih Dahulu</span>
+                        </a>
+                    @else
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#2B8BD1] to-[#1768B5] hover:from-[#1768B5] hover:to-[#102654] text-white text-xs font-black shadow-md flex items-center gap-1.5 transition">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            <span>Kirim &amp; Tandai di Kalender</span>
+                        </button>
+                    @endif
                 </div>
             </form>
         </div>
@@ -736,7 +829,37 @@ function renderAgendas() {
     }
 }
 
+function openQuickSessionWithProgram(programId) {
+    var select = document.getElementById('modal_program_id');
+    if (select && programId) {
+        select.value = programId;
+    }
+    openQuickSessionModal();
+}
+
 function openQuickSessionModal(prefillDate) {
+    @if($isRole99 && (!isset($userActivePrograms) || $userActivePrograms->isEmpty()))
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Program Belum Dibeli',
+                text: 'Khusus akun mahasiswa, Anda belum memiliki program bimbingan aktif. Silakan pilih dan beli program bimbingan terlebih dahulu.',
+                confirmButtonText: 'Pilih Program di Katalog',
+                confirmButtonColor: '#1768B5',
+                showCancelButton: true,
+                cancelButtonText: 'Batal'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('bimbingan.programs') }}";
+                }
+            });
+        } else {
+            alert('Khusus akun mahasiswa, Anda belum memiliki program bimbingan aktif. Silakan beli program bimbingan terlebih dahulu di Katalog.');
+            window.location.href = "{{ route('bimbingan.programs') }}";
+        }
+        return;
+    @endif
+
     var modal = document.getElementById('quickSessionModal');
     if (!modal) return;
     if (prefillDate) {

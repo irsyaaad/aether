@@ -147,4 +147,12 @@ class MasterProgram extends Model
         $durasi = $this->durasi_sesi ?: 60;
         return "{$sesi} Sesi Pertemuan (@{$durasi} Menit)";
     }
+
+    /**
+     * Relasi ke transaksi pembelian program
+     */
+    public function transaksiPrograms()
+    {
+        return $this->hasMany(\Modules\Bimbingan\Entities\TransaksiProgram::class, 'program_id');
+    }
 }

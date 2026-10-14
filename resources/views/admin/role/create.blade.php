@@ -43,37 +43,42 @@
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5" for="nm_role">
                         Nama Role <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" name="nm_role" id="nm_role" value="{{ old('nm_role') }}" required placeholder="Contoh: Manager Operasional"
+                    <input type="text" name="nm_role" id="nm_role" value="{{ old('nm_role') }}" required placeholder="Contoh: Pembimbing Skripsi"
                         class="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
-                    <span class="text-xs text-gray-400 mt-1 block">Gunakan nama yang jelas mendeskripsikan jabatan atau fungsi.</span>
+                    <span class="text-xs text-gray-400 mt-1 block">Gunakan nama yang jelas mendeskripsikan peran atau fungsi pengguna.</span>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5" for="app_id">
-                        Aplikasi Tujuan <span class="text-red-500">*</span>
+                        Lingkup Aplikasi
                     </label>
-                    <select name="app_id" id="app_id" required
-                        class="w-full px-3.5 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none bg-white transition-all">
-                        <option value="">-- Pilih Aplikasi --</option>
-                        @foreach ($apps as $appId => $appLabel)
-                            <option value="{{ $appId }}" {{ old('app_id') === $appId ? 'selected' : '' }}>
-                                {{ strtoupper($appId) }} - {{ $appLabel }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <span class="text-xs text-gray-400 mt-1 block">Daftar hak akses di bawah akan otomatis disesuaikan dengan aplikasi yang dipilih.</span>
+                    <input type="text" name="app_id" id="app_id" value="{{ old('app_id', 'aether') }}" readonly
+                        class="w-full px-3.5 py-2.5 text-sm border border-gray-200 bg-gray-50 text-gray-600 rounded-lg outline-none cursor-not-allowed">
+                    <span class="text-xs text-gray-400 mt-1 block">Aplikasi default: Aether.</span>
                 </div>
             </div>
         </div>
 
         <!-- Matrix Hak Akses Card -->
         <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-            <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100">
-                <h3 class="text-base font-semibold text-gray-900 flex items-center gap-2">
-                    <i data-lucide="shield-check" class="h-5 w-5 text-primary"></i>
-                    <span>Konfigurasi Hak Akses Fitur</span>
-                </h3>
-                <span class="text-xs text-gray-500">Centang izin yang diberikan kepada role ini</span>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-3 border-b border-gray-100">
+                <div>
+                    <h3 class="text-base font-semibold text-gray-900 flex items-center gap-2">
+                        <i data-lucide="shield-check" class="h-5 w-5 text-primary"></i>
+                        <span>Konfigurasi Hak Akses Fitur</span>
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-0.5">Centang izin yang diberikan kepada role ini sesuai menu sidebar.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" id="btn-check-all" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                        <i data-lucide="check-square" class="h-3.5 w-3.5 text-primary"></i>
+                        <span>Pilih Semua</span>
+                    </button>
+                    <button type="button" id="btn-uncheck-all" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                        <i data-lucide="square" class="h-3.5 w-3.5 text-gray-400"></i>
+                        <span>Batal Semua</span>
+                    </button>
+                </div>
             </div>
 
             <div class="overflow-x-auto border border-gray-200 rounded-lg">
@@ -90,15 +95,22 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 text-sm">
                         @foreach ($permissions as $module => $submodules)
+                            @php $moduleSlug = Str::slug($module); @endphp
                             <tr class="bg-gray-100/75 perm-row font-semibold text-gray-800" data-module="{{ $module }}">
-                                <td colspan="6" class="py-2.5 px-4">
+                                <td colspan="5" class="py-2.5 px-4">
                                     <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-700">
                                         <i data-lucide="folder" class="h-4 w-4 text-primary"></i>
                                         MODUL: {{ $module }}
                                     </span>
                                 </td>
+                                <td class="py-2.5 px-3 text-center bg-gray-200/50">
+                                    <button type="button" class="btn-check-module text-xs text-primary hover:underline font-semibold" data-module-slug="{{ $moduleSlug }}" title="Pilih Semua Modul {{ $module }}">
+                                        Pilih Modul
+                                    </button>
+                                </td>
                             </tr>
                             @foreach ($submodules as $prefix => $routes)
+                                @php $cleanPrefix = str_replace('.', '-', $prefix); @endphp
                                 <tr class="perm-row hover:bg-gray-50 transition-colors" data-module="{{ $module }}">
                                     <td class="py-3 px-4 font-medium text-gray-800 pl-8">
                                         <div class="flex items-center gap-2">
@@ -114,7 +126,7 @@
                                                 @php $method = $prefix . '.' . $action; @endphp
                                                 <input type="checkbox" name="permissions[]" value="{{ $method }}"
                                                     id="perm-{{ str_replace('.', '-', $method) }}"
-                                                    class="permission-item row-{{ $prefix }} h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
+                                                    class="permission-item mod-{{ $moduleSlug }} row-{{ $cleanPrefix }} h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer">
                                             @else
                                                 <span class="text-gray-300">-</span>
                                             @endif
@@ -122,7 +134,7 @@
                                     @endforeach
 
                                     <td class="py-3 px-3 text-center bg-gray-50/50">
-                                        <input type="checkbox" data-prefix="{{ $prefix }}" id="check-row-{{ $prefix }}"
+                                        <input type="checkbox" data-prefix="{{ $cleanPrefix }}" id="check-row-{{ $cleanPrefix }}"
                                             class="check-row h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer" title="Pilih Semua Aksi">
                                     </td>
                                 </tr>
@@ -146,7 +158,7 @@
                                                     <label class="inline-flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
                                                         <input type="checkbox" name="permissions[]" value="{{ $method }}"
                                                             id="perm-{{ str_replace('.', '-', $method) }}"
-                                                            class="permission-item row-{{ $prefix }} h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary">
+                                                            class="permission-item mod-{{ $moduleSlug }} row-{{ $cleanPrefix }} h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary">
                                                         <span>{{ $routes['actions'][$action] }}</span>
                                                     </label>
                                                 @endforeach
@@ -178,39 +190,6 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        var modules = @json(array_keys($permissions));
-
-        function getAllowedModules(appId) {
-            if (appId === 'hris') {
-                return ['SDM'];
-            }
-            if (appId === 'erp') {
-                return modules.filter(function(m) {
-                    return m !== 'SDM';
-                });
-            }
-            return null;
-        }
-
-        function applyAppFilter(appId) {
-            var allowed = getAllowedModules(appId);
-
-            if (!allowed) {
-                $('.perm-row').removeClass('hidden');
-                return;
-            }
-
-            $('.perm-row').each(function() {
-                var module = $(this).data('module');
-                var showRow = allowed.indexOf(module) !== -1;
-                $(this).toggleClass('hidden', !showRow);
-                if (!showRow) {
-                    $(this).find('input.permission-item, input.check-row').prop('checked', false);
-                }
-            });
-            syncCheckRows();
-        }
-
         // Check all for single row
         $(document).on('change', '.check-row', function() {
             var prefix = $(this).data('prefix');
@@ -233,11 +212,25 @@
             syncCheckRows();
         });
 
-        $('#app_id').on('change', function() {
-            applyAppFilter($(this).val());
+        // Check/Uncheck entire module
+        $(document).on('click', '.btn-check-module', function() {
+            var slug = $(this).data('module-slug');
+            var items = $('.mod-' + slug);
+            var allChecked = items.length > 0 && items.filter(':checked').length === items.length;
+            items.prop('checked', !allChecked);
+            syncCheckRows();
         });
 
-        applyAppFilter($('#app_id').val());
+        // Global Check all / Uncheck all
+        $('#btn-check-all').on('click', function() {
+            $('.permission-item').prop('checked', true);
+            syncCheckRows();
+        });
+
+        $('#btn-uncheck-all').on('click', function() {
+            $('.permission-item').prop('checked', false);
+            syncCheckRows();
+        });
 
         // Loading state on submit
         $("#form_role").on('submit', function() {

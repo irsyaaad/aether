@@ -66,13 +66,11 @@ class P_role extends Controller
 
             $role->save();
 
-            // Save permissions if any (filtered by selected app)
-            $filteredPermissions = $this->filterPermissionsByApp(
-                $request->permissions ?? [],
-                $request->app_id
-            );
-            if (!empty($filteredPermissions)) {
-                foreach ($filteredPermissions as $perm) {
+            // Save permissions if any
+            if (!empty($request->permissions) && is_array($request->permissions)) {
+                $allowed = $this->getAllowedPermissions();
+                $validPermissions = array_intersect($request->permissions, $allowed);
+                foreach ($validPermissions as $perm) {
                     RoleMenu::create([
                         'id_role'    => $role->id_role,
                         'permission' => $perm,
@@ -141,7 +139,7 @@ class P_role extends Controller
                 'max:50',
                 Rule::unique('role', 'nm_role')->ignore($id, 'id_role'),
             ],
-            'app_id' => ['nullable', Rule::in(array_keys($this->getAvailableApps()))],
+            'app_id' => ['nullable', 'string'],
         ]);
 
         try {
@@ -311,37 +309,22 @@ class P_role extends Controller
     private function getAvailableApps(): array
     {
         return [
-            'erp' => 'persada.test',
-            'hris' => 'hris.persada.test',
+            'aether' => 'Aether Web',
         ];
     }
 
     /**
-     * Filter permissions based on selected app.
+     * Get all valid permission keys defined in constant.php
      *
-     * @param array $permissions
-     * @param string $appId
      * @return array
      */
-    private function filterPermissionsByApp(array $permissions, string $appId): array
+    private function getAllowedPermissions(): array
     {
-        $allPermissions = config('constant.permissions');
-        $modules = array_keys($allPermissions);
-
-        if ($appId === 'hris') {
-            $allowedModules = ['SDM'];
-        } elseif ($appId === 'erp') {
-            $allowedModules = array_values(array_diff($modules, ['SDM']));
-        } else {
-            return [];
-        }
-
+        $allPermissions = config('constant.permissions', []);
         $allowed = [];
-        foreach ($allowedModules as $module) {
-            if (!isset($allPermissions[$module])) {
-                continue;
-            }
-            foreach ($allPermissions[$module] as $prefix => $routes) {
+
+        foreach ($allPermissions as $module => $submodules) {
+            foreach ($submodules as $prefix => $routes) {
                 if (!isset($routes['actions'])) {
                     continue;
                 }
@@ -351,10 +334,6 @@ class P_role extends Controller
             }
         }
 
-        if (empty($permissions)) {
-            return [];
-        }
-
-        return array_values(array_intersect($permissions, $allowed));
+        return $allowed;
     }
 }

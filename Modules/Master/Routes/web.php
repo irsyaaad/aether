@@ -16,6 +16,11 @@ Route::group(['prefix' => 'master', 'middleware' => ['auth']], function () {
 
     // Master Program Akademik & Bimbingan (Dynamic CRUD)
     Route::get('programs/get-data', [\Modules\Master\Http\Controllers\MasterProgramController::class, 'getData'])->name('master.programs.get-data');
+    Route::post('programs/{id}/toggle-status', [\Modules\Master\Http\Controllers\MasterProgramController::class, 'toggleStatusProgram'])->name('master.programs.toggle-status');
+    Route::post('programs/transaksi/{id}/batalkan', [\Modules\Master\Http\Controllers\MasterProgramController::class, 'batalkanPembayaranTransaksi'])->name('master.programs.transaksi.batalkan');
+    Route::post('programs/transaksi/{id}/verifikasi', [\Modules\Master\Http\Controllers\MasterProgramController::class, 'verifikasiPembayaranTransaksi'])->name('master.programs.transaksi.verifikasi');
+    Route::post('programs/transaksi/{id}/selesaikan', [\Modules\Master\Http\Controllers\MasterProgramController::class, 'selesaikanProgramTransaksi'])->name('master.programs.transaksi.selesaikan');
+    Route::post('programs/transaksi/{id}/toggle-user', [\Modules\Master\Http\Controllers\MasterProgramController::class, 'toggleStatusUserTransaksi'])->name('master.programs.transaksi.toggle-user');
     Route::resource('programs', \Modules\Master\Http\Controllers\MasterProgramController::class)->names([
         'index' => 'master.programs.index',
         'create' => 'master.programs.create',
@@ -40,6 +45,10 @@ Route::group(['prefix' => 'master', 'middleware' => ['auth']], function () {
 
     // Master Kelas & Workshop (Dynamic CRUD)
     Route::get('kelas/get-data', [\Modules\Master\Http\Controllers\MasterKelasController::class, 'getData'])->name('master.kelas.get-data');
+    Route::post('kelas/{id}/update-status', [\Modules\Master\Http\Controllers\MasterKelasController::class, 'updateStatus'])->name('master.kelas.update-status');
+    Route::post('kelas/transaksi/{id}/verifikasi', [\Modules\Pelatihan\Http\Controllers\PelatihanController::class, 'verifikasiPembayaran'])->name('master.kelas.transaksi.verifikasi');
+    Route::post('kelas/transaksi/{id}/selesaikan', [\Modules\Pelatihan\Http\Controllers\PelatihanController::class, 'selesaikanPelatihan'])->name('master.kelas.transaksi.selesaikan');
+    Route::post('kelas/transaksi/{id}/batalkan', [\Modules\Pelatihan\Http\Controllers\PelatihanController::class, 'batalkanPembayaran'])->name('master.kelas.transaksi.batalkan');
     Route::resource('kelas', \Modules\Master\Http\Controllers\MasterKelasController::class)->names('master.kelas');
 
     // Master Materi & Silabus (Dynamic CRUD)

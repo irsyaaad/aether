@@ -120,11 +120,6 @@ class LoginController extends Controller
      */
     private function getRedirectUrlForRole(?array $role): string
     {
-        $roleName = $role['nm_role'] ?? '';
-        if (strcasecmp($roleName, 'Employee') === 0 || strcasecmp($roleName, 'Karyawan') === 0) {
-            return 'my-tasks';
-        }
-
         return 'dashboard';
     }
 }

@@ -164,10 +164,22 @@
 
                 <!-- CTA Action -->
                 <div class="pt-4 border-t border-gray-100">
-                    <a href="{{ route('bimbingan.create', ['program_id' => $program->id]) }}" class="w-full py-3 px-4 rounded-xl {{ $program->is_populer ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md' : 'bg-gradient-to-r from-[#2B8BD1] to-[#1768B5] hover:from-[#1768B5] hover:to-[#102654] text-white shadow-xs' }} font-bold text-xs flex items-center justify-center gap-2 transition">
-                        <span>Pilih Program Ini</span>
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                    </a>
+                    @php
+                        $isPurchased = in_array($program->id, $userPurchasedProgramIds ?? []);
+                    @endphp
+
+                    @if($isPurchased)
+                        <a href="{{ route('bimbingan.create', ['program_id' => $program->id]) }}" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-xs">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            <span>Program Aktif — Ajukan Sesi</span>
+                        </a>
+                    @else
+                        <a href="{{ route('bimbingan.payment', $program->id) }}" class="w-full py-3 px-4 rounded-xl {{ $program->is_populer ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-md' : 'bg-gradient-to-r from-[#2B8BD1] to-[#1768B5] hover:from-[#1768B5] hover:to-[#102654] text-white shadow-xs' }} font-bold text-xs flex items-center justify-center gap-2 transition group">
+                            <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                            <span>Beli / Ikuti Pelatihan</span>
+                            <i data-lucide="arrow-right" class="w-3.5 h-3.5 transition group-hover:translate-x-0.5"></i>
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

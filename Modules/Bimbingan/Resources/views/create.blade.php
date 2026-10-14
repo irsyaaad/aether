@@ -28,7 +28,13 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-[#1768B5]">1. Pilih Paket Program Bimbingan *</label>
-                        <p class="text-xs text-gray-500 mt-0.5">Tersedia berbagai pilihan paket skripsi dan bimbingan terpadu.</p>
+                        <p class="text-xs text-gray-500 mt-0.5">
+                            @if(((int)(session('role')['id_role'] ?? 0)) === 99)
+                                Menampilkan paket program bimbingan aktif yang telah Anda beli.
+                            @else
+                                Tersedia berbagai pilihan paket skripsi dan bimbingan terpadu.
+                            @endif
+                        </p>
                     </div>
                     <a href="{{ route('bimbingan.programs') }}" target="_blank" class="text-xs font-bold text-[#1768B5] hover:underline flex items-center gap-1">
                         <span>Lihat Rincian di Katalog</span>
@@ -36,7 +42,7 @@
                     </a>
                 </div>
 
-                <select id="program_id" name="program_id" onchange="updateProgramDetails()" class="w-full px-4 py-3 rounded-xl border border-sky-200 text-sm font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1768B5] bg-white shadow-xs">
+                <select id="program_id" name="program_id" required onchange="updateProgramDetails()" class="w-full px-4 py-3 rounded-xl border border-sky-200 text-sm font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#1768B5] bg-white shadow-xs">
                     <option value="">-- Pilih Program Bimbingan Sesuai Kebutuhan --</option>
                     @foreach($programs as $prog)
                         <option value="{{ $prog->id }}" 

@@ -57,4 +57,9 @@ class MasterKelas extends Model
     {
         return $this->hasMany(MasterMateri::class, 'kelas_id')->orderBy('urutan');
     }
+
+    public function transaksis()
+    {
+        return $this->hasMany(\Modules\Pelatihan\Entities\TransaksiPelatihan::class, 'kelas_id');
+    }
 }

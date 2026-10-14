@@ -150,7 +150,7 @@ class MasterKelasController extends Controller
                 
                 return '<div class="flex flex-col">
                             <div class="flex items-center">
-                                <span class="font-bold text-gray-900 text-sm hover:text-[#1768B5]">' . e($row->judul) . '</span>
+                                <a href="' . route('master.kelas.show', $row->id) . '" class="font-bold text-gray-900 text-sm hover:text-[#1768B5] transition">' . e($row->judul) . '</a>
                                 ' . $badgeHtml . '
                             </div>
                             <div class="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
@@ -192,14 +192,38 @@ class MasterKelasController extends Controller
             })
             ->addColumn('action', function ($row) {
                 $dataJson = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
-                return '<div class="flex items-center justify-end gap-1.5">
-                            <a href="' . route('master.materi.index', ['kelas_id' => $row->id]) . '" class="p-1.5 text-[#1768B5] hover:bg-sky-50 rounded-lg transition" title="Kelola Materi & Silabus">
+                $detailUrl = route('master.kelas.show', $row->id);
+                $escapedJudul = e(addslashes($row->judul));
+
+                $statusButtons = '';
+                if ($row->status !== 'Ditutup') {
+                    $statusButtons .= '<button type="button" onclick="ubahStatusKelas(' . $row->id . ', \'Ditutup\', \'' . $escapedJudul . '\')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="Tutup Kelas (Kunci Pendaftaran)">
+                                            <i data-lucide="ban" class="w-4 h-4"></i>
+                                        </button>';
+                }
+                if ($row->status !== 'Selesai') {
+                    $statusButtons .= '<button type="button" onclick="ubahStatusKelas(' . $row->id . ', \'Selesai\', \'' . $escapedJudul . '\')" class="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition" title="Tandai Kelas Selesai">
+                                            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                                        </button>';
+                }
+                if ($row->status === 'Ditutup' || $row->status === 'Selesai') {
+                    $statusButtons .= '<button type="button" onclick="ubahStatusKelas(' . $row->id . ', \'Dibuka\', \'' . $escapedJudul . '\')" class="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition" title="Buka Kembali Pendaftaran">
+                                            <i data-lucide="play-circle" class="w-4 h-4"></i>
+                                        </button>';
+                }
+
+                return '<div class="flex items-center justify-end gap-1">
+                            <a href="' . $detailUrl . '" class="p-1.5 text-[#1768B5] hover:bg-sky-50 rounded-lg transition" title="Lihat Detail Kelas & Daftar Pembeli">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </a>
+                            <a href="' . route('master.materi.index', ['kelas_id' => $row->id]) . '" class="p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg transition" title="Kelola Materi & Silabus">
                                 <i data-lucide="book-open" class="w-4 h-4"></i>
                             </a>
                             <button type="button" onclick="editKelas(' . $dataJson . ')" class="p-1.5 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Edit Kelas">
                                 <i data-lucide="edit-3" class="w-4 h-4"></i>
                             </button>
-                            <button type="button" onclick="deleteKelas(' . $row->id . ', \'' . e(addslashes($row->judul)) . '\')" class="p-1.5 text-gray-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Hapus Kelas">
+                            ' . $statusButtons . '
+                            <button type="button" onclick="deleteKelas(' . $row->id . ', \'' . $escapedJudul . '\')" class="p-1.5 text-gray-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Hapus Kelas">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>';
@@ -262,6 +286,69 @@ class MasterKelasController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Kelas berhasil dihapus'
+        ]);
+    }
+
+    public function show(Request $request, $id)
+    {
+        $kelas = MasterKelas::with(['mentor', 'program', 'materis'])->findOrFail($id);
+
+        $transaksis = \Modules\Pelatihan\Entities\TransaksiPelatihan::with('user')
+            ->where(function ($q) use ($kelas) {
+                $q->where('kelas_id', $kelas->id);
+                if ($kelas->kode_kelas) {
+                    $q->orWhere('kode_kelas', $kelas->kode_kelas);
+                }
+            })
+            ->latest('id')
+            ->get();
+
+        $kelas->setRelation('transaksis', $transaksis);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json($kelas);
+        }
+
+        $stats = [
+            'total_pembeli'    => $transaksis->count(),
+            'total_lunas'      => $transaksis->where('status_pembayaran', 'Lunas')->count(),
+            'total_omset'      => $transaksis->where('status_pembayaran', 'Lunas')->sum('total_bayar'),
+            'kuota_maksimal'   => $kelas->kuota_maksimal,
+            'sisa_kuota'       => max(0, $kelas->kuota_maksimal - $transaksis->where('status_pembayaran', 'Lunas')->count()),
+            'menunggu_bayar'   => $transaksis->whereIn('status_pembayaran', ['Menunggu Pembayaran', 'Menunggu Verifikasi'])->count(),
+            'dibatalkan'       => $transaksis->where('status_pembayaran', 'Dibatalkan')->count(),
+            'selesai'          => $transaksis->where('status', 'Selesai')->count(),
+        ];
+
+        return view('master::kelas.show', compact('kelas', 'transaksis', 'stats'));
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $kelas = MasterKelas::findOrFail($id);
+
+        $request->validate([
+            'status' => 'required|string|in:Dibuka,Berlangsung,Selesai,Ditutup',
+        ]);
+
+        $status = $request->status;
+        $kelas->status = $status;
+        $kelas->save();
+
+        $messages = [
+            'Ditutup' => "Kelas \"{$kelas->judul}\" berhasil ditutup. Pendaftaran telah dinonaktifkan.",
+            'Selesai' => "Kelas \"{$kelas->judul}\" berhasil ditandai selesai.",
+            'Dibuka' => "Pendaftaran kelas \"{$kelas->judul}\" berhasil dibuka kembali.",
+            'Berlangsung' => "Kelas \"{$kelas->judul}\" kini sedang berlangsung.",
+        ];
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $messages[$status] ?? "Status kelas berhasil diubah menjadi {$status}.",
+            'data' => [
+                'id' => $kelas->id,
+                'status' => $kelas->status,
+            ]
         ]);
     }
 }

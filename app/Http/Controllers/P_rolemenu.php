@@ -66,7 +66,7 @@ class P_rolemenu extends Controller
             RoleMenu::where('id_role', $id_role)->delete();
 
             // simpan yang baru
-            if ($request->permissions) {
+            if ($request->permissions && is_array($request->permissions)) {
                 foreach ($request->permissions as $perm) {
                     RoleMenu::create([
                         'id_role' => $id_role,
@@ -75,10 +75,10 @@ class P_rolemenu extends Controller
                 }
             }
             DB::commit();
-            return redirect()->route('roles.index')->with('success', 'Akses role berhasil diperbarui');
+            return redirect()->route('roles.show', $id_role)->with('success', 'Hak akses role berhasil diperbarui');
         } catch (Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Data User Gagal Disimpan' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memperbarui hak akses: ' . $e->getMessage());
         }
 
         return redirect('user')->with('success', 'Data User Disimpan');

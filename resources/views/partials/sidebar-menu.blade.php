@@ -38,7 +38,7 @@
             $hasMonitoring = check_access('tasks.monitoring.index') || check_access('task-monitoring.index') || check_access('tasks.index') || check_access('tasks.update');
             $hasCategories = check_access('task-categories.index') || check_access('task_categories.index');
             $hasPriorities = check_access('task-priorities.index') || check_access('task_priorities.index');
-            $hasTaskMenu = $hasMyTasks || $hasTasks || $hasPlotting || $hasMonitoring || $hasCategories || $hasPriorities;
+            $hasTaskMenu = false; // Menu-menu pada kelompok Manajemen Tugas di-hide sementara
             $taskActive = request()->is('my-tasks*') || (request()->is('tasks*') && !request()->is('task-assignment*')) || request()->is('task-assignment*') || request()->is('task-monitoring*') || request()->is('task-categories*') || request()->is('task-priorities*');
         @endphp
         @if($hasTaskMenu)
@@ -205,6 +205,16 @@
                     </a>
                 </div>
                 @endif
+                <div class="kt-menu-item{{ request()->is('bimbingan/invoices*') ? ' active' : '' }}">
+                    <a class="kt-menu-link" href="{{ route('bimbingan.invoices.index') }}">
+                        <span class="kt-menu-title">Rekap Invoice Program</span>
+                    </a>
+                </div>
+                <div class="kt-menu-item{{ request()->is('bimbingan/pembayaran*') ? ' active' : '' }}">
+                    <a class="kt-menu-link" href="{{ route('bimbingan.pembayaran.index') }}">
+                        <span class="kt-menu-title">List Pembayaran Program</span>
+                    </a>
+                </div>
             </div>
         </div>
         @endif

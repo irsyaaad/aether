@@ -205,8 +205,11 @@
                         {{ strtoupper(substr(Auth::user()->nm_user ?? 'U', 0, 1)) }}
                     </div>
                     <div class="flex flex-col overflow-hidden min-w-0 flex-1">
-                        <span class="text-sm font-semibold text-slate-900 truncate">{{ Auth::user()->nm_user ?? 'User Persada' }}</span>
-                        <span class="text-xs text-slate-500 truncate">{{ Auth::user()->username ?? 'admin' }}</span>
+                        <span class="text-sm font-semibold text-slate-900 truncate" title="{{ Auth::user()->nm_user ?? 'User Persada' }}">{{ Auth::user()->nm_user ?? 'User Persada' }}</span>
+                        <span class="text-xs text-primary font-medium truncate flex items-center gap-1" title="Role: {{ Auth::user()->active_role_name ?? (session('role')['nm_role'] ?? 'User') }}">
+                            <i data-lucide="shield" class="h-3 w-3 shrink-0"></i>
+                            <span class="truncate">{{ Auth::user()->active_role_name ?? (session('role')['nm_role'] ?? 'User') }}</span>
+                        </span>
                     </div>
                 </div>
                 <a href="{{ url('auth/logout') }}" class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-700">

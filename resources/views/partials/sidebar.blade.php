@@ -97,12 +97,12 @@
                         <img alt="" class="size-9 shrink-0 rounded-full border-2 border-green-500" src="assets/media/avatars/300-2.png"/>
                         <div class="flex flex-col gap-1.5">
                             <span class="text-sm text-foreground font-semibold leading-none">{{ Auth::user()->nm_user ?? 'User' }}</span>
-                            <a class="text-xs text-secondary-foreground hover:text-primary font-medium leading-none" href="#">
-                                {{ Auth::user()->email ?? 'user@example.com' }}
-                            </a>
+                            <span class="text-xs text-secondary-foreground font-medium leading-none" title="{{ Auth::user()->email ?? 'user@example.com' }}">
+                                {{ Auth::user()->active_role_name ?? (session('role')['nm_role'] ?? 'User') }}
+                            </span>
                         </div>
                     </div>
-                    <span class="kt-badge kt-badge-sm kt-badge-primary kt-badge-outline">Pro</span>
+                    <span class="kt-badge kt-badge-sm kt-badge-primary kt-badge-outline">{{ Auth::user()->active_role_name ?? 'Pro' }}</span>
                 </div>
                 <ul class="kt-dropdown-menu-sub">
                     <li><div class="kt-dropdown-menu-separator"></div></li>

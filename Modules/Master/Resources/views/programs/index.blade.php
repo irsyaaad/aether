@@ -190,8 +190,8 @@
                             <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                             <span>Edit Program</span>
                         </a>
-                        <a href="{{ route('bimbingan.create', ['program_id' => $program->id]) }}" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#2B8BD1] to-[#1768B5] hover:from-[#1768B5] hover:to-[#102654] text-white text-xs font-bold transition text-center shadow-xs">
-                            Pilih Program Ini →
+                        <a href="{{ route('bimbingan.payment', $program->id) }}" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#2B8BD1] to-[#1768B5] hover:from-[#1768B5] hover:to-[#102654] text-white text-xs font-bold transition text-center shadow-xs">
+                            Beli / Ikuti Pelatihan →
                         </a>
                     </div>
                 </div>
@@ -250,25 +250,26 @@
         if (window.lucide) lucide.createIcons();
     }
 
-    function deleteProgram(id) {
-        if (!confirm('Apakah Anda yakin ingin menghapus program bimbingan ini?')) return;
+    function toggleProgramStatus(id, newStatus) {
+        let actionWord = newStatus ? 'mengaktifkan kembali' : 'menonaktifkan';
+        if (!confirm('Apakah Anda yakin ingin ' + actionWord + ' program bimbingan ini?')) return;
 
         $.ajax({
-            url: "{{ url('master/programs') }}/" + id,
-            type: 'DELETE',
+            url: "{{ url('master/programs') }}/" + id + "/toggle-status",
+            type: 'POST',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(res) {
                 programTable.ajax.reload();
                 if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'success', title: 'Terhapus', text: res.message, timer: 1500, showConfirmButton: false });
+                    Swal.fire({ icon: 'success', title: 'Berhasil', text: res.message, timer: 1800, showConfirmButton: false });
                 } else {
                     alert(res.message);
                 }
             },
             error: function() {
-                alert('Gagal menghapus program.');
+                alert('Gagal mengubah status program bimbingan.');
             }
         });
     }

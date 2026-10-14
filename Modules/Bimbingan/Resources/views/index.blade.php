@@ -29,6 +29,24 @@
         </div>
     </div>
 
+    @if($isRole99 && (!isset($hasActiveProgram) || !$hasActiveProgram))
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 shadow-xs">
+        <div class="p-2 bg-amber-100 text-amber-700 rounded-xl shrink-0">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1">
+            <h4 class="text-xs font-black text-amber-900 uppercase tracking-wide">Pemberitahuan Khusus Akun Mahasiswa</h4>
+            <p class="text-xs text-amber-800 mt-0.5 leading-relaxed">
+                Anda belum memiliki paket program bimbingan yang dibeli. Silakan beli paket program bimbingan terlebih dahulu untuk dapat mengajukan sesi konsultasi bersama mentor.
+            </p>
+        </div>
+        <a href="{{ route('bimbingan.programs') }}" class="px-3.5 py-2 rounded-xl bg-[#1768B5] hover:bg-[#102654] text-white text-xs font-bold shrink-0 transition shadow-xs flex items-center gap-1.5">
+            <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+            <span>Beli Program</span>
+        </a>
+    </div>
+    @endif
+
     <!-- Quick Stats -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-xs">
@@ -87,7 +105,7 @@
         </div>
 
         <div class="divide-y divide-gray-100">
-            @foreach($sessions as $s)
+            @forelse($sessions as $s)
             <div class="p-5 hover:bg-gray-50/80 transition flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div class="space-y-1.5 max-w-2xl">
                     <div class="flex flex-wrap items-center gap-2">
@@ -139,7 +157,28 @@
                     @endif
                 </div>
             </div>
-            @endforeach
+            @empty
+            <div class="p-12 text-center">
+                <div class="w-12 h-12 rounded-2xl bg-sky-50 text-[#1768B5] flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                </div>
+                <h4 class="text-sm font-bold text-gray-900 mb-1">Belum Ada Sesi Bimbingan</h4>
+                <p class="text-xs text-gray-500 max-w-sm mx-auto mb-4">
+                    Anda belum memiliki sesi bimbingan skripsi yang diajukan. Mulai konsultasi pertama Anda bersama mentor ahli.
+                </p>
+                @if($isRole99 && (!isset($hasActiveProgram) || !$hasActiveProgram))
+                    <a href="{{ route('bimbingan.programs') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#1768B5] hover:bg-[#102654] shadow-sm transition">
+                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                        <span>Pilih &amp; Beli Program Terlebih Dahulu</span>
+                    </a>
+                @else
+                    <a href="{{ route('bimbingan.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#1768B5] hover:bg-[#102654] shadow-sm transition">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Ajukan Sesi Bimbingan Baru</span>
+                    </a>
+                @endif
+            </div>
+            @endforelse
         </div>
     </div>
 </div>

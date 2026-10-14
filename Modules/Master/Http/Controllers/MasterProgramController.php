@@ -106,13 +106,23 @@ class MasterProgramController extends Controller
                         </span>';
             })
             ->addColumn('actions', function ($row) {
+                $detailUrl = route('master.programs.show', $row->id);
                 $editUrl = route('master.programs.edit', $row->id);
+                $statusLabel = $row->is_active ? 'Nonaktifkan' : 'Aktifkan';
+                $statusIcon = $row->is_active ? 'pause-circle' : 'play-circle';
+                $statusClass = $row->is_active 
+                    ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50' 
+                    : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50';
+
                 return '<div class="flex items-center justify-end gap-1.5">
+                            <a href="' . $detailUrl . '" class="p-1.5 rounded-lg border border-gray-200 text-sky-600 hover:bg-sky-50 transition" title="Lihat Detail & Mahasiswa">
+                                <i data-lucide="eye" class="h-4 w-4"></i>
+                            </a>
                             <a href="' . $editUrl . '" class="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:text-sky-600 hover:bg-sky-50 transition" title="Edit Program">
                                 <i data-lucide="edit-3" class="h-4 w-4"></i>
                             </a>
-                            <button onclick="deleteProgram(' . $row->id . ')" class="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:text-red-600 hover:bg-red-50 transition" title="Hapus Program">
-                                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                            <button onclick="toggleProgramStatus(' . $row->id . ', ' . ($row->is_active ? 'false' : 'true') . ')" class="p-1.5 rounded-lg border border-gray-200 ' . $statusClass . ' transition" title="' . $statusLabel . ' Program">
+                                <i data-lucide="' . $statusIcon . '" class="h-4 w-4"></i>
                             </button>
                         </div>';
             })
@@ -120,12 +130,107 @@ class MasterProgramController extends Controller
             ->make(true);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
+    {
+        $program = MasterProgram::with(['transaksiPrograms' => function ($q) {
+            $q->with('user')->latest('id');
+        }])->findOrFail($id);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            $program->fasilitas_array = $program->fasilitas_array;
+            $program->formatted_biaya = $program->formatted_biaya;
+            return response()->json($program);
+        }
+
+        $transaksis = $program->transaksiPrograms;
+        
+        $stats = [
+            'total_pembeli'     => $transaksis->count(),
+            'total_lunas'       => $transaksis->where('status_pembayaran', 'Lunas')->count(),
+            'total_omset'       => $transaksis->where('status_pembayaran', 'Lunas')->sum('total_bayar'),
+            'total_sesi'        => $transaksis->sum('total_sesi'),
+            'sesi_digunakan'    => $transaksis->sum('sesi_digunakan'),
+            'sisa_sesi'         => $transaksis->sum('sisa_sesi'),
+            'menunggu_bayar'    => $transaksis->where('status_pembayaran', 'Menunggu Pembayaran')->count(),
+            'dibatalkan'        => $transaksis->where('status_pembayaran', 'Dibatalkan')->count(),
+        ];
+
+        return view('master::programs.show', compact('program', 'transaksis', 'stats'));
+    }
+
+    public function toggleStatusProgram($id)
     {
         $program = MasterProgram::findOrFail($id);
-        $program->fasilitas_array = $program->fasilitas_array;
-        $program->formatted_biaya = $program->formatted_biaya;
-        return response()->json($program);
+        $program->is_active = !$program->is_active;
+        $program->save();
+
+        $pesan = $program->is_active 
+            ? 'Program bimbingan berhasil diaktifkan kembali.' 
+            : 'Program bimbingan berhasil dinonaktifkan (klien tidak dapat memesan paket ini).';
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $pesan,
+            'is_active' => $program->is_active
+        ]);
+    }
+
+    public function batalkanPembayaranTransaksi($id)
+    {
+        $transaksi = \Modules\Bimbingan\Entities\TransaksiProgram::findOrFail($id);
+        $transaksi->status_pembayaran = 'Dibatalkan';
+        $transaksi->status = 'Dibatalkan';
+        $transaksi->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Pembayaran transaksi #{$transaksi->nomor_transaksi} berhasil dibatalkan dan status dinonaktifkan."
+        ]);
+    }
+
+    public function verifikasiPembayaranTransaksi($id)
+    {
+        $transaksi = \Modules\Bimbingan\Entities\TransaksiProgram::findOrFail($id);
+        $transaksi->status_pembayaran = 'Lunas';
+        $transaksi->status = 'Aktif';
+        $transaksi->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Pembayaran transaksi #{$transaksi->nomor_transaksi} berhasil diverifikasi. Program bimbingan untuk mahasiswa {$transaksi->nama_pemesan} kini telah AKTIF."
+        ]);
+    }
+
+    public function selesaikanProgramTransaksi($id)
+    {
+        $transaksi = \Modules\Bimbingan\Entities\TransaksiProgram::findOrFail($id);
+        $transaksi->status = 'Selesai';
+        $transaksi->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Program bimbingan untuk mahasiswa {$transaksi->nama_pemesan} berhasil ditandai SELESAI. Mahasiswa tidak dapat mengajukan sesi baru dan hanya dapat mengakses riwayat bimbingan."
+        ]);
+    }
+
+    public function toggleStatusUserTransaksi($id)
+    {
+        $transaksi = \Modules\Bimbingan\Entities\TransaksiProgram::findOrFail($id);
+        
+        if ($transaksi->status === 'Aktif') {
+            $transaksi->status = 'Nonaktif';
+            $pesan = "Akses mahasiswa {$transaksi->nama_pemesan} pada program ini telah dinonaktifkan.";
+        } else {
+            $transaksi->status = 'Aktif';
+            $pesan = "Akses mahasiswa {$transaksi->nama_pemesan} pada program ini telah diaktifkan kembali.";
+        }
+        $transaksi->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $pesan,
+            'current_status' => $transaksi->status
+        ]);
     }
 
     public function store(Request $request)

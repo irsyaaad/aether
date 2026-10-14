@@ -38,14 +38,31 @@
         </div>
 
         <div class="divide-y divide-gray-100">
-            @foreach($projects as $p)
+            @forelse($projects as $p)
             <div class="p-5 hover:bg-gray-50/80 transition flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
                 <div class="space-y-2 flex-1">
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
                         <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold 
                             {{ $p['status'] === 'Selesai & ACC' ? 'bg-emerald-100 text-emerald-800' : 'bg-sky-100 text-[#1768B5]' }}">
                             {{ $p['status'] }}
                         </span>
+                        
+                        @if(isset($p['status_pembayaran']))
+                            @if($p['status_pembayaran'] === 'Lunas')
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    ✓ Lunas
+                                </span>
+                            @elseif($p['status_pembayaran'] === 'Menunggu Verifikasi')
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200">
+                                    ⏳ Menunggu Verifikasi
+                                </span>
+                            @else
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200">
+                                    Belum Dibayar
+                                </span>
+                            @endif
+                        @endif
+
                         <span class="text-xs font-bold text-gray-400">•</span>
                         <span class="text-xs font-extrabold text-[#B36A12] bg-[#FFF5D8] px-2 py-0.5 rounded-md">{{ $p['software'] }}</span>
                     </div>
@@ -81,10 +98,27 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 shrink-0">
+                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    @if(isset($p['status_pembayaran']) && $p['status_pembayaran'] === 'Menunggu Pembayaran')
+                        <a href="{{ route('olahdata.payment.instruction', $p['id']) }}" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition shadow-xs inline-flex items-center gap-1.5">
+                            <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+                            Bayar Sekarang
+                        </a>
+                    @elseif(isset($p['status_pembayaran']) && $p['status_pembayaran'] === 'Menunggu Verifikasi')
+                        <a href="{{ route('olahdata.payment.invoice', $p['id']) }}" class="px-4 py-2 rounded-xl bg-sky-50 text-[#1768B5] border border-sky-200 text-xs font-bold transition inline-flex items-center gap-1.5">
+                            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                            Lihat Invoice
+                        </a>
+                    @elseif(isset($p['status_pembayaran']) && $p['status_pembayaran'] === 'Lunas')
+                        <a href="{{ route('olahdata.payment.invoice', $p['id']) }}" class="px-3.5 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition inline-flex items-center gap-1.5">
+                            <i data-lucide="receipt" class="w-3.5 h-3.5 text-emerald-600"></i>
+                            Invoice
+                        </a>
+                    @endif
+
                     <button class="px-4 py-2 rounded-xl border border-gray-300 text-xs font-bold text-gray-700 hover:bg-gray-100 transition inline-flex items-center gap-1.5">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                        Unduh Output .sav / .docx
+                        Unduh Output
                     </button>
                     <a href="https://wa.me/6285745143123?text=Halo%20Analis%20Aether,%20saya%20ingin%20tanya%20progres%20project%20olah%20data%20saya" target="_blank" class="px-4 py-2 rounded-xl bg-[#1768B5] text-white text-xs font-bold hover:bg-[#102654] transition inline-flex items-center gap-1.5">
                         <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
@@ -92,7 +126,21 @@
                     </a>
                 </div>
             </div>
-            @endforeach
+            @empty
+            <div class="p-12 text-center">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="bar-chart-2" class="w-6 h-6"></i>
+                </div>
+                <h4 class="text-sm font-bold text-gray-900 mb-1">Belum Ada Project Olah Data</h4>
+                <p class="text-xs text-gray-500 max-w-sm mx-auto mb-4">
+                    Anda belum mengajukan pengolahan dataset riset. Unggah berkas data Anda untuk mulai diolah oleh tim analis statistik kami.
+                </p>
+                <a href="{{ route('olahdata.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#1768B5] hover:bg-[#102654] shadow-sm transition">
+                    <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+                    <span>Upload Dataset Baru</span>
+                </a>
+            </div>
+            @endforelse
         </div>
     </div>
 </div>

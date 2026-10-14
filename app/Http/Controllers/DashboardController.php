@@ -23,6 +23,7 @@ use Modules\Task\Entities\TaskSubmission;
 use Modules\Task\Services\TaskRecurringService;
 use Modules\Task\Services\TaskStatusService;
 use Modules\Bimbingan\Entities\TransaksiBimbingan;
+use Modules\Bimbingan\Entities\TransaksiProgram;
 use Modules\Master\Entities\MasterMentor;
 use Modules\Master\Entities\MasterProgram;
 use Yajra\DataTables\Facades\DataTables;
@@ -357,13 +358,18 @@ class DashboardController extends Controller
         }
 
         // Academic Bimbingan Sessions for User Dashboard & Interactive Calendar
+        $isRole99 = ((int)(session('role')['id_role'] ?? 0) === 99);
         $bimbinganQuery = TransaksiBimbingan::with(['program', 'mentor'])
             ->orderBy('jadwal_konsultasi', 'asc');
 
         if (!$isSuperAdmin && $user) {
-            $userSessionExists = TransaksiBimbingan::where('user_id', $user->id_user)->exists();
-            if ($userSessionExists) {
+            if ($isRole99) {
                 $bimbinganQuery->where('user_id', $user->id_user);
+            } else {
+                $userSessionExists = TransaksiBimbingan::where('user_id', $user->id_user)->exists();
+                if ($userSessionExists) {
+                    $bimbinganQuery->where('user_id', $user->id_user);
+                }
             }
         }
 
@@ -420,7 +426,51 @@ class DashboardController extends Controller
             ];
         })->filter(fn($e) => !empty($e['date']))->values();
 
+        $userActivePrograms = collect();
+        $userPendingPrograms = collect();
+        if ($user) {
+            $userActivePrograms = TransaksiProgram::with('program')
+                ->where('user_id', $user->id_user)
+                ->where('status', 'Aktif')
+                ->orderBy('id', 'desc')
+                ->get();
+
+            $pendingQuery = TransaksiProgram::with('program')
+                ->whereNotIn('status', ['Dibatalkan', 'Batal', 'Cancelled', 'cancelled', 'Expired', 'kadaluarsa', 'Aktif', 'Selesai'])
+                ->whereNotIn('status_pembayaran', ['Dibatalkan', 'Batal', 'Cancelled', 'cancelled', 'Expired', 'kadaluarsa', 'Lunas'])
+                ->where(function ($q) {
+                    $q->whereIn('status', ['Menunggu Pembayaran', 'Pending', 'pending', 'Menunggu Verifikasi'])
+                      ->orWhereIn('status_pembayaran', ['Menunggu Pembayaran', 'Pending', 'pending', 'Menunggu Verifikasi']);
+                });
+
+            if ($isRole99) {
+                $pendingQuery->where('user_id', $user->id_user);
+            } else if (!$isSuperAdmin) {
+                $userPendingExists = TransaksiProgram::where('user_id', $user->id_user)
+                    ->whereNotIn('status', ['Dibatalkan', 'Batal', 'Cancelled', 'cancelled', 'Expired', 'kadaluarsa', 'Aktif', 'Selesai'])
+                    ->whereNotIn('status_pembayaran', ['Dibatalkan', 'Batal', 'Cancelled', 'cancelled', 'Expired', 'kadaluarsa', 'Lunas'])
+                    ->where(function ($q) {
+                        $q->whereIn('status', ['Menunggu Pembayaran', 'Pending', 'pending', 'Menunggu Verifikasi'])
+                          ->orWhereIn('status_pembayaran', ['Menunggu Pembayaran', 'Pending', 'pending', 'Menunggu Verifikasi']);
+                    })->exists();
+                if ($userPendingExists) {
+                    $pendingQuery->where('user_id', $user->id_user);
+                }
+            } else {
+                $adminPendingExists = (clone $pendingQuery)->where('user_id', $user->id_user)->exists();
+                if ($adminPendingExists) {
+                    $pendingQuery->where('user_id', $user->id_user);
+                }
+            }
+
+            $userPendingPrograms = $pendingQuery->orderBy('id', 'desc')->get();
+        }
+
         $activePrograms = MasterProgram::where('is_active', true)->orderBy('is_populer', 'desc')->orderBy('id', 'asc')->get();
+        $modalPrograms = $isRole99
+            ? $activePrograms->whereIn('id', $userActivePrograms->pluck('program_id'))->values()
+            : $activePrograms;
+
         $activeMentors = MasterMentor::where('is_active', true)->orderBy('nama_lengkap', 'asc')->get();
 
         return view('dashboard', compact(
@@ -450,12 +500,16 @@ class DashboardController extends Controller
             'dateFrom',
             'dateTo',
             'isSuperAdmin',
+            'isRole99',
             'myEmployee',
             'myTaskStats',
             'bimbinganSessions',
             'academicStats',
             'calendarEvents',
             'activePrograms',
+            'userActivePrograms',
+            'userPendingPrograms',
+            'modalPrograms',
             'activeMentors'
         ));
     }

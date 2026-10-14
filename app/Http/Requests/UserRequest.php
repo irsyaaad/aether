@@ -25,14 +25,19 @@ class UserRequest extends FormRequest
     {
         $id = Request::segment(2) != null ? Request::segment(2) : null;
         if ($this->getMethod() == 'POST') {
-            return [
+            $rules = [
                 'full_name' => 'bail|required|string|max:100',
                 'email' => 'required|email|max:150|unique:users,email',
                 'password' => 'required|string|min:6',
-                'jenis_kelamin' => 'required|in:L,P',
-                'tgl_lahir' => 'required|date|before:today',
-                'captcha' => 'required|captcha',
             ];
+
+            if ($this->is('register') || $this->is('*/register') || Request::segment(1) == 'register') {
+                $rules['jenis_kelamin'] = 'required|in:L,P';
+                $rules['tgl_lahir'] = 'required|date|before:today';
+                $rules['captcha'] = config('captcha.disable') ? 'nullable' : 'required|captcha';
+            }
+
+            return $rules;
         } else {
             return [
                 'full_name' => 'bail|required',

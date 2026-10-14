@@ -78,121 +78,125 @@
 </div>
 
 <!-- Modal Form Create / Edit Kelas -->
-<div id="modal-kelas" class="fixed inset-0 z-50 hidden bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/50">
+<div id="modal-kelas" class="fixed inset-0 z-50 hidden bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh] my-auto animate-in fade-in zoom-in-95 duration-150">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/75 shrink-0">
             <h3 id="modal-title" class="font-bold text-gray-900 text-sm flex items-center gap-2">
                 <i data-lucide="award" class="w-4 h-4 text-[#1768B5]"></i>
                 <span>Tambah Kelas Baru</span>
             </h3>
-            <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+            <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
         
-        <form id="form-kelas" onsubmit="submitForm(event)" class="p-6 space-y-4">
+        <form id="form-kelas" onsubmit="submitForm(event)" class="flex flex-col flex-1 min-h-0 overflow-hidden">
             <input type="hidden" id="kelas_id" name="id">
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Kode Kelas <span class="text-rose-500">*</span></label>
-                    <input type="text" id="kode_kelas" name="kode_kelas" required placeholder="Contoh: KLS-PLS-01" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 font-mono uppercase focus:ring-2 focus:ring-[#1768B5]">
+            <!-- Scrollable Form Body -->
+            <div class="p-6 space-y-4 overflow-y-auto flex-1 overscroll-contain">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Kode Kelas <span class="text-rose-500">*</span></label>
+                        <input type="text" id="kode_kelas" name="kode_kelas" required placeholder="Contoh: KLS-PLS-01" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 font-mono uppercase focus:ring-2 focus:ring-[#1768B5]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Badge Promosi</label>
+                        <input type="text" id="badge" name="badge" placeholder="Contoh: Terpopuler, Best Seller, Baru" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                    </div>
                 </div>
+
                 <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Badge Promosi</label>
-                    <input type="text" id="badge" name="badge" placeholder="Contoh: Terpopuler, Best Seller, Baru" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Judul Kelas / Pelatihan <span class="text-rose-500">*</span></label>
+                    <input type="text" id="judul" name="judul" required placeholder="Contoh: Mastering SEM-PLS 4: Dari Kerangka Konseptual Hingga Bab 4" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Instruktur / Mentor</label>
+                        <select id="mentor_id" name="mentor_id" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                            <option value="">-- Pilih Mentor Pengampu --</option>
+                            @foreach($mentors as $mentor)
+                                <option value="{{ $mentor->id }}">{{ $mentor->nama_lengkap }} ({{ $mentor->spesialisasi }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Program Terkait</label>
+                        <select id="program_id" name="program_id" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                            <option value="">-- Hubungkan dengan Program --</option>
+                            @foreach($programs as $prog)
+                                <option value="{{ $prog->id }}">{{ $prog->nama_program }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Tingkat (Level)</label>
+                        <select id="level" name="level" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                            <option value="Pemula">Pemula</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                            <option value="Semua Level">Semua Level</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Tipe Pelaksanaan</label>
+                        <select id="tipe_kelas" name="tipe_kelas" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                            <option value="Bootcamp Intensif">Bootcamp Intensif</option>
+                            <option value="Online Webinar">Online Webinar</option>
+                            <option value="Self-Paced Video">Self-Paced Video</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Status Pendaftaran</label>
+                        <select id="status" name="status" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                            <option value="Dibuka">Dibuka</option>
+                            <option value="Berlangsung">Berlangsung</option>
+                            <option value="Selesai">Selesai</option>
+                            <option value="Ditutup">Ditutup</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Biaya Pendaftaran (Rp) <span class="text-rose-500">*</span></label>
+                        <input type="number" id="harga" name="harga" required min="0" placeholder="250000" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 font-mono focus:ring-2 focus:ring-[#1768B5]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Kuota Maksimal Peserta <span class="text-rose-500">*</span></label>
+                        <input type="number" id="kuota_maksimal" name="kuota_maksimal" required min="1" placeholder="100" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 font-mono focus:ring-2 focus:ring-[#1768B5]">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Tanggal Mulai</label>
+                        <input type="date" id="tanggal_mulai" name="tanggal_mulai" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Tanggal Selesai</label>
+                        <input type="date" id="tanggal_selesai" name="tanggal_selesai" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Link Pertemuan (Zoom / GMeet / LMS)</label>
+                    <input type="url" id="link_meeting" name="link_meeting" placeholder="https://meet.google.com/..." class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Deskripsi &amp; Cakupan Materi</label>
+                    <textarea id="deskripsi" name="deskripsi" rows="3" placeholder="Jelaskan tujuan pembelajaran, software yang digunakan, dan output bagi peserta..." class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]"></textarea>
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Judul Kelas / Pelatihan <span class="text-rose-500">*</span></label>
-                <input type="text" id="judul" name="judul" required placeholder="Contoh: Mastering SEM-PLS 4: Dari Kerangka Konseptual Hingga Bab 4" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Instruktur / Mentor</label>
-                    <select id="mentor_id" name="mentor_id" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
-                        <option value="">-- Pilih Mentor Pengampu --</option>
-                        @foreach($mentors as $mentor)
-                            <option value="{{ $mentor->id }}">{{ $mentor->nama_lengkap }} ({{ $mentor->spesialisasi }})</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Program Terkait</label>
-                    <select id="program_id" name="program_id" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
-                        <option value="">-- Hubungkan dengan Program --</option>
-                        @foreach($programs as $prog)
-                            <option value="{{ $prog->id }}">{{ $prog->nama_program }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Tingkat (Level)</label>
-                    <select id="level" name="level" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
-                        <option value="Pemula">Pemula</option>
-                        <option value="Intermediate">Intermediate</option>
-                        <option value="Advanced">Advanced</option>
-                        <option value="Semua Level">Semua Level</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Tipe Pelaksanaan</label>
-                    <select id="tipe_kelas" name="tipe_kelas" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
-                        <option value="Bootcamp Intensif">Bootcamp Intensif</option>
-                        <option value="Online Webinar">Online Webinar</option>
-                        <option value="Self-Paced Video">Self-Paced Video</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Status Pendaftaran</label>
-                    <select id="status" name="status" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
-                        <option value="Dibuka">Dibuka</option>
-                        <option value="Berlangsung">Berlangsung</option>
-                        <option value="Selesai">Selesai</option>
-                        <option value="Ditutup">Ditutup</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Biaya Pendaftaran (Rp) <span class="text-rose-500">*</span></label>
-                    <input type="number" id="harga" name="harga" required min="0" placeholder="250000" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 font-mono focus:ring-2 focus:ring-[#1768B5]">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Kuota Maksimal Peserta <span class="text-rose-500">*</span></label>
-                    <input type="number" id="kuota_maksimal" name="kuota_maksimal" required min="1" placeholder="100" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 font-mono focus:ring-2 focus:ring-[#1768B5]">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Tanggal Mulai</label>
-                    <input type="date" id="tanggal_mulai" name="tanggal_mulai" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Tanggal Selesai</label>
-                    <input type="date" id="tanggal_selesai" name="tanggal_selesai" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Link Pertemuan (Zoom / GMeet / LMS)</label>
-                <input type="url" id="link_meeting" name="link_meeting" placeholder="https://meet.google.com/..." class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Deskripsi &amp; Cakupan Materi</label>
-                <textarea id="deskripsi" name="deskripsi" rows="3" placeholder="Jelaskan tujuan pembelajaran, software yang digunakan, dan output bagi peserta..." class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]"></textarea>
-            </div>
-
-            <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
-                <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">Batal</button>
+            <!-- Fixed Footer with Save Button Always Visible -->
+            <div class="flex items-center justify-end gap-2 px-6 py-3.5 border-t border-gray-200 bg-gray-50/80 shrink-0">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-100 transition">Batal</button>
                 <button type="submit" id="btn-save" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#1768B5] hover:bg-[#135392] shadow-sm transition">Simpan Kelas</button>
             </div>
         </form>
@@ -232,6 +236,19 @@
 
         $('#filter-level, #filter-status').on('change', function() {
             table.draw();
+        });
+
+        // Close modal on backdrop click or escape
+        $('#modal-kelas').on('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape' && !$('#modal-kelas').hasClass('hidden')) {
+                closeModal();
+            }
         });
     });
 
@@ -314,6 +331,65 @@
                     icon: 'error',
                     title: 'Gagal!',
                     text: msg
+                });
+            }
+        });
+    }
+
+    function ubahStatusKelas(id, newStatus, title) {
+        let actionWord = 'mengubah status';
+        let confirmColor = '#1768B5';
+        let actionDesc = 'Status kelas akan diubah menjadi ' + newStatus + '.';
+
+        if (newStatus === 'Ditutup') {
+            actionWord = 'menutup kelas';
+            confirmColor = '#e11d48';
+            actionDesc = 'Pendaftaran untuk kelas ini akan ditutup dan tidak dapat dipesan oleh mahasiswa.';
+        } else if (newStatus === 'Selesai') {
+            actionWord = 'menselesaikan kelas';
+            confirmColor = '#4f46e5';
+            actionDesc = 'Kelas akan ditandai selesai. Pelaksanaan workshop dianggap telah rampung.';
+        } else if (newStatus === 'Dibuka') {
+            actionWord = 'membuka pendaftaran kelas';
+            confirmColor = '#059669';
+            actionDesc = 'Pendaftaran kelas ini akan dibuka kembali untuk mahasiswa.';
+        }
+
+        Swal.fire({
+            title: 'Konfirmasi ' + actionWord.charAt(0).toUpperCase() + actionWord.slice(1) + '?',
+            text: 'Apakah Anda yakin ingin ' + actionWord + ' "' + title + '"? ' + actionDesc,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: confirmColor,
+            confirmButtonText: 'Ya, ' + (newStatus === 'Ditutup' ? 'Tutup Kelas' : (newStatus === 'Selesai' ? 'Selesaikan Kelas' : 'Buka Kelas')),
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '{{ url("master/kelas") }}/' + id + '/update-status',
+                    type: 'POST',
+                    data: {
+                        status: newStatus,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(res) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: res.message,
+                            timer: 1800,
+                            showConfirmButton: false
+                        });
+                        table.draw(false);
+                    },
+                    error: function(err) {
+                        let msg = err.responseJSON && err.responseJSON.message ? err.responseJSON.message : 'Gagal memperbarui status kelas.';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: msg
+                        });
+                    }
                 });
             }
         });
