@@ -6,6 +6,7 @@ use App\Traits\HasAccessControl;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Schema\Blueprint;
 use Modules\Master\Entities\MasterMateri;
 use Modules\Master\Entities\MasterKelas;
@@ -132,12 +133,23 @@ class MasterMateriController extends Controller
                     : '';
                 $kelasJudul = $row->kelas ? e($row->kelas->judul) : '-';
 
+                $fileBadge = '';
+                if ($row->file_materi) {
+                    $fileName = basename($row->file_materi);
+                    $fileUrl = $row->file_url;
+                    $fileBadge = '<div class="mt-1 flex items-center gap-1.5 text-[11px] text-[#1768B5]">
+                                    <i data-lucide="paperclip" class="w-3.5 h-3.5 text-[#1768B5] shrink-0"></i>
+                                    <a href="' . $fileUrl . '" target="_blank" class="hover:underline font-mono truncate max-w-xs font-semibold" title="' . e($fileName) . '">' . e($fileName) . '</a>
+                                  </div>';
+                }
+
                 return '<div class="flex flex-col">
                             <div class="flex items-center">
                                 <span class="font-bold text-gray-900 text-sm">' . e($row->judul_materi) . '</span>
                                 ' . $previewBadge . '
                             </div>
                             <span class="text-xs text-gray-500 mt-0.5 truncate max-w-md">' . e($row->deskripsi ?? 'Kelas: ' . $kelasJudul) . '</span>
+                            ' . $fileBadge . '
                         </div>';
             })
             ->addColumn('tipe_badge', function ($row) {
@@ -177,9 +189,19 @@ class MasterMateriController extends Controller
             'judul_materi' => 'required|string|max:255',
             'tipe_materi' => 'required|string',
             'urutan' => 'required|integer|min:1',
+            'file_upload' => 'nullable|file|max:51200', // 50MB
         ]);
 
-        $materi = MasterMateri::create($request->all());
+        $data = $request->except(['file_upload']);
+
+        if ($request->hasFile('file_upload')) {
+            $file = $request->file('file_upload');
+            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $file->getClientOriginalName());
+            $path = $file->storeAs('materi/files', $filename, 'public');
+            $data['file_materi'] = $path;
+        }
+
+        $materi = MasterMateri::create($data);
 
         return response()->json([
             'status' => 'success',
@@ -197,9 +219,22 @@ class MasterMateriController extends Controller
             'judul_materi' => 'required|string|max:255',
             'tipe_materi' => 'required|string',
             'urutan' => 'required|integer|min:1',
+            'file_upload' => 'nullable|file|max:51200',
         ]);
 
-        $materi->update($request->all());
+        $data = $request->except(['file_upload']);
+
+        if ($request->hasFile('file_upload')) {
+            if ($materi->file_materi && Storage::disk('public')->exists($materi->file_materi)) {
+                Storage::disk('public')->delete($materi->file_materi);
+            }
+            $file = $request->file('file_upload');
+            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $file->getClientOriginalName());
+            $path = $file->storeAs('materi/files', $filename, 'public');
+            $data['file_materi'] = $path;
+        }
+
+        $materi->update($data);
 
         return response()->json([
             'status' => 'success',
@@ -211,6 +246,9 @@ class MasterMateriController extends Controller
     public function destroy($id)
     {
         $materi = MasterMateri::findOrFail($id);
+        if ($materi->file_materi && Storage::disk('public')->exists($materi->file_materi)) {
+            Storage::disk('public')->delete($materi->file_materi);
+        }
         $materi->delete();
 
         return response()->json([

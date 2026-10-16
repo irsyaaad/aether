@@ -7,6 +7,8 @@ Route::get('/', [PelatihanController::class, 'index'])->name('index');
 Route::get('/katalog', [PelatihanController::class, 'katalog'])->name('katalog');
 Route::get('/kelas-saya', [PelatihanController::class, 'kelasSaya'])->name('kelas-saya');
 Route::get('/sertifikat', [PelatihanController::class, 'sertifikat'])->name('sertifikat');
+Route::get('/sertifikat/{id}/preview', [PelatihanController::class, 'previewSertifikat'])->name('sertifikat.preview');
+Route::get('/sertifikat/{id}/download', [PelatihanController::class, 'downloadSertifikat'])->name('sertifikat.download');
 
 // Mekanisme Pembayaran Pelatihan
 Route::get('/kelas/{id}/payment', [PelatihanController::class, 'payment'])->name('payment');
@@ -23,4 +25,5 @@ Route::post('/transaksi/{id}/batalkan', [PelatihanController::class, 'batalkanPe
 
 Route::get('/{id}', [PelatihanController::class, 'show'])->name('show');
 Route::post('/{id}/daftar', [PelatihanController::class, 'daftar'])->name('daftar');
+Route::post('/materi/{id}/selesai', [PelatihanController::class, 'markMateriSelesai'])->name('materi.selesai');
 

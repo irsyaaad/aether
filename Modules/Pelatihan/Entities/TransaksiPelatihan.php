@@ -61,6 +61,21 @@ class TransaksiPelatihan extends Model
         return asset('storage/' . $this->bukti_pembayaran);
     }
 
+    public function getNomorSertifikatAttribute()
+    {
+        $year = $this->updated_at ? $this->updated_at->format('Y') : date('Y');
+        $padId = str_pad($this->id, 5, '0', STR_PAD_LEFT);
+        $cleanKode = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $this->kode_kelas ?? 'WKS'));
+        $prefix = substr($cleanKode, 0, 4) ?: 'WKS';
+        return "AETH-CERT/{$year}/{$prefix}-{$padId}";
+    }
+
+    public function getVerifyUrlAttribute()
+    {
+        $code = $this->nomor_registrasi ?: $this->id;
+        return route('pelatihan.sertifikat.verifikasi', $code);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id_user');

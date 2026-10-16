@@ -35,6 +35,19 @@ class MasterMateri extends Model
         'deleted_at' => 'datetime',
     ];
 
+    protected $appends = ['file_url'];
+
+    public function getFileUrlAttribute()
+    {
+        if (!$this->file_materi) {
+            return null;
+        }
+        if (filter_var($this->file_materi, FILTER_VALIDATE_URL)) {
+            return $this->file_materi;
+        }
+        return asset('storage/' . $this->file_materi);
+    }
+
     public function kelas()
     {
         return $this->belongsTo(MasterKelas::class, 'kelas_id');

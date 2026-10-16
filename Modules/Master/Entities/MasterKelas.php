@@ -15,6 +15,7 @@ class MasterKelas extends Model
     protected $fillable = [
         'kode_kelas',
         'judul',
+        'thumbnail',
         'program_id',
         'mentor_id',
         'level', // Pemula, Menengah, Mahir, Semua Level
@@ -42,6 +43,36 @@ class MasterKelas extends Model
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
+
+    protected $appends = [
+        'thumbnail_url',
+        'harga_formatted',
+    ];
+
+    /**
+     * Get thumbnail URL accessor
+     */
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        if ($this->thumbnail) {
+            if (str_starts_with($this->thumbnail, 'http://') || str_starts_with($this->thumbnail, 'https://')) {
+                return $this->thumbnail;
+            }
+            return asset('storage/' . $this->thumbnail);
+        }
+        return null;
+    }
+
+    /**
+     * Get formatted price accessor
+     */
+    public function getHargaFormattedAttribute(): string
+    {
+        if ($this->harga && (float)$this->harga > 0) {
+            return 'Rp ' . number_format((float)$this->harga, 0, ',', '.');
+        }
+        return 'Gratis';
+    }
 
     public function program()
     {

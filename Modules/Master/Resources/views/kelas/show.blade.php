@@ -74,9 +74,14 @@
             </button>
             @endif
 
-            <a href="{{ route('master.materi.index', ['kelas_id' => $kelas->id]) }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold hover:bg-purple-100 transition" title="Kelola Materi & Silabus">
+            <a href="#section-silabus" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-bold hover:bg-purple-100 transition" title="Kelola Materi & Silabus di Halaman Ini">
                 <i data-lucide="book-open" class="w-4 h-4"></i>
                 Materi &amp; Silabus
+            </a>
+
+            <a href="{{ route('master.kelas.edit', $kelas->id) }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-200 bg-amber-50 text-amber-700 text-xs font-bold hover:bg-amber-100 transition shadow-xs" title="Edit Kelas">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                Edit Kelas
             </a>
 
             <a href="{{ route('master.kelas.index') }}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-black transition shadow-xs">
@@ -142,15 +147,27 @@
         <!-- Left: Quick Info Card -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden flex flex-col justify-between">
             <div>
-                <div class="h-28 w-full bg-gradient-to-r from-[#172554] via-[#1e3a8a] to-[#1768B5] relative flex items-center justify-between p-6 overflow-hidden">
-                    <i data-lucide="presentation" class="w-24 h-24 text-white/10 absolute -right-3 -bottom-3"></i>
-                    <div>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-white/20 text-white uppercase tracking-wider">
-                            {{ $kelas->tipe_kelas }}
-                        </span>
-                        <h4 class="text-white font-black text-base mt-1 line-clamp-1">{{ $kelas->judul }}</h4>
+                @if($kelas->thumbnail_url)
+                    <div class="h-44 w-full relative overflow-hidden group">
+                        <img src="{{ $kelas->thumbnail_url }}" alt="{{ $kelas->judul }}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-950/85 via-gray-950/35 to-transparent flex flex-col justify-end p-5">
+                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-white/20 text-white uppercase tracking-wider backdrop-blur-xs w-max mb-1">
+                                {{ $kelas->tipe_kelas }}
+                            </span>
+                            <h4 class="text-white font-black text-base line-clamp-1 leading-snug">{{ $kelas->judul }}</h4>
+                        </div>
                     </div>
-                </div>
+                @else
+                    <div class="h-28 w-full bg-gradient-to-r from-[#172554] via-[#1e3a8a] to-[#1768B5] relative flex items-center justify-between p-6 overflow-hidden">
+                        <i data-lucide="presentation" class="w-24 h-24 text-white/10 absolute -right-3 -bottom-3"></i>
+                        <div>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-white/20 text-white uppercase tracking-wider">
+                                {{ $kelas->tipe_kelas }}
+                            </span>
+                            <h4 class="text-white font-black text-base mt-1 line-clamp-1">{{ $kelas->judul }}</h4>
+                        </div>
+                    </div>
+                @endif
 
                 <div class="p-6 space-y-3.5">
                     <div class="flex items-center justify-between pb-2.5 border-b border-gray-100">
@@ -202,7 +219,10 @@
                     <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
                     Pratinjau Halaman Checkout
                 </a>
-                <span class="text-[11px] text-gray-400">{{ $kelas->materis->count() }} Modul Silabus</span>
+                <a href="#section-silabus" class="text-[11px] font-semibold text-[#1768B5] hover:underline flex items-center gap-1">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                    <span>{{ $kelas->materis->count() }} Modul Silabus</span>
+                </a>
             </div>
         </div>
 
@@ -245,6 +265,50 @@
                 @else
                     <p class="text-xs text-gray-400 italic">Belum ada silabus khusus yang didaftarkan.</p>
                 @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Pengaturan Silabus & Modul Pembelajaran -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden" id="section-silabus">
+        <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="p-2 bg-sky-50 text-[#1768B5] rounded-xl border border-sky-100">
+                        <i data-lucide="book-open" class="w-5 h-5"></i>
+                    </span>
+                    <div>
+                        <h2 class="text-lg font-black text-gray-900 tracking-tight">Pengaturan Silabus &amp; Modul Pembelajaran</h2>
+                        <p class="text-xs text-gray-500 mt-0.5">Kelola urutan materi kurikulum, link video tutorial, file dokumen/dataset latihan, dan hak akses pratinjau gratis.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('master.materi.index', ['kelas_id' => $kelas->id]) }}" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold hover:bg-gray-100 transition" title="Buka Halaman Master Materi Penuh">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    <span>Halaman Materi Penuh</span>
+                </a>
+                <button type="button" onclick="openCreateMateriModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-[#1768B5] hover:bg-[#135392] shadow-xs transition">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Tambah Materi Baru</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table id="materi-table" class="w-full text-left text-xs text-gray-600">
+                    <thead class="bg-gray-50/80 text-[11px] uppercase tracking-wider text-gray-500 font-bold border-y border-gray-200">
+                        <tr>
+                            <th class="py-3.5 px-4 w-16 text-center">Urutan</th>
+                            <th class="py-3.5 px-4">Judul Modul / Materi</th>
+                            <th class="py-3.5 px-4 w-36">Tipe Konten</th>
+                            <th class="py-3.5 px-4 w-32">Durasi Sesi</th>
+                            <th class="py-3.5 px-4 w-28 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -460,6 +524,104 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Form Create / Edit Materi -->
+<div id="modal-materi" class="fixed inset-0 z-50 hidden bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/50">
+            <h3 id="modal-materi-title" class="font-bold text-gray-900 text-sm flex items-center gap-2">
+                <i data-lucide="book-open" class="w-4 h-4 text-[#1768B5]"></i>
+                <span>Tambah Materi Baru</span>
+            </h3>
+            <button type="button" onclick="closeMateriModal()" class="text-gray-400 hover:text-gray-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <form id="form-materi" onsubmit="submitMateriForm(event)" enctype="multipart/form-data" class="p-6 space-y-4">
+            <input type="hidden" id="materi_id" name="id">
+            <input type="hidden" id="form_kelas_id" name="kelas_id" value="{{ $kelas->id }}">
+            
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Urutan <span class="text-rose-500">*</span></label>
+                    <input type="number" id="urutan" name="urutan" required min="1" value="1" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 font-mono focus:ring-2 focus:ring-[#1768B5]">
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Tipe Konten <span class="text-rose-500">*</span></label>
+                    <select id="tipe_materi" name="tipe_materi" onchange="handleTipeMateriChange(this.value)" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                        <option value="Video">Video Pembelajaran</option>
+                        <option value="Dokumen PDF">Dokumen PDF / Slide PPT / Word</option>
+                        <option value="Dataset Praktik">Dataset Praktik (.sav/.csv/.xlsx)</option>
+                        <option value="Kuis/Tugas">Latihan Mandiri / Tugas</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Judul Materi / Modul <span class="text-rose-500">*</span></label>
+                <input type="text" id="judul_materi" name="judul_materi" required placeholder="Contoh: Pengujian Hipotesis Inner Model & Mediasi" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Estimasi Durasi (Menit)</label>
+                    <input type="number" id="durasi_menit" name="durasi_menit" min="0" placeholder="45" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 font-mono focus:ring-2 focus:ring-[#1768B5]">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Akses Preview</label>
+                    <select id="is_free_preview" name="is_free_preview" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                        <option value="0">Terkunci (Member Berbayar)</option>
+                        <option value="1">Free Preview (Bisa Ditonton Gratis)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Group Link Video (Tampil saat tipe Video) -->
+            <div id="group-link-video">
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Link URL Video / Embed (Opsional)</label>
+                <input type="url" id="link_video" name="link_video" placeholder="https://youtube.com/... atau https://vimeo.com/..." class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+            </div>
+
+            <!-- Group Upload File Dokumen / Slide PPT / Dataset -->
+            <div id="group-file-upload">
+                <label class="block text-xs font-semibold text-gray-700 mb-1" id="label-file-upload">
+                    Upload File Materi / Dokumen / Slide PPT
+                </label>
+                <div class="space-y-2">
+                    <input type="file" id="file_upload" name="file_upload" accept=".pdf,.ppt,.pptx,.doc,.docx,.csv,.sav,.xlsx,.xls,.zip" class="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-[#1768B5] hover:file:bg-sky-100 border border-gray-200 rounded-xl p-1 bg-white focus:outline-none focus:ring-2 focus:ring-[#1768B5]">
+                    
+                    <p class="text-[11px] text-gray-400" id="file-hint">
+                        Format didukung: PDF, PPT, PPTX, DOC, DOCX, CSV, SAV, XLSX, ZIP (Maksimal 50MB)
+                    </p>
+
+                    <!-- Existing File Status (Tampil saat edit jika ada file) -->
+                    <div id="current-file-container" class="hidden items-center justify-between p-2.5 bg-sky-50/70 border border-sky-200 rounded-xl text-xs">
+                        <div class="flex items-center gap-2 truncate">
+                            <i data-lucide="file-check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                            <span class="text-gray-500 text-[11px]">File tersimpan:</span>
+                            <span id="current-file-name" class="font-mono font-bold text-[#1768B5] truncate max-w-xs"></span>
+                        </div>
+                        <a id="current-file-link" href="#" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#1768B5] hover:underline shrink-0">
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            <span>Buka File</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Deskripsi Singkat Silabus</label>
+                <textarea id="deskripsi" name="deskripsi" rows="2" placeholder="Poin-poin bahasan pada materi ini..." class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]"></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                <button type="button" onclick="closeMateriModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition">Batal</button>
+                <button type="submit" id="btn-save-materi" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#1768B5] hover:bg-[#135392] shadow-sm transition">Simpan Materi</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -482,15 +644,24 @@
             });
         });
 
+        // Initialize Materi Silabus DataTable
+        initMateriTable();
+
         // Close modal on backdrop click or escape
         $('#modal-bukti').on('click', function(e) {
             if (e.target === this) {
                 closeBuktiModal();
             }
         });
+        $('#modal-materi').on('click', function(e) {
+            if (e.target === this) {
+                closeMateriModal();
+            }
+        });
         $(document).on('keydown', function(e) {
-            if (e.key === 'Escape' && !$('#modal-bukti').hasClass('hidden')) {
-                closeBuktiModal();
+            if (e.key === 'Escape') {
+                if (!$('#modal-bukti').hasClass('hidden')) closeBuktiModal();
+                if (!$('#modal-materi').hasClass('hidden')) closeMateriModal();
             }
         });
     });
@@ -677,6 +848,192 @@
                             icon: 'error',
                             title: 'Gagal!',
                             text: msg
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    // --- Pengaturan Silabus & Modul Pembelajaran Functions ---
+    var materiTable;
+    function initMateriTable() {
+        materiTable = $('#materi-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: '{{ route("master.materi.get-data") }}',
+                data: function(d) {
+                    d.kelas_id = {{ $kelas->id }};
+                }
+            },
+            columns: [
+                { data: 'urutan_badge', name: 'urutan', className: 'text-center' },
+                { data: 'materi_info', name: 'judul_materi' },
+                { data: 'tipe_badge', name: 'tipe_materi' },
+                { data: 'durasi_info', name: 'durasi_menit' },
+                { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-right' }
+            ],
+            drawCallback: function() {
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            }
+        });
+    }
+
+    function handleTipeMateriChange(tipe) {
+        if (tipe === 'Video') {
+            $('#group-link-video').removeClass('hidden');
+            $('#label-file-upload').text('Upload File Pendukung / Slide PPT (Opsional)');
+            $('#file-hint').text('Opsional jika ada slide presentasi PowerPoint / PDF pendukung video.');
+        } else if (tipe === 'Dokumen PDF') {
+            $('#group-link-video').addClass('hidden');
+            $('#label-file-upload').html('Upload File Dokumen / Slide PPT <span class="text-xs text-sky-600 font-bold">(.pdf, .ppt, .pptx, .docx)</span>');
+            $('#file-hint').text('Pilih file slide PowerPoint (.ppt, .pptx) atau dokumen (.pdf, .docx, .doc).');
+        } else if (tipe === 'Dataset Praktik') {
+            $('#group-link-video').addClass('hidden');
+            $('#label-file-upload').html('Upload File Dataset Praktik <span class="text-xs text-emerald-600 font-bold">(.sav, .csv, .xlsx)</span>');
+            $('#file-hint').text('Pilih file dataset SPSS (.sav), SmartPLS / Excel (.csv, .xlsx) untuk latihan praktik.');
+        } else {
+            $('#group-link-video').addClass('hidden');
+            $('#label-file-upload').html('Upload Lembar Soal / Panduan Tugas <span class="text-xs text-gray-400 font-normal">(Opsional)</span>');
+            $('#file-hint').text('Format didukung: PDF, Word, atau ZIP.');
+        }
+        if (window.lucide) { lucide.createIcons(); }
+    }
+
+    function openCreateMateriModal() {
+        $('#modal-materi-title span').text('Tambah Materi Baru');
+        $('#form-materi')[0].reset();
+        $('#materi_id').val('');
+        $('#form_kelas_id').val('{{ $kelas->id }}');
+        $('#file_upload').val('');
+        $('#current-file-container').addClass('hidden').removeClass('flex');
+        handleTipeMateriChange($('#tipe_materi').val() || 'Video');
+        $('#modal-materi').removeClass('hidden');
+        if (window.lucide) { lucide.createIcons(); }
+    }
+
+    function closeMateriModal() {
+        $('#modal-materi').addClass('hidden');
+    }
+
+    function editMateri(row) {
+        $('#modal-materi-title span').text('Edit Materi: #' + row.urutan);
+        $('#materi_id').val(row.id);
+        $('#form_kelas_id').val(row.kelas_id);
+        $('#urutan').val(row.urutan);
+        $('#tipe_materi').val(row.tipe_materi);
+        $('#judul_materi').val(row.judul_materi);
+        $('#durasi_menit').val(row.durasi_menit);
+        $('#is_free_preview').val(row.is_free_preview ? '1' : '0');
+        $('#link_video').val(row.link_video);
+        $('#deskripsi').val(row.deskripsi);
+        $('#file_upload').val('');
+
+        if (row.file_materi) {
+            let fileName = row.file_materi.split('/').pop();
+            let fileUrl = row.file_url || ('{{ asset("storage") }}/' + row.file_materi);
+            $('#current-file-name').text(fileName);
+            $('#current-file-link').attr('href', fileUrl);
+            $('#current-file-container').removeClass('hidden').addClass('flex');
+        } else {
+            $('#current-file-container').addClass('hidden').removeClass('flex');
+        }
+
+        handleTipeMateriChange(row.tipe_materi);
+        $('#modal-materi').removeClass('hidden');
+        if (window.lucide) { lucide.createIcons(); }
+    }
+
+    function submitMateriForm(e) {
+        e.preventDefault();
+        let id = $('#materi_id').val();
+        let isEdit = id ? true : false;
+        let url = isEdit ? '{{ url("master/materi") }}/' + id : '{{ route("master.materi.store") }}';
+
+        let formElement = document.getElementById('form-materi');
+        let formData = new FormData(formElement);
+        if (isEdit) {
+            formData.append('_method', 'PUT');
+        }
+
+        $('#btn-save-materi').prop('disabled', true).text('Menyimpan...');
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            success: function(res) {
+                $('#btn-save-materi').prop('disabled', false).text('Simpan Materi');
+                closeMateriModal();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: res.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                if (materiTable) {
+                    materiTable.draw(false);
+                }
+            },
+            error: function(err) {
+                $('#btn-save-materi').prop('disabled', false).text('Simpan Materi');
+                let msg = err.responseJSON && err.responseJSON.message ? err.responseJSON.message : 'Terjadi kesalahan';
+                if (err.responseJSON && err.responseJSON.errors) {
+                    let firstErrorKey = Object.keys(err.responseJSON.errors)[0];
+                    msg = err.responseJSON.errors[firstErrorKey][0];
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: msg
+                });
+            }
+        });
+    }
+
+    function deleteMateri(id, title) {
+        Swal.fire({
+            title: 'Hapus Materi?',
+            text: 'Materi "' + title + '" akan dihapus dari silabus.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '{{ url("master/materi") }}/' + id,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(res) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Dihapus!',
+                            text: res.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        if (materiTable) {
+                            materiTable.draw(false);
+                        }
+                    },
+                    error: function(err) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Gagal menghapus materi.'
                         });
                     }
                 });

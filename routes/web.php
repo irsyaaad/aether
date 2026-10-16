@@ -78,3 +78,17 @@ Route::post('/api/cache-landing-css', function (\Illuminate\Http\Request $reques
     }
     return response()->json(['status' => 'ignored']);
 });
+
+// Storage fallback route
+Route::get('storage/{path}', function ($path) {
+    $filePath = storage_path('app/public/' . $path);
+    if (!file_exists($filePath)) {
+        abort(404);
+    }
+    return response()->file($filePath);
+})->where('path', '.*');
+
+// Verifikasi Publik E-Sertifikat Pelatihan (Dapat diakses via Scan QR Code)
+Route::get('/pelatihan/sertifikat/verifikasi/{identifier?}', [\Modules\Pelatihan\Http\Controllers\PelatihanController::class, 'verifikasiSertifikat'])->name('pelatihan.sertifikat.verifikasi');
+Route::get('/verifikasi-sertifikat/{identifier?}', [\Modules\Pelatihan\Http\Controllers\PelatihanController::class, 'verifikasiSertifikat'])->name('verifikasi-sertifikat');
+

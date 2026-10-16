@@ -360,6 +360,11 @@
                     <p class="text-[11px] uppercase tracking-[0.15em] text-gray-400 font-bold mb-3">Detail Pelatihan &amp; Workshop</p>
                     
                     <div class="rounded-xl border border-gray-100 bg-gray-50/80 p-4">
+                        @if(!empty($kelas->thumbnail_url))
+                        <div class="mb-3 w-full h-32 rounded-lg overflow-hidden border border-gray-200/80 shadow-2xs">
+                            <img src="{{ $kelas->thumbnail_url }}" alt="{{ $kelas->judul }}" class="w-full h-full object-cover">
+                        </div>
+                        @endif
                         <h4 class="text-xs font-bold text-gray-900 leading-snug">{{ $kelas->judul }}</h4>
                         <div class="flex items-center gap-2 mt-1.5 text-[11px] text-gray-500">
                             <span class="inline-flex items-center gap-1 text-purple-700 font-semibold">

@@ -35,8 +35,14 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             @forelse($myCourses as $course)
-            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col justify-between hover:border-[#1768B5]/50 transition-all">
-                <div class="space-y-3">
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between hover:border-[#1768B5]/50 transition-all group">
+                @if($course->kelas && $course->kelas->thumbnail_url)
+                <div class="relative w-full h-36 bg-slate-100 overflow-hidden">
+                    <img src="{{ $course->kelas->thumbnail_url }}" alt="{{ $course->judul_kelas }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                </div>
+                @endif
+                <div class="p-6 space-y-3">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
                             <span class="text-[11px] font-bold px-2.5 py-1 rounded-full {{ ($course->status ?? 'Terdaftar') === 'Aktif' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-blue-50 text-blue-700 border border-blue-200' }}">

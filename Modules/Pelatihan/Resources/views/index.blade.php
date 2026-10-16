@@ -32,50 +32,92 @@
     <!-- Course Cards Grid -->
     <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
         @foreach($courses as $c)
-        <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs hover:shadow-lg transition group flex flex-col justify-between">
-            <div class="p-6 space-y-4">
-                <div class="flex items-center justify-between">
-                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-100">
-                        {{ $c['kategori'] }}
-                    </span>
-                    <span class="text-xs font-extrabold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
-                        ⭐ {{ $c['badge'] }}
-                    </span>
+        <div class="bg-white rounded-2xl border border-gray-200/90 overflow-hidden shadow-xs hover:shadow-xl hover:border-[#1768B5]/40 transition-all duration-300 group flex flex-col justify-between">
+            <div>
+                <!-- Card Thumbnail Header -->
+                <div class="relative w-full h-48 sm:h-52 bg-slate-100 overflow-hidden">
+                    @if(!empty($c['thumbnail_url']))
+                        <img src="{{ $c['thumbnail_url'] }}" 
+                             alt="{{ $c['judul'] }}" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                             loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/10"></div>
+                    @else
+                        <div class="w-full h-full bg-gradient-to-br from-[#102654] via-[#1768B5] to-[#2B8BD1] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden group-hover:scale-105 transition-transform duration-500 ease-out">
+                            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+                            <div class="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white mb-2 shadow-inner">
+                                <i data-lucide="presentation" class="w-7 h-7 text-[#F6C75A]"></i>
+                            </div>
+                            <span class="text-xs font-bold text-white/90 tracking-wide uppercase">{{ $c['kategori'] ?? 'Workshop Riset' }}</span>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    @endif
+
+                    <!-- Badges Overlaid at Top -->
+                    <div class="absolute top-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-none">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/95 backdrop-blur-md text-[#102654] shadow-sm border border-white/40">
+                            {{ $c['kategori'] }}
+                        </span>
+                        @if(!empty($c['badge']))
+                        <span class="text-xs font-extrabold text-[#102654] bg-[#F6C75A] backdrop-blur-md px-2.5 py-1 rounded-lg shadow-sm">
+                            ⭐ {{ $c['badge'] }}
+                        </span>
+                        @endif
+                    </div>
+
+                    <!-- Level & Price Overlaid at Bottom -->
+                    <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs pointer-events-none">
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold backdrop-blur-md bg-black/50 border border-white/25 flex items-center gap-1.5">
+                            <i data-lucide="layers" class="w-3 h-3 text-[#F6C75A]"></i>
+                            <span>{{ $c['level'] }}</span>
+                        </span>
+                        @if(!empty($c['harga_formatted']))
+                        <span class="font-black text-sm text-[#F6C75A] drop-shadow-md font-mono bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/20">
+                            {{ $c['harga_formatted'] }}
+                        </span>
+                        @endif
+                    </div>
                 </div>
 
-                <h3 class="text-lg font-bold text-gray-900 group-hover:text-[#2B8BD1] transition leading-snug">
-                    {{ $c['judul'] }}
-                </h3>
+                <!-- Card Body -->
+                <div class="p-6 space-y-4">
+                    <h3 class="text-base sm:text-lg font-bold text-gray-900 group-hover:text-[#1768B5] transition-colors leading-snug line-clamp-2">
+                        {{ $c['judul'] }}
+                    </h3>
 
-                <div class="space-y-2 text-xs text-gray-600">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="user-check" class="w-4 h-4 text-purple-600"></i>
-                        <span>Instruktur: <strong class="text-gray-800">{{ $c['instruktur'] }}</strong></span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="layers" class="w-4 h-4 text-purple-600"></i>
-                        <span>Tingkat: <span class="font-semibold">{{ $c['level'] }}</span></span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="video" class="w-4 h-4 text-purple-600"></i>
-                        <span>Durasi: {{ $c['total_modul'] }}</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i>
-                        <span>Jadwal Live: <span class="font-semibold text-gray-900">{{ $c['jadwal'] }}</span></span>
+                    <div class="space-y-2.5 text-xs text-gray-600">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="user-check" class="w-4 h-4 text-[#1768B5] shrink-0"></i>
+                            <span class="truncate">Instruktur: <strong class="text-gray-800">{{ $c['instruktur'] }}</strong></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="video" class="w-4 h-4 text-[#1768B5] shrink-0"></i>
+                            <span>Durasi &amp; Modul: <span class="font-medium text-gray-800">{{ $c['total_modul'] }}</span></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="calendar" class="w-4 h-4 text-[#1768B5] shrink-0"></i>
+                            <span>Jadwal Live: <span class="font-semibold text-gray-900">{{ $c['jadwal'] }}</span></span>
+                        </div>
+                        @if(!empty($c['deskripsi_singkat']))
+                        <p class="text-gray-500 text-[11px] line-clamp-2 pt-1 border-t border-gray-100">
+                            {{ $c['deskripsi_singkat'] }}
+                        </p>
+                        @endif
                     </div>
                 </div>
             </div>
 
-            <div class="p-6 pt-0 border-t border-gray-100 mt-4 flex items-center justify-between">
-                <div class="text-xs text-gray-500">
-                    <strong class="text-gray-900 text-sm font-black">{{ $c['peserta'] }}</strong> Mahasiswa Terdaftar
+            <!-- Card Footer -->
+            <div class="p-6 pt-0 border-t border-gray-100 mt-2 flex items-center justify-between">
+                <div class="text-xs text-gray-500 flex items-center gap-1.5">
+                    <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
+                    <span><strong class="text-gray-900 text-sm font-black">{{ $c['peserta'] }}</strong> Peserta</span>
                 </div>
                 <form action="{{ route('pelatihan.daftar', $c['id']) }}" method="POST">
                     @csrf
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#102654] hover:bg-[#1768B5] text-white text-xs font-bold transition shadow-sm inline-flex items-center gap-1.5">
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#102654] hover:bg-[#1768B5] text-white text-xs font-bold transition-all shadow-sm hover:shadow-md inline-flex items-center gap-1.5 cursor-pointer">
                         <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                        Ikuti Pelatihan
+                        <span>Ikuti Pelatihan</span>
                     </button>
                 </form>
             </div>

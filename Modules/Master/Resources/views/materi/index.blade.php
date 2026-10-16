@@ -88,7 +88,7 @@
             </button>
         </div>
         
-        <form id="form-materi" onsubmit="submitForm(event)" class="p-6 space-y-4">
+        <form id="form-materi" onsubmit="submitForm(event)" enctype="multipart/form-data" class="p-6 space-y-4">
             <input type="hidden" id="materi_id" name="id">
             <input type="hidden" id="form_kelas_id" name="kelas_id" value="{{ $selectedKelas ? $selectedKelas->id : '' }}">
             
@@ -99,10 +99,10 @@
                 </div>
                 <div class="col-span-2">
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Tipe Konten <span class="text-rose-500">*</span></label>
-                    <select id="tipe_materi" name="tipe_materi" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+                    <select id="tipe_materi" name="tipe_materi" onchange="handleTipeMateriChange(this.value)" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
                         <option value="Video">Video Pembelajaran</option>
-                        <option value="Dokumen PDF">Dokumen PDF / PPT</option>
-                        <option value="Dataset Praktik">Dataset Praktik (.sav/.csv)</option>
+                        <option value="Dokumen PDF">Dokumen PDF / Slide PPT / Word</option>
+                        <option value="Dataset Praktik">Dataset Praktik (.sav/.csv/.xlsx)</option>
                         <option value="Kuis/Tugas">Latihan Mandiri / Tugas</option>
                     </select>
                 </div>
@@ -127,14 +127,37 @@
                 </div>
             </div>
 
-            <div>
+            <!-- Group Link Video (Tampil saat tipe Video) -->
+            <div id="group-link-video">
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Link URL Video / Embed (Opsional)</label>
                 <input type="url" id="link_video" name="link_video" placeholder="https://youtube.com/... atau https://vimeo.com/..." class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
             </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Nama File Dokumen / Dataset (Opsional)</label>
-                <input type="text" id="file_materi" name="file_materi" placeholder="template_laporan_bab4.docx atau data_150n.csv" class="w-full text-xs rounded-xl border border-gray-200 p-2.5 focus:ring-2 focus:ring-[#1768B5]">
+            <!-- Group Upload File Dokumen / Slide PPT / Dataset -->
+            <div id="group-file-upload">
+                <label class="block text-xs font-semibold text-gray-700 mb-1" id="label-file-upload">
+                    Upload File Materi / Dokumen / Slide PPT
+                </label>
+                <div class="space-y-2">
+                    <input type="file" id="file_upload" name="file_upload" accept=".pdf,.ppt,.pptx,.doc,.docx,.csv,.sav,.xlsx,.xls,.zip" class="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-[#1768B5] hover:file:bg-sky-100 border border-gray-200 rounded-xl p-1 bg-white focus:outline-none focus:ring-2 focus:ring-[#1768B5]">
+                    
+                    <p class="text-[11px] text-gray-400" id="file-hint">
+                        Format didukung: PDF, PPT, PPTX, DOC, DOCX, CSV, SAV, XLSX, ZIP (Maksimal 50MB)
+                    </p>
+
+                    <!-- Existing File Status (Tampil saat edit jika ada file) -->
+                    <div id="current-file-container" class="hidden items-center justify-between p-2.5 bg-sky-50/70 border border-sky-200 rounded-xl text-xs">
+                        <div class="flex items-center gap-2 truncate">
+                            <i data-lucide="file-check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                            <span class="text-gray-500 text-[11px]">File tersimpan:</span>
+                            <span id="current-file-name" class="font-mono font-bold text-[#1768B5] truncate max-w-xs"></span>
+                        </div>
+                        <a id="current-file-link" href="#" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#1768B5] hover:underline shrink-0">
+                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            <span>Buka File</span>
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <div>
@@ -189,11 +212,35 @@
         table.draw();
     }
 
+    function handleTipeMateriChange(tipe) {
+        if (tipe === 'Video') {
+            $('#group-link-video').removeClass('hidden');
+            $('#label-file-upload').text('Upload File Pendukung / Slide PPT (Opsional)');
+            $('#file-hint').text('Opsional jika ada slide presentasi PowerPoint / PDF pendukung video.');
+        } else if (tipe === 'Dokumen PDF') {
+            $('#group-link-video').addClass('hidden');
+            $('#label-file-upload').html('Upload File Dokumen / Slide PPT <span class="text-xs text-sky-600 font-bold">(.pdf, .ppt, .pptx, .docx)</span>');
+            $('#file-hint').text('Pilih file slide PowerPoint (.ppt, .pptx) atau dokumen (.pdf, .docx, .doc).');
+        } else if (tipe === 'Dataset Praktik') {
+            $('#group-link-video').addClass('hidden');
+            $('#label-file-upload').html('Upload File Dataset Praktik <span class="text-xs text-emerald-600 font-bold">(.sav, .csv, .xlsx)</span>');
+            $('#file-hint').text('Pilih file dataset SPSS (.sav), SmartPLS / Excel (.csv, .xlsx) untuk latihan praktik.');
+        } else {
+            $('#group-link-video').addClass('hidden');
+            $('#label-file-upload').html('Upload Lembar Soal / Panduan Tugas <span class="text-xs text-gray-400 font-normal">(Opsional)</span>');
+            $('#file-hint').text('Format didukung: PDF, Word, atau ZIP.');
+        }
+        if (window.lucide) { lucide.createIcons(); }
+    }
+
     function openCreateModal() {
         $('#modal-title span').text('Tambah Materi Baru');
         $('#form-materi')[0].reset();
         $('#materi_id').val('');
         $('#form_kelas_id').val($('#select-kelas').val());
+        $('#file_upload').val('');
+        $('#current-file-container').addClass('hidden').removeClass('flex');
+        handleTipeMateriChange($('#tipe_materi').val() || 'Video');
         $('#modal-materi').removeClass('hidden');
         if (window.lucide) { lucide.createIcons(); }
     }
@@ -212,8 +259,20 @@
         $('#durasi_menit').val(row.durasi_menit);
         $('#is_free_preview').val(row.is_free_preview ? '1' : '0');
         $('#link_video').val(row.link_video);
-        $('#file_materi').val(row.file_materi);
         $('#deskripsi').val(row.deskripsi);
+        $('#file_upload').val('');
+
+        if (row.file_materi) {
+            let fileName = row.file_materi.split('/').pop();
+            let fileUrl = row.file_url || ('{{ asset("storage") }}/' + row.file_materi);
+            $('#current-file-name').text(fileName);
+            $('#current-file-link').attr('href', fileUrl);
+            $('#current-file-container').removeClass('hidden').addClass('flex');
+        } else {
+            $('#current-file-container').addClass('hidden').removeClass('flex');
+        }
+
+        handleTipeMateriChange(row.tipe_materi);
         $('#modal-materi').removeClass('hidden');
         if (window.lucide) { lucide.createIcons(); }
     }
@@ -223,11 +282,11 @@
         let id = $('#materi_id').val();
         let isEdit = id ? true : false;
         let url = isEdit ? '{{ url("master/materi") }}/' + id : '{{ route("master.materi.store") }}';
-        let method = isEdit ? 'PUT' : 'POST';
 
-        let formData = $('#form-materi').serialize();
+        let formElement = document.getElementById('form-materi');
+        let formData = new FormData(formElement);
         if (isEdit) {
-            formData += '&_method=PUT';
+            formData.append('_method', 'PUT');
         }
 
         $('#btn-save').prop('disabled', true).text('Menyimpan...');
@@ -236,6 +295,8 @@
             url: url,
             type: 'POST',
             data: formData,
+            processData: false,
+            contentType: false,
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
@@ -254,6 +315,10 @@
             error: function(err) {
                 $('#btn-save').prop('disabled', false).text('Simpan Materi');
                 let msg = err.responseJSON && err.responseJSON.message ? err.responseJSON.message : 'Terjadi kesalahan';
+                if (err.responseJSON && err.responseJSON.errors) {
+                    let firstErrorKey = Object.keys(err.responseJSON.errors)[0];
+                    msg = err.responseJSON.errors[firstErrorKey][0];
+                }
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',

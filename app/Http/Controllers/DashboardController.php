@@ -26,6 +26,8 @@ use Modules\Bimbingan\Entities\TransaksiBimbingan;
 use Modules\Bimbingan\Entities\TransaksiProgram;
 use Modules\Master\Entities\MasterMentor;
 use Modules\Master\Entities\MasterProgram;
+use Modules\Master\Entities\MasterKelas;
+use Modules\Pelatihan\Entities\TransaksiPelatihan;
 use Yajra\DataTables\Facades\DataTables;
 
 class DashboardController extends Controller
@@ -382,7 +384,7 @@ class DashboardController extends Controller
             'selesai'         => $bimbinganSessions->where('status', 'Selesai')->count(),
         ];
 
-        $calendarEvents = $bimbinganSessions->map(function ($s) {
+        $bimbinganEvents = $bimbinganSessions->map(function ($s) {
             $dateStr = $s->jadwal_konsultasi ? $s->jadwal_konsultasi->format('Y-m-d') : null;
             $timeStr = $s->jadwal_konsultasi ? $s->jadwal_konsultasi->format('H:i') . ' WIB' : 'TBA';
             $formattedDate = $s->jadwal_konsultasi ? $s->jadwal_konsultasi->translatedFormat('d M Y') : '-';
@@ -404,27 +406,134 @@ class DashboardController extends Controller
             $programName = $s->program?->nama_program ?? ($s->paket_bimbingan ?: 'Pendampingan Skripsi');
 
             return [
-                'id'              => $s->id,
-                'nomor_tiket'     => $s->nomor_tiket,
-                'title'           => $s->judul_skripsi,
-                'nama_mahasiswa'  => $s->nama_mahasiswa,
-                'program'         => $programName,
-                'mentor'          => $mentorName,
-                'date'            => $dateStr,
-                'time'            => $timeStr,
-                'formatted_date'  => $formattedDate,
-                'datetime_raw'    => $s->jadwal_konsultasi ? $s->jadwal_konsultasi->toIso8601String() : null,
-                'status'          => $status,
-                'badge_color'     => $badgeColor,
-                'topik_bidang'    => $s->topik_bidang ?: 'Konsultasi Riset & Bab',
-                'media'           => $s->link_zoom ? 'Google Meet (Online)' : 'Online Video Meeting',
-                'link_zoom'       => $s->link_zoom,
-                'keluhan_kendala' => $s->keluhan_kendala,
-                'catatan_mentor'  => $s->catatan_mentor,
-                'biaya'           => $s->biaya ? 'Rp ' . number_format($s->biaya, 0, ',', '.') : '-',
+                'id'                => 'bim-' . $s->id,
+                'event_type'        => 'bimbingan',
+                'nomor_tiket'       => $s->nomor_tiket,
+                'title'             => $s->judul_skripsi,
+                'nama_mahasiswa'    => $s->nama_mahasiswa,
+                'program'           => $programName,
+                'mentor'            => $mentorName,
+                'date'              => $dateStr,
+                'time'              => $timeStr,
+                'formatted_date'    => $formattedDate,
+                'datetime_raw'      => $s->jadwal_konsultasi ? $s->jadwal_konsultasi->toIso8601String() : null,
+                'status'            => $status,
+                'badge_color'       => $badgeColor,
+                'topik_bidang'      => $s->topik_bidang ?: 'Konsultasi Riset & Bab',
+                'media'             => $s->link_zoom ? 'Google Meet (Online)' : 'Online Video Meeting',
+                'link_zoom'         => $s->link_zoom,
+                'link_detail'       => null,
+                'keluhan_kendala'   => $s->keluhan_kendala,
+                'catatan_mentor'    => $s->catatan_mentor,
+                'biaya'             => $s->biaya ? 'Rp ' . number_format($s->biaya, 0, ',', '.') : '-',
                 'status_pembayaran' => $s->status_pembayaran ?? 'Menunggu Pembayaran',
             ];
         })->filter(fn($e) => !empty($e['date']))->values();
+
+        // Active Classes & Workshops for User
+        $workshopEvents = collect();
+        $userActiveWorkshops = collect();
+        if ($user) {
+            $wksQuery = TransaksiPelatihan::with(['kelas.mentor'])
+                ->whereNotIn('status', ['Dibatalkan', 'Batal', 'Cancelled', 'cancelled', 'Menunggu Pembayaran'])
+                ->whereNotIn('status_pembayaran', ['Dibatalkan', 'Batal', 'Cancelled', 'cancelled', 'Menunggu Pembayaran']);
+
+            if ($isRole99) {
+                $wksQuery->where('user_id', $user->id_user);
+            } else if (!$isSuperAdmin) {
+                $userWksExists = TransaksiPelatihan::where('user_id', $user->id_user)
+                    ->whereNotIn('status', ['Dibatalkan', 'Batal', 'Cancelled', 'cancelled', 'Menunggu Pembayaran'])
+                    ->whereNotIn('status_pembayaran', ['Dibatalkan', 'Batal', 'Cancelled', 'cancelled', 'Menunggu Pembayaran'])
+                    ->exists();
+                if ($userWksExists) {
+                    $wksQuery->where('user_id', $user->id_user);
+                }
+            } else {
+                $adminWksExists = (clone $wksQuery)->where('user_id', $user->id_user)->exists();
+                if ($adminWksExists) {
+                    $wksQuery->where('user_id', $user->id_user);
+                }
+            }
+
+            $userActiveWorkshops = $wksQuery->get()->unique(function ($item) {
+                return $item->kelas_id ?: ($item->judul_kelas ?: $item->id);
+            })->values();
+
+            foreach ($userActiveWorkshops as $tp) {
+                $kelas = $tp->kelas;
+                $startDate = null;
+                $endDate = null;
+
+                if ($kelas && $kelas->tanggal_mulai) {
+                    $startDate = Carbon::parse($kelas->tanggal_mulai);
+                    $endDate = $kelas->tanggal_selesai ? Carbon::parse($kelas->tanggal_selesai) : $startDate->copy();
+                } elseif ($tp->tanggal_pembelian) {
+                    $startDate = Carbon::parse($tp->tanggal_pembelian);
+                    $endDate = $startDate->copy();
+                }
+
+                if ($startDate) {
+                    if ($endDate->lt($startDate)) {
+                        $endDate = $startDate->copy();
+                    }
+                    if ($startDate->diffInDays($endDate) > 30) {
+                        $endDate = $startDate->copy()->addDays(29);
+                    }
+
+                    $totalDays = $startDate->diffInDays($endDate) + 1;
+                    $cur = $startDate->copy();
+                    $dayIndex = 1;
+
+                    $instruktur = $tp->instruktur;
+                    if (!$instruktur && $kelas && $kelas->mentor) {
+                        $instruktur = $kelas->mentor->nama_lengkap . ($kelas->mentor->gelar ? ', ' . $kelas->mentor->gelar : '');
+                    }
+                    if (!$instruktur) {
+                        $instruktur = 'Instruktur Ahli Aether';
+                    }
+
+                    $judulKelas = $tp->judul_kelas ?: ($kelas?->judul ?: 'Workshop Pelatihan Riset');
+                    $tipeKelas = $kelas?->tipe_kelas ?: 'Online Workshop';
+
+                    while ($cur->lte($endDate)) {
+                        $dateStr = $cur->format('Y-m-d');
+                        $dayLabel = $totalDays > 1 ? " (Hari {$dayIndex}/{$totalDays})" : "";
+
+                        $workshopEvents->push([
+                            'id'                => 'wks-' . $tp->id . '-' . $dateStr,
+                            'event_type'        => 'workshop',
+                            'nomor_tiket'       => $tp->nomor_registrasi ?: ($tp->kode_kelas ?: 'WKS-' . $tp->id),
+                            'title'             => $judulKelas . $dayLabel,
+                            'nama_mahasiswa'    => $tp->nama_pemesan ?: ($user->nm_user ?? 'Peserta Workshop'),
+                            'program'           => 'Workshop: ' . $tipeKelas,
+                            'mentor'            => $instruktur,
+                            'date'              => $dateStr,
+                            'time'              => '19:00 WIB',
+                            'formatted_date'    => $cur->translatedFormat('d M Y'),
+                            'datetime_raw'      => $cur->toIso8601String(),
+                            'status'            => 'Workshop',
+                            'badge_color'       => 'purple',
+                            'topik_bidang'      => ($kelas?->kategori ?: 'Pelatihan Riset') . ' • ' . $tipeKelas,
+                            'media'             => 'Live Video Webinar',
+                            'link_zoom'         => $tp->link_zoom ?: ($kelas?->link_meeting ?: 'https://meet.google.com/aether-wks'),
+                            'link_detail'       => $tp->kelas_id ? route('pelatihan.show', $tp->kelas_id) : route('pelatihan.kelas-saya'),
+                            'keluhan_kendala'   => $kelas?->deskripsi ?: 'Akses materi silabus, praktik analisis data, dan tanya-jawab live bersama instruktur.',
+                            'catatan_mentor'    => 'Silabus: ' . ($kelas?->silabus_singkat ?: 'Sesi Interaktif + Praktik') . ' • Instruktur: ' . $instruktur,
+                            'biaya'             => $tp->biaya ? 'Rp ' . number_format($tp->biaya, 0, ',', '.') : 'Gratis',
+                            'status_pembayaran' => $tp->status_pembayaran ?: 'Lunas',
+                        ]);
+
+                        $cur->addDay();
+                        $dayIndex++;
+                        if ($dayIndex > 35) break;
+                    }
+                }
+            }
+        }
+
+        $calendarEvents = $bimbinganEvents->concat($workshopEvents)
+            ->sortBy('date')
+            ->values();
 
         $userActivePrograms = collect();
         $userPendingPrograms = collect();
@@ -473,6 +582,8 @@ class DashboardController extends Controller
 
         $activeMentors = MasterMentor::where('is_active', true)->orderBy('nama_lengkap', 'asc')->get();
 
+        $totalActiveProgramsCount = $userActivePrograms->count() + $userActiveWorkshops->count();
+
         return view('dashboard', compact(
             'totalTasks',
             'completedTasks',
@@ -506,9 +617,11 @@ class DashboardController extends Controller
             'bimbinganSessions',
             'academicStats',
             'calendarEvents',
+            'userActiveWorkshops',
             'activePrograms',
             'userActivePrograms',
             'userPendingPrograms',
+            'totalActiveProgramsCount',
             'modalPrograms',
             'activeMentors'
         ));

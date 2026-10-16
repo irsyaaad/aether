@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Modules\Master\Entities\MasterKelas;
+use Modules\Master\Entities\MasterMateri;
 use Modules\Pelatihan\Entities\TransaksiPelatihan;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PelatihanController extends Controller
 {
@@ -61,7 +63,9 @@ class PelatihanController extends Controller
                 'jadwal' => '05 - 07 Nov 2026',
                 'peserta' => 60,
                 'status' => 'Pendaftaran Dibuka',
-                'badge' => 'Best Seller'
+                'badge' => 'Best Seller',
+                'thumbnail_url' => null,
+                'harga_formatted' => 'Rp 175.000',
             ]
         ];
 
@@ -84,7 +88,14 @@ class PelatihanController extends Controller
                         'jadwal' => $jadwal,
                         'peserta' => $c->kuota_maksimal,
                         'status' => 'Pendaftaran ' . $c->status,
-                        'badge' => $c->badge ?? 'Riset'
+                        'badge' => $c->badge ?? 'Riset',
+                        'thumbnail' => $c->thumbnail,
+                        'thumbnail_url' => $c->thumbnail_url,
+                        'harga' => $c->harga,
+                        'harga_formatted' => $c->harga_formatted,
+                        'deskripsi_singkat' => $c->deskripsi_singkat,
+                        'kode_kelas' => $c->kode_kelas,
+                        'tipe' => $c->tipe,
                     ];
                 })->toArray();
             }
@@ -103,7 +114,7 @@ class PelatihanController extends Controller
         $isRole99 = ((int)(session('role')['id_role'] ?? 0) === 99);
         $userId = Auth::id();
 
-        $query = TransaksiPelatihan::orderBy('id', 'desc');
+        $query = TransaksiPelatihan::with('kelas')->orderBy('id', 'desc');
         if ($isRole99) {
             $query->where('user_id', $userId);
         }
@@ -116,7 +127,11 @@ class PelatihanController extends Controller
     public function sertifikat()
     {
         $isRole99 = ((int)(session('role')['id_role'] ?? 0) === 99);
-        $query = TransaksiPelatihan::where('status', 'Selesai')->orderBy('id', 'desc');
+        $query = TransaksiPelatihan::with(['kelas.mentor', 'user'])
+            ->where('progress', '>=', 100)
+            ->where('status_pembayaran', 'Lunas')
+            ->orderBy('id', 'desc');
+
         if ($isRole99) {
             $query->where('user_id', Auth::id());
         }
@@ -125,9 +140,245 @@ class PelatihanController extends Controller
         return view('pelatihan::sertifikat', compact('sertifikats', 'isRole99'));
     }
 
-    public function show($id)
+    public function previewSertifikat($id)
     {
-        return view('pelatihan::show', compact('id'));
+        $isRole99 = ((int)(session('role')['id_role'] ?? 0) === 99);
+        $userId = Auth::id();
+
+        $sertifikat = TransaksiPelatihan::with(['kelas.mentor', 'user'])->find($id);
+
+        if (!$sertifikat) {
+            abort(404, 'Sertifikat pelatihan tidak ditemukan.');
+        }
+
+        if ($isRole99 && (int)$sertifikat->user_id !== (int)$userId) {
+            abort(403, 'Anda tidak memiliki hak akses melihat sertifikat ini.');
+        }
+
+        if ((int)$sertifikat->progress < 100) {
+            abort(403, 'Sertifikat kelulusan belum dapat diakses karena pelatihan belum selesai 100%.');
+        }
+
+        return view('pelatihan::sertifikat-preview', compact('sertifikat'));
+    }
+
+    public function downloadSertifikat($id)
+    {
+        $isRole99 = ((int)(session('role')['id_role'] ?? 0) === 99);
+        $userId = Auth::id();
+
+        $sertifikat = TransaksiPelatihan::with(['kelas.mentor', 'user'])->find($id);
+
+        if (!$sertifikat) {
+            abort(404, 'Sertifikat pelatihan tidak ditemukan.');
+        }
+
+        if ($isRole99 && (int)$sertifikat->user_id !== (int)$userId) {
+            abort(403, 'Anda tidak memiliki hak akses mengunduh sertifikat ini.');
+        }
+
+        if ((int)$sertifikat->progress < 100) {
+            abort(403, 'Sertifikat kelulusan belum dapat diunduh karena pelatihan belum selesai 100%.');
+        }
+
+        $pdf = Pdf::loadView('pelatihan::sertifikat-pdf', compact('sertifikat'))
+            ->setPaper('a4', 'landscape')
+            ->setOptions([
+                'isRemoteEnabled' => true,
+                'isHtml5ParserEnabled' => true,
+                'defaultFont' => 'Helvetica',
+            ]);
+
+        $fileName = 'sertifikat-' . Str::slug($sertifikat->nomor_registrasi ?: ('cert-' . $sertifikat->id)) . '.pdf';
+
+        return $pdf->download($fileName);
+    }
+
+    /**
+     * Halaman Publik Verifikasi E-Sertifikat Resmi
+     */
+    public function verifikasiSertifikat(Request $request, $identifier = null)
+    {
+        $identifier = $identifier ?: $request->query('q');
+        $sertifikat = null;
+
+        if ($identifier) {
+            $identifierClean = trim($identifier);
+
+            // 1. Cari berdasarkan nomor_registrasi
+            $sertifikat = TransaksiPelatihan::with(['kelas.mentor', 'user'])
+                ->where('nomor_registrasi', $identifierClean)
+                ->first();
+
+            // 2. Cari berdasarkan ID numerik langsung
+            if (!$sertifikat && is_numeric($identifierClean)) {
+                $sertifikat = TransaksiPelatihan::with(['kelas.mentor', 'user'])
+                    ->find((int)$identifierClean);
+            }
+
+            // 3. Cari jika berupa format nomor sertifikat (misal AETH-CERT/2026/KLSP-00014 atau slug)
+            if (!$sertifikat) {
+                if (preg_match('/-(\d{1,6})$/', $identifierClean, $matches)) {
+                    $candidate = TransaksiPelatihan::with(['kelas.mentor', 'user'])->find((int)$matches[1]);
+                    if ($candidate) {
+                        $sertifikat = $candidate;
+                    }
+                }
+            }
+        }
+
+        $isValidCompleted = $sertifikat && ((int)$sertifikat->progress >= 100) && ($sertifikat->status_pembayaran === 'Lunas');
+
+        return view('pelatihan::sertifikat-verifikasi', compact('sertifikat', 'identifier', 'isValidCompleted'));
+    }
+
+    public function show(Request $request, $id)
+    {
+        $kelas = MasterKelas::with(['mentor', 'materis' => function($q) {
+            $q->where('is_active', true)->orderBy('urutan', 'asc');
+        }])->find($id);
+
+        if (!$kelas) {
+            abort(404, 'Kelas pelatihan tidak ditemukan.');
+        }
+
+        $materis = $kelas->materis;
+        $materiId = $request->query('materi');
+        $activeMateri = $materiId ? $materis->firstWhere('id', (int) $materiId) : null;
+        if (!$activeMateri) {
+            $activeMateri = $materis->first();
+        }
+
+        // Ambil daftar materi yang telah selesai ditonton/dipelajari
+        $completedMateriIds = session()->get("kelas_{$kelas->id}_completed_materis", []);
+
+        $userId = Auth::id();
+        $transaksi = null;
+        if ($userId) {
+            $transaksi = TransaksiPelatihan::where('user_id', $userId)
+                ->where('kelas_id', $kelas->id)
+                ->latest()
+                ->first();
+
+            if ($transaksi && !empty($transaksi->catatan)) {
+                $decoded = json_decode($transaksi->catatan, true);
+                if (is_array($decoded) && isset($decoded['completed_materis']) && is_array($decoded['completed_materis'])) {
+                    $completedMateriIds = array_values(array_unique(array_merge($completedMateriIds, $decoded['completed_materis'])));
+                }
+            }
+        }
+
+        $allMateriIds = $materis->pluck('id')->toArray();
+        $totalModul = count($allMateriIds);
+        $selesaiCount = count(array_intersect($completedMateriIds, $allMateriIds));
+        $progressPercent = $totalModul > 0 ? min(100, round(($selesaiCount / $totalModul) * 100)) : 0;
+
+        return view('pelatihan::show', compact(
+            'id', 
+            'kelas', 
+            'materis', 
+            'activeMateri', 
+            'completedMateriIds', 
+            'selesaiCount', 
+            'progressPercent',
+            'transaksi'
+        ));
+    }
+
+    /**
+     * Set action bahwa video / materi selesai dilihat
+     */
+    public function markMateriSelesai(Request $request, $id)
+    {
+        $materi = MasterMateri::find($id);
+        if (!$materi) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Materi tidak ditemukan.'
+            ], 404);
+        }
+
+        $kelas = MasterKelas::with('materis')->find($materi->kelas_id);
+        if (!$kelas) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kelas pelatihan tidak ditemukan.'
+            ], 404);
+        }
+
+        $sessionKey = "kelas_{$kelas->id}_completed_materis";
+        $completed = session()->get($sessionKey, []);
+        $materiId = (int) $id;
+
+        $action = $request->input('action', 'toggle'); // 'complete', 'incomplete', 'toggle'
+
+        if ($action === 'incomplete') {
+            $completed = array_values(array_diff($completed, [$materiId]));
+            $isCompleted = false;
+        } elseif ($action === 'complete') {
+            if (!in_array($materiId, $completed)) {
+                $completed[] = $materiId;
+            }
+            $isCompleted = true;
+        } else {
+            // toggle
+            if (in_array($materiId, $completed)) {
+                $completed = array_values(array_diff($completed, [$materiId]));
+                $isCompleted = false;
+            } else {
+                $completed[] = $materiId;
+                $isCompleted = true;
+            }
+        }
+
+        session()->put($sessionKey, $completed);
+
+        $allMateriIds = $kelas->materis()->where('is_active', true)->pluck('id')->toArray();
+        $totalModul = count($allMateriIds) > 0 ? count($allMateriIds) : $kelas->materis->count();
+        $selesaiCount = count(array_intersect($completed, $allMateriIds));
+        $progress = $totalModul > 0 ? min(100, round(($selesaiCount / $totalModul) * 100)) : 0;
+
+        // Jika user login, simpan progress ke transaksi pelatihan
+        $userId = Auth::id();
+        if ($userId) {
+            $transaksi = TransaksiPelatihan::where('user_id', $userId)
+                ->where('kelas_id', $kelas->id)
+                ->latest()
+                ->first();
+
+            if ($transaksi) {
+                $catatanData = [];
+                if (!empty($transaksi->catatan)) {
+                    $catatanData = json_decode($transaksi->catatan, true) ?: [];
+                }
+                $catatanData['completed_materis'] = $completed;
+
+                $updateData = [
+                    'total_modul' => $totalModul,
+                    'modul_selesai' => $selesaiCount,
+                    'progress' => $progress,
+                    'catatan' => json_encode($catatanData),
+                ];
+
+                if ($progress >= 100 && $transaksi->status !== 'Selesai') {
+                    $updateData['status'] = 'Selesai';
+                }
+
+                $transaksi->update($updateData);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'is_completed' => $isCompleted,
+            'completed_materis' => $completed,
+            'modul_selesai' => $selesaiCount,
+            'total_modul' => $totalModul,
+            'progress' => $progress,
+            'message' => $isCompleted 
+                ? 'Materi video berhasil ditandai selesai dilihat.' 
+                : 'Status selesai materi video telah dibatalkan.'
+        ]);
     }
 
     public function payment($id)

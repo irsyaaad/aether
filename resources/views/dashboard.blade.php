@@ -39,7 +39,15 @@
     <!-- Academic Bimbingan & Program KPI Summary Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
         <!-- 1. Program Aktif -->
-        <a href="{{ route('bimbingan.programs') }}" class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs hover:shadow-md hover:border-emerald-300 transition flex flex-col justify-between group">
+        @php
+            $bimbinganCount = isset($userActivePrograms) ? $userActivePrograms->count() : 0;
+            $workshopCount = isset($userActiveWorkshops) ? $userActiveWorkshops->count() : 0;
+            $totalActive = isset($totalActiveProgramsCount) ? $totalActiveProgramsCount : ($bimbinganCount + $workshopCount);
+            $cardActiveLink = ($workshopCount > 0 && $bimbinganCount === 0) 
+                ? route('pelatihan.kelas-saya') 
+                : route('bimbingan.programs');
+        @endphp
+        <a href="{{ $cardActiveLink }}" class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs hover:shadow-md hover:border-emerald-300 transition flex flex-col justify-between group">
             <div class="flex items-center justify-between">
                 <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider group-hover:text-emerald-700 transition">Program Aktif</span>
                 <div class="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-100 transition">
@@ -47,10 +55,18 @@
                 </div>
             </div>
             <div class="mt-3">
-                <div class="text-2xl font-black text-gray-900 group-hover:text-emerald-700 transition">{{ number_format($userActivePrograms->count()) }}</div>
-                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-emerald-600 font-medium truncate">
+                <div class="text-2xl font-black text-gray-900 group-hover:text-emerald-700 transition">{{ number_format($totalActive) }}</div>
+                <div class="flex items-center gap-1.5 mt-1 text-[11px] text-emerald-600 font-medium truncate" title="{{ $bimbinganCount }} Paket Bimbingan, {{ $workshopCount }} Kelas & Workshop Aktif">
                     <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0"></span>
-                    <span>Paket aktif</span>
+                    @if($bimbinganCount > 0 && $workshopCount > 0)
+                        <span>{{ $bimbinganCount }} Bimbingan • {{ $workshopCount }} Workshop</span>
+                    @elseif($workshopCount > 0)
+                        <span>{{ $workshopCount }} Kelas/Workshop</span>
+                    @elseif($bimbinganCount > 0)
+                        <span>{{ $bimbinganCount }} Paket Bimbingan</span>
+                    @else
+                        <span>0 Paket aktif</span>
+                    @endif
                 </div>
             </div>
         </a>
@@ -230,6 +246,10 @@
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                             <span class="font-medium text-gray-700">Selesai</span>
                         </span>
+                        <span class="inline-flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
+                            <span class="font-bold text-purple-700">Kelas &amp; Workshop</span>
+                        </span>
                     </div>
                 </div>
 
@@ -287,6 +307,7 @@
                         <button type="button" onclick="filterAgendaStatus('Dijadwalkan')" id="tab-status-dijadwalkan" class="px-2.5 py-1 rounded-lg font-semibold text-xs text-gray-600 hover:bg-gray-100 transition shrink-0">Dijadwalkan</button>
                         <button type="button" onclick="filterAgendaStatus('Menunggu Review')" id="tab-status-menunggu" class="px-2.5 py-1 rounded-lg font-semibold text-xs text-gray-600 hover:bg-gray-100 transition shrink-0">Menunggu</button>
                         <button type="button" onclick="filterAgendaStatus('Selesai')" id="tab-status-selesai" class="px-2.5 py-1 rounded-lg font-semibold text-xs text-gray-600 hover:bg-gray-100 transition shrink-0">Selesai</button>
+                        <button type="button" onclick="filterAgendaStatus('Workshop')" id="tab-status-workshop" class="px-2.5 py-1 rounded-lg font-semibold text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 transition shrink-0 border border-purple-200">Kelas / Workshop</button>
                     </div>
 
                     <!-- Agendas Container (Scrollable) -->
@@ -505,10 +526,18 @@
                 </div>
 
                 <div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">Catatan Mahasiswa / Kendala Analisis</span>
+                    <span id="detail-catatan-label" class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">Catatan Mahasiswa / Kendala Analisis</span>
                     <p id="detail-catatan" class="text-xs text-gray-600 bg-gray-50 p-3 rounded-xl border border-gray-100 leading-relaxed italic">
                         -
                     </p>
+                </div>
+
+                <div id="detail-workshop-link-wrap" class="hidden">
+                    <a id="detail-workshop-link" href="#" class="w-full py-2.5 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        <span>Buka Silabus &amp; Detail Kelas Workshop</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    </a>
                 </div>
             </div>
 
@@ -585,15 +614,23 @@ function calClearDateFilter() {
 function filterAgendaStatus(status) {
     calActiveStatusFilter = status;
     
-    var tabs = ['all', 'Dijadwalkan', 'Menunggu Review', 'Selesai'];
+    var tabs = ['all', 'Dijadwalkan', 'Menunggu Review', 'Selesai', 'Workshop'];
     tabs.forEach(function(t) {
-        var id = 'tab-status-' + (t === 'all' ? 'all' : (t === 'Dijadwalkan' ? 'dijadwalkan' : (t === 'Menunggu Review' ? 'menunggu' : 'selesai')));
+        var id = 'tab-status-' + (t === 'all' ? 'all' : (t === 'Dijadwalkan' ? 'dijadwalkan' : (t === 'Menunggu Review' ? 'menunggu' : (t === 'Selesai' ? 'selesai' : 'workshop'))));
         var btn = document.getElementById(id);
         if (btn) {
             if (t === status) {
-                btn.className = 'px-2.5 py-1 rounded-lg font-bold text-xs bg-[#1768B5] text-white transition shrink-0';
+                if (t === 'Workshop') {
+                    btn.className = 'px-2.5 py-1 rounded-lg font-bold text-xs bg-purple-700 text-white transition shrink-0 shadow-xs';
+                } else {
+                    btn.className = 'px-2.5 py-1 rounded-lg font-bold text-xs bg-[#1768B5] text-white transition shrink-0';
+                }
             } else {
-                btn.className = 'px-2.5 py-1 rounded-lg font-semibold text-xs text-gray-600 hover:bg-gray-100 transition shrink-0';
+                if (t === 'Workshop') {
+                    btn.className = 'px-2.5 py-1 rounded-lg font-semibold text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 transition shrink-0 border border-purple-200';
+                } else {
+                    btn.className = 'px-2.5 py-1 rounded-lg font-semibold text-xs text-gray-600 hover:bg-gray-100 transition shrink-0';
+                }
             }
         }
     });
@@ -644,11 +681,20 @@ function renderCalendar() {
         var isToday = (dayKey === todayKey);
         var isSelected = (dayKey === calSelectedDate);
 
+        var hasWorkshop = dayEvents.some(function(e) { return e.event_type === 'workshop' || e.status === 'Workshop'; });
+        var hasScheduled = dayEvents.some(function(e) { return e.status === 'Dijadwalkan'; });
+        var hasReview = dayEvents.some(function(e) { return e.status === 'Menunggu Review' || e.status === 'Menunggu Konfirmasi'; });
+        var hasDone = dayEvents.some(function(e) { return e.status === 'Selesai'; });
+
         var cell = document.createElement('div');
         var cellClasses = 'min-h-[56px] sm:min-h-[64px] p-1.5 rounded-xl border transition-all select-none cursor-pointer flex flex-col justify-between items-center text-xs relative ';
 
         if (isSelected) {
             cellClasses += 'border-2 border-[#1768B5] bg-sky-100/70 font-black shadow-xs scale-[1.02] ';
+        } else if (hasWorkshop && !hasScheduled && !hasReview && !hasDone) {
+            cellClasses += 'bg-purple-50/70 border-purple-200 hover:border-purple-400 hover:shadow-2xs ';
+        } else if (hasWorkshop && (hasScheduled || hasReview || hasDone)) {
+            cellClasses += 'bg-gradient-to-br from-sky-50/70 to-purple-50/70 border-purple-200 hover:border-purple-400 hover:shadow-2xs ';
         } else if (dayEvents.length > 0) {
             cellClasses += 'bg-sky-50/70 border-sky-200 hover:border-sky-400 hover:shadow-2xs ';
         } else if (isToday) {
@@ -664,12 +710,19 @@ function renderCalendar() {
 
         var eventIndicatorHtml = '';
         if (dayEvents.length > 0) {
-            var hasScheduled = dayEvents.some(function(e) { return e.status === 'Dijadwalkan'; });
-            var hasReview = dayEvents.some(function(e) { return e.status === 'Menunggu Review' || e.status === 'Menunggu Konfirmasi'; });
-            var hasDone = dayEvents.some(function(e) { return e.status === 'Selesai'; });
-
             var pillClass = 'bg-[#1768B5] text-white';
-            if (hasScheduled) {
+            var pillText = dayEvents.length + ' Sesi';
+
+            if (hasWorkshop && dayEvents.length === 1) {
+                pillClass = 'bg-purple-600 text-white shadow-2xs';
+                pillText = 'Workshop';
+            } else if (hasWorkshop && (hasScheduled || hasReview || hasDone)) {
+                pillClass = 'bg-gradient-to-r from-sky-600 to-purple-600 text-white shadow-2xs';
+                pillText = dayEvents.length + ' Agenda';
+            } else if (hasWorkshop) {
+                pillClass = 'bg-purple-600 text-white shadow-2xs';
+                pillText = dayEvents.length + ' Workshop';
+            } else if (hasScheduled) {
                 pillClass = 'bg-sky-600 text-white';
             } else if (hasReview) {
                 pillClass = 'bg-amber-500 text-white';
@@ -679,7 +732,7 @@ function renderCalendar() {
 
             eventIndicatorHtml = `<div class="w-full flex items-center justify-center mt-1">
                 <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-black ${pillClass} shadow-2xs truncate max-w-full">
-                    <span>${dayEvents.length} Sesi</span>
+                    <span>${pillText}</span>
                 </span>
             </div>`;
         } else {
@@ -742,6 +795,9 @@ function renderAgendas() {
 
     if (calActiveStatusFilter !== 'all') {
         filtered = filtered.filter(function(e) {
+            if (calActiveStatusFilter === 'Workshop') {
+                return e.status === 'Workshop' || e.event_type === 'workshop';
+            }
             return e.status === calActiveStatusFilter;
         });
     }
@@ -765,8 +821,11 @@ function renderAgendas() {
     } else {
         var html = '';
         filtered.forEach(function(item) {
+            var isWorkshop = (item.event_type === 'workshop' || item.status === 'Workshop');
             var statusBadge = '';
-            if (item.status === 'Dijadwalkan') {
+            if (isWorkshop) {
+                statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">Kelas / Workshop</span>';
+            } else if (item.status === 'Dijadwalkan') {
                 statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-[#1768B5] border border-sky-200">Dijadwalkan</span>';
             } else if (item.status === 'Selesai') {
                 statusBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Selesai</span>';
@@ -775,26 +834,36 @@ function renderAgendas() {
             }
 
             var meetBtn = '';
-            if (item.link_zoom && item.status === 'Dijadwalkan') {
-                meetBtn = `<a href="${item.link_zoom}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1768B5] hover:bg-[#102654] text-white text-[11px] font-bold transition">
+            if (item.link_zoom && (item.status === 'Dijadwalkan' || isWorkshop)) {
+                var meetLabel = isWorkshop ? 'Masuk Live' : 'Masuk Meet';
+                var meetColor = isWorkshop ? 'bg-purple-700 hover:bg-purple-900' : 'bg-[#1768B5] hover:bg-[#102654]';
+                meetBtn = `<a href="${item.link_zoom}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg ${meetColor} text-white text-[11px] font-bold transition shadow-2xs">
                     <i data-lucide="video" class="w-3 h-3"></i>
-                    <span>Masuk Meet</span>
+                    <span>${meetLabel}</span>
                 </a>`;
             }
 
+            var programBadge = isWorkshop
+                ? `<span class="text-[11px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">${item.program}</span>`
+                : `<span class="text-[11px] font-bold text-[#1768B5] bg-sky-50 px-2 py-0.5 rounded-md border border-sky-100">${item.program}</span>`;
+
+            var cardBorder = isWorkshop
+                ? 'border-purple-100 hover:border-purple-300 bg-white hover:bg-purple-50/20'
+                : 'border-gray-100 hover:border-sky-200 bg-white hover:bg-sky-50/30';
+
             html += `
-                <div class="p-3.5 rounded-xl border border-gray-100 hover:border-sky-200 bg-white hover:bg-sky-50/30 transition shadow-2xs space-y-2">
+                <div class="p-3.5 rounded-xl border ${cardBorder} transition shadow-2xs space-y-2">
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-1.5 flex-wrap">
                             ${statusBadge}
                             <span class="text-[11px] font-bold text-gray-500">•</span>
-                            <span class="text-[11px] font-bold text-[#1768B5] bg-sky-50 px-2 py-0.5 rounded-md border border-sky-100">${item.program}</span>
+                            ${programBadge}
                         </div>
                         <span class="text-[11px] font-mono font-bold text-gray-400">#${item.nomor_tiket}</span>
                     </div>
 
                     <div>
-                        <h4 class="text-xs font-bold text-gray-900 hover:text-[#1768B5] transition line-clamp-2 leading-snug cursor-pointer" onclick="openSessionDetailModal(${item.id})">
+                        <h4 class="text-xs font-bold text-gray-900 hover:text-[#1768B5] transition line-clamp-2 leading-snug cursor-pointer" onclick="openSessionDetailModal('${item.id}')">
                             ${item.title}
                         </h4>
                     </div>
@@ -813,7 +882,7 @@ function renderAgendas() {
 
                         <div class="flex items-center gap-1.5 shrink-0">
                             ${meetBtn}
-                            <button type="button" onclick="openSessionDetailModal(${item.id})" class="px-2.5 py-1 rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-700 text-[11px] font-bold transition">
+                            <button type="button" onclick="openSessionDetailModal('${item.id}')" class="px-2.5 py-1 rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-700 text-[11px] font-bold transition">
                                 Detail
                             </button>
                         </div>
@@ -876,11 +945,13 @@ function closeQuickSessionModal() {
 }
 
 function openSessionDetailModal(sessionId) {
-    var session = calEventsData.find(function(e) { return e.id == sessionId; });
+    var session = calEventsData.find(function(e) { return String(e.id) === String(sessionId); });
     if (!session) return;
 
     var modal = document.getElementById('sessionDetailModal');
     if (!modal) return;
+
+    var isWorkshop = (session.event_type === 'workshop' || session.status === 'Workshop');
 
     document.getElementById('detail-tiket').textContent = '#' + session.nomor_tiket;
     document.getElementById('detail-judul').textContent = session.title;
@@ -890,10 +961,17 @@ function openSessionDetailModal(sessionId) {
     document.getElementById('detail-topik').textContent = session.topik_bidang;
     document.getElementById('detail-catatan').textContent = session.keluhan_kendala || 'Tidak ada catatan keluhan khusus.';
 
+    var catatanLabel = document.getElementById('detail-catatan-label');
+    if (catatanLabel) {
+        catatanLabel.textContent = isWorkshop ? 'Deskripsi / Silabus / Materi Workshop' : 'Catatan Mahasiswa / Kendala Analisis';
+    }
+
     var statusBadge = document.getElementById('detail-status-badge');
     if (statusBadge) {
-        statusBadge.textContent = session.status;
-        if (session.status === 'Dijadwalkan') {
+        statusBadge.textContent = isWorkshop ? 'Kelas & Workshop' : session.status;
+        if (isWorkshop) {
+            statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800 border border-purple-200';
+        } else if (session.status === 'Dijadwalkan') {
             statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-[#1768B5]';
         } else if (session.status === 'Selesai') {
             statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800';
@@ -907,8 +985,26 @@ function openSessionDetailModal(sessionId) {
     if (session.link_zoom) {
         meetWrap.classList.remove('hidden');
         meetLink.href = session.link_zoom;
+        if (isWorkshop) {
+            meetWrap.className = 'p-3.5 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-between';
+            meetLink.className = 'px-3.5 py-1.5 rounded-xl bg-purple-700 text-white text-xs font-bold hover:bg-purple-900 transition shrink-0 inline-flex items-center gap-1';
+        } else {
+            meetWrap.className = 'p-3.5 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-between';
+            meetLink.className = 'px-3.5 py-1.5 rounded-xl bg-[#1768B5] text-white text-xs font-bold hover:bg-[#102654] transition shrink-0 inline-flex items-center gap-1';
+        }
     } else {
         meetWrap.classList.add('hidden');
+    }
+
+    var wksLinkWrap = document.getElementById('detail-workshop-link-wrap');
+    var wksLink = document.getElementById('detail-workshop-link');
+    if (wksLinkWrap && wksLink) {
+        if (session.link_detail) {
+            wksLinkWrap.classList.remove('hidden');
+            wksLink.href = session.link_detail;
+        } else {
+            wksLinkWrap.classList.add('hidden');
+        }
     }
 
     modal.classList.remove('hidden');
