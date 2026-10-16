@@ -12,34 +12,20 @@
             <span>Kembali ke Rekap Invoice</span>
         </a>
         <div class="flex items-center gap-2 flex-wrap">
-            <a href="{{ route('bimbingan.invoices.print', $transaksi->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#102654] bg-white border border-gray-300 hover:bg-gray-50 shadow-xs transition">
+            <a href="{{ route('bimbingan.invoices.print', ['id' => $transaksi->id, 'jenis' => $transaksi->jenis]) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#102654] bg-white border border-gray-300 hover:bg-gray-50 shadow-xs transition">
                 <i data-lucide="printer" class="w-3.5 h-3.5"></i>
                 <span>Cetak Invoice</span>
             </a>
-            <a href="{{ route('bimbingan.pembayaran.index', ['search' => $transaksi->nomor_transaksi]) }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#1768B5] bg-sky-50 border border-sky-200 hover:bg-sky-100 shadow-xs transition">
+            <a href="{{ route('bimbingan.pembayaran.index', ['search' => $transaksi->nomor_transaksi, 'jenis' => $transaksi->jenis]) }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-[#1768B5] bg-sky-50 border border-sky-200 hover:bg-sky-100 shadow-xs transition">
                 <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
                 <span>Data Pembayaran</span>
             </a>
 
             @if(!$isRole99)
                 @if($transaksi->status_pembayaran !== 'Lunas' && $transaksi->status_pembayaran !== 'Dibatalkan')
-                <button type="button" onclick="verifikasiPembayaran({{ $transaksi->id }}, '{{ $transaksi->nomor_transaksi }}', '{{ e($transaksi->nama_pemesan) }}')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs transition" title="Verifikasi Pembayaran & Aktifkan Program">
+                <button type="button" onclick="verifikasiPembayaran({{ $transaksi->id }}, '{{ $transaksi->nomor_transaksi }}', '{{ e($transaksi->nama_pemesan) }}', '{{ $transaksi->jenis }}')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-xs transition" title="Verifikasi Pembayaran & Aktifkan Program">
                     <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
                     <span>Verifikasi Lunas</span>
-                </button>
-                @endif
-
-                @if($transaksi->status === 'Aktif')
-                <button type="button" onclick="selesaikanProgram({{ $transaksi->id }}, '{{ e($transaksi->nama_pemesan) }}')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 shadow-xs transition" title="Selesaikan Program Mahasiswa">
-                    <i data-lucide="check-check" class="w-3.5 h-3.5"></i>
-                    <span>Selesaikan Program</span>
-                </button>
-                @endif
-
-                @if($transaksi->status_pembayaran !== 'Dibatalkan' && $transaksi->status !== 'Selesai')
-                <button type="button" onclick="batalkanPembayaran({{ $transaksi->id }}, '{{ $transaksi->nomor_transaksi }}')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 shadow-xs transition" title="Batalkan Pembayaran">
-                    <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
-                    <span>Batalkan Bayar</span>
                 </button>
                 @endif
             @endif
@@ -51,8 +37,27 @@
         <!-- Invoice Header Bar -->
         <div class="px-6 py-5 bg-gradient-to-r from-gray-50 to-sky-50/50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <!-- Category Badge -->
+                    @if($transaksi->jenis === 'bimbingan')
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-200">
+                            <i data-lucide="graduation-cap" class="w-3 h-3"></i>
+                            Bimbingan
+                        </span>
+                    @elseif($transaksi->jenis === 'olahdata')
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                            <i data-lucide="bar-chart-2" class="w-3 h-3"></i>
+                            Olah Data
+                        </span>
+                    @elseif($transaksi->jenis === 'pelatihan')
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                            <i data-lucide="award" class="w-3 h-3"></i>
+                            Kelas &amp; Workshop
+                        </span>
+                    @endif
+
                     <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Invoice Tagihan</span>
+
                     @if($transaksi->status_pembayaran === 'Lunas')
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                             <i data-lucide="check" class="w-3 h-3"></i>
@@ -61,7 +66,7 @@
                     @else
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
                             <i data-lucide="clock" class="w-3 h-3"></i>
-                            MENUNGGU PEMBAYARAN
+                            {{ strtoupper($transaksi->status_pembayaran) }}
                         </span>
                     @endif
                 </div>
@@ -114,8 +119,8 @@
                         @endif
                     </div>
                     <div class="pt-2 border-t border-sky-200/60 flex items-center justify-between">
-                        <span class="text-[11px] text-sky-900 font-medium">Status Akun Program:</span>
-                        <span class="font-bold {{ $transaksi->status === 'Aktif' ? 'text-emerald-700' : 'text-amber-700' }}">
+                        <span class="text-[11px] text-sky-900 font-medium">Status Program / Layanan:</span>
+                        <span class="font-bold {{ in_array($transaksi->status, ['Aktif', 'Aktif Berjalan', 'Proses Running Data']) ? 'text-emerald-700' : 'text-amber-700' }}">
                             {{ $transaksi->status }}
                         </span>
                     </div>
@@ -130,7 +135,7 @@
                         <thead class="bg-gray-50 border-b border-gray-200 text-gray-500 font-bold uppercase tracking-wider text-[11px]">
                             <tr>
                                 <th class="py-3 px-4">Deskripsi Layanan</th>
-                                <th class="py-3 px-4 text-center">Jumlah Sesi</th>
+                                <th class="py-3 px-4 text-center">Kuantitas</th>
                                 <th class="py-3 px-4 text-right">Harga Satuan</th>
                                 <th class="py-3 px-4 text-right">Subtotal</th>
                             </tr>
@@ -140,11 +145,11 @@
                                 <td class="py-4 px-4">
                                     <div class="font-bold text-gray-900 text-sm">{{ $transaksi->nama_program }}</div>
                                     <div class="text-[11px] text-gray-500 mt-0.5">
-                                        Mentoring Privat Skripsi 1-on-1 bersama konsultan spesialis Aether
+                                        {{ $transaksi->detail_layanan }}
                                     </div>
                                 </td>
                                 <td class="py-4 px-4 text-center font-bold text-gray-700">
-                                    {{ $transaksi->total_sesi }} Sesi
+                                    {{ $transaksi->total_sesi }}x
                                 </td>
                                 <td class="py-4 px-4 text-right font-medium text-gray-700">
                                     Rp {{ number_format($transaksi->biaya, 0, ',', '.') }}
@@ -208,14 +213,16 @@
         }
     });
 
-    function verifikasiPembayaran(transaksiId, nomorTrx, namaUser) {
-        if (!confirm('Verifikasi bukti transfer transaksi #' + nomorTrx + ' untuk mahasiswa ' + namaUser + '? Status pembayaran akan menjadi LUNAS dan program akan otomatis AKTIF.')) return;
+    function verifikasiPembayaran(transaksiId, nomorTrx, namaUser, jenis) {
+        if (!confirm('Verifikasi bukti transfer transaksi #' + nomorTrx + ' untuk ' + namaUser + '? Status pembayaran akan menjadi LUNAS dan program layanan akan otomatis AKTIF.')) return;
 
         $.ajax({
-            url: "{{ url('master/programs/transaksi') }}/" + transaksiId + "/verifikasi",
+            url: "{{ url('bimbingan/pembayaran') }}/" + transaksiId + "/status",
             type: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            data: {
+                status_pembayaran: 'Lunas',
+                jenis: jenis || 'bimbingan',
+                _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function(res) {
                 if (typeof Swal !== 'undefined') {
@@ -231,55 +238,6 @@
             }
         });
     }
-
-    function selesaikanProgram(transaksiId, namaUser) {
-        if (!confirm('Tandai program bimbingan untuk mahasiswa ' + namaUser + ' sebagai SELESAI? Mahasiswa tidak akan dapat mengajukan sesi baru dan hanya dapat mengakses riwayat bimbingan.')) return;
-
-        $.ajax({
-            url: "{{ url('master/programs/transaksi') }}/" + transaksiId + "/selesaikan",
-            type: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(res) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'success', title: 'Program Selesai!', text: res.message, timer: 1800, showConfirmButton: false })
-                        .then(() => location.reload());
-                } else {
-                    alert(res.message);
-                    location.reload();
-                }
-            },
-            error: function() {
-                alert('Gagal menyelesaikan program.');
-            }
-        });
-    }
-
-    function batalkanPembayaran(transaksiId, nomorTrx) {
-        if (!confirm('Batalkan status pembayaran untuk transaksi #' + nomorTrx + '? Status program mahasiswa ini juga akan dinonaktifkan.')) return;
-
-        $.ajax({
-            url: "{{ url('master/programs/transaksi') }}/" + transaksiId + "/batalkan",
-            type: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(res) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'success', title: 'Dibatalkan', text: res.message, timer: 1800, showConfirmButton: false })
-                        .then(() => location.reload());
-                } else {
-                    alert(res.message);
-                    location.reload();
-                }
-            },
-            error: function() {
-                alert('Gagal membatalkan transaksi pembayaran.');
-            }
-        });
-    }
 </script>
 @endpush
 @endif
-

@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Modules\Bimbingan\Entities\TransaksiProgram;
 use Modules\Master\Entities\MasterProgram;
+use Modules\Olahdata\Entities\TransaksiOlahdata;
+use Modules\Pelatihan\Entities\TransaksiPelatihan;
 use Tests\TestCase;
 
 class InvoiceAndPembayaranProgramTest extends TestCase
@@ -115,7 +117,129 @@ class InvoiceAndPembayaranProgramTest extends TestCase
         $response->assertSee(number_format(805000, 0, ',', '.'));
     }
 
-    public function test_pembayaran_menu_only_shows_transactions_with_uploaded_proof()
+    public function test_rekap_invoice_shows_bimbingan_olahdata_and_pelatihan_with_labels()
+    {
+        $admin = $this->getAdminUser();
+        $program = $this->getOrCreateProgram();
+
+        // 1. Bimbingan
+        $bimbingan = TransaksiProgram::create([
+            'nomor_transaksi'   => 'TRX-BIMB-MULTI-' . uniqid(),
+            'user_id'           => 1,
+            'program_id'        => $program->id,
+            'nama_program'      => 'Mentoring Skripsi 1-on-1',
+            'nama_pemesan'      => 'Mahasiswa Bimbingan',
+            'email_pemesan'     => 'bimbingan@test.com',
+            'biaya'             => 800000,
+            'admin_fee'         => 5000,
+            'total_bayar'       => 805000,
+            'status'            => 'Aktif',
+            'status_pembayaran' => 'Lunas',
+            'tanggal_pembelian' => now(),
+        ]);
+
+        // 2. Olah Data
+        $olahdata = TransaksiOlahdata::create([
+            'nomor_order'        => 'OD-MULTI-' . uniqid(),
+            'user_id'            => 1,
+            'nama_mahasiswa'     => 'Mahasiswa Olah Data',
+            'email'              => 'olahdata@test.com',
+            'no_whatsapp'        => '081234567890',
+            'judul_penelitian'   => 'Analisis SEM PLS Kinerja',
+            'software_digunakan' => 'SmartPLS',
+            'metode_analisis'    => 'SEM-PLS',
+            'status_pengerjaan'  => 'Proses Running Data',
+            'total_biaya'        => 450000,
+            'admin_fee'          => 5000,
+            'total_bayar'        => 455000,
+            'status_pembayaran'  => 'Lunas',
+            'tanggal_pembelian'  => now(),
+        ]);
+
+        // 3. Pelatihan
+        $pelatihan = TransaksiPelatihan::create([
+            'nomor_registrasi'  => 'REG-MULTI-' . uniqid(),
+            'user_id'           => 1,
+            'judul_kelas'       => 'Bootcamp Mahir SPSS',
+            'instruktur'        => 'Arrum Rochmani Hidayah, M.Kom.',
+            'status'            => 'Aktif Berjalan',
+            'nama_pemesan'      => 'Peserta Pelatihan',
+            'email_pemesan'     => 'pelatihan@test.com',
+            'telepon_pemesan'   => '089988776655',
+            'biaya'             => 175000,
+            'admin_fee'         => 5000,
+            'total_bayar'       => 180000,
+            'status_pembayaran' => 'Lunas',
+            'tanggal_pembelian' => now(),
+        ]);
+
+        $response = $this->actingAsAdmin($admin)->get(route('bimbingan.invoices.index'));
+        $response->assertStatus(200);
+
+        // Verify all 3 transactions appear
+        $response->assertSee($bimbingan->nomor_transaksi);
+        $response->assertSee($olahdata->nomor_order);
+        $response->assertSee($pelatihan->nomor_registrasi);
+
+        // Verify explicit labels exist in output
+        $response->assertSee('Bimbingan');
+        $response->assertSee('Olah Data');
+        $response->assertSee('Kelas &amp; Workshop', false);
+    }
+
+    public function test_filter_by_jenis_works_on_invoices_and_pembayaran()
+    {
+        $admin = $this->getAdminUser();
+        $program = $this->getOrCreateProgram();
+
+        $bimbinganTrx = 'TRX-FILTER-BIMB-' . uniqid();
+        TransaksiProgram::create([
+            'nomor_transaksi'   => $bimbinganTrx,
+            'user_id'           => 1,
+            'program_id'        => $program->id,
+            'nama_program'      => 'Program Skripsi',
+            'nama_pemesan'      => 'Budi Filter',
+            'email_pemesan'     => 'budi_flt@test.com',
+            'biaya'             => 800000,
+            'admin_fee'         => 5000,
+            'total_bayar'       => 805000,
+            'status'            => 'Aktif',
+            'status_pembayaran' => 'Lunas',
+            'bukti_pembayaran'  => 'bukti_pembayaran/bimb_filter.jpg',
+            'tanggal_pembelian' => now(),
+        ]);
+
+        $olahdataTrx = 'OD-FILTER-OD-' . uniqid();
+        TransaksiOlahdata::create([
+            'nomor_order'        => $olahdataTrx,
+            'user_id'            => 1,
+            'nama_mahasiswa'     => 'Citra Filter',
+            'email'              => 'citra_flt@test.com',
+            'judul_penelitian'   => 'Riset Filter Olahdata',
+            'software_digunakan' => 'EViews',
+            'status_pengerjaan'  => 'Proses Running Data',
+            'total_biaya'        => 450000,
+            'admin_fee'          => 5000,
+            'total_bayar'        => 455000,
+            'status_pembayaran'  => 'Lunas',
+            'bukti_pembayaran'  => 'bukti_pembayaran/od_filter.jpg',
+            'tanggal_pembelian'  => now(),
+        ]);
+
+        // Filter invoices by 'olahdata' only
+        $respOdOnly = $this->actingAsAdmin($admin)->get(route('bimbingan.invoices.index', ['jenis' => 'olahdata']));
+        $respOdOnly->assertStatus(200);
+        $respOdOnly->assertSee($olahdataTrx);
+        $respOdOnly->assertDontSee($bimbinganTrx);
+
+        // Filter pembayaran by 'bimbingan' only
+        $respBimbOnly = $this->actingAsAdmin($admin)->get(route('bimbingan.pembayaran.index', ['jenis' => 'bimbingan']));
+        $respBimbOnly->assertStatus(200);
+        $respBimbOnly->assertSee($bimbinganTrx);
+        $respBimbOnly->assertDontSee($olahdataTrx);
+    }
+
+    public function test_pembayaran_menu_shows_all_transactions_and_supports_has_bukti_filter()
     {
         $admin = $this->getAdminUser();
         $program = $this->getOrCreateProgram();
@@ -134,6 +258,7 @@ class InvoiceAndPembayaranProgramTest extends TestCase
             'status'            => 'Menunggu Pembayaran',
             'status_pembayaran' => 'Menunggu Pembayaran',
             'bukti_pembayaran'  => null,
+            'tanggal_pembelian' => now(),
         ]);
 
         // 2. Tagihan yang sudah upload bukti transfer
@@ -151,19 +276,131 @@ class InvoiceAndPembayaranProgramTest extends TestCase
             'status'            => 'Menunggu Verifikasi',
             'status_pembayaran' => 'Menunggu Verifikasi',
             'bukti_pembayaran'  => 'bukti_pembayaran/sample_bukti.jpg',
+            'tanggal_pembelian' => now(),
         ]);
 
-        // Invoice menu shows both tagihan
-        $respInv = $this->actingAsAdmin($admin)->get(route('bimbingan.invoices.index'));
-        $respInv->assertStatus(200);
-        $respInv->assertSee($trxWithoutProof->nomor_transaksi);
-        $respInv->assertSee($trxWithProof->nomor_transaksi);
+        // 3. Olah Data (belum upload bukti)
+        $odWithoutProof = TransaksiOlahdata::create([
+            'nomor_order'        => 'OD-PAY-ALL-' . uniqid(),
+            'user_id'            => 1,
+            'nama_mahasiswa'     => 'Mahasiswa Olahdata Pembayaran',
+            'email'              => 'od_pay@test.com',
+            'judul_penelitian'   => 'Analisis Kepuasan Layanan',
+            'software_digunakan' => 'SPSS',
+            'total_biaya'        => 450000,
+            'admin_fee'          => 5000,
+            'total_bayar'        => 455000,
+            'status_pengerjaan'  => 'Menunggu Pembayaran',
+            'status_pembayaran'  => 'Menunggu Pembayaran',
+            'bukti_pembayaran'   => null,
+            'tanggal_pembelian'  => now(),
+        ]);
 
-        // Pembayaran menu ONLY shows transactions with uploaded proof!
+        // 4. Pelatihan (sudah upload bukti)
+        $pltWithProof = TransaksiPelatihan::create([
+            'nomor_registrasi'  => 'REG-PAY-ALL-' . uniqid(),
+            'user_id'           => 1,
+            'judul_kelas'       => 'Workshop SEM-PLS',
+            'nama_pemesan'      => 'Peserta Workshop Pembayaran',
+            'email_pemesan'     => 'plt_pay@test.com',
+            'biaya'             => 250000,
+            'admin_fee'         => 5000,
+            'total_bayar'       => 255000,
+            'status'            => 'Menunggu Verifikasi',
+            'status_pembayaran' => 'Menunggu Verifikasi',
+            'bukti_pembayaran'  => 'bukti_pembayaran/plt_sample.jpg',
+            'tanggal_pembelian' => now(),
+        ]);
+
+        // Pembayaran menu shows all transactions across all programs
         $respPay = $this->actingAsAdmin($admin)->get(route('bimbingan.pembayaran.index'));
         $respPay->assertStatus(200);
         $respPay->assertSee($trxWithProof->nomor_transaksi);
-        $respPay->assertDontSee($trxWithoutProof->nomor_transaksi);
+        $respPay->assertSee($trxWithoutProof->nomor_transaksi);
+        $respPay->assertSee($odWithoutProof->nomor_order);
+        $respPay->assertSee($pltWithProof->nomor_registrasi);
+
+        // Category labels appear
+        $respPay->assertSee('Bimbingan');
+        $respPay->assertSee('Olah Data');
+        $respPay->assertSee('Kelas &amp; Workshop', false);
+
+        // Filter has_bukti = 1
+        $respWithProofOnly = $this->actingAsAdmin($admin)->get(route('bimbingan.pembayaran.index', ['has_bukti' => '1']));
+        $respWithProofOnly->assertStatus(200);
+        $respWithProofOnly->assertSee($trxWithProof->nomor_transaksi);
+        $respWithProofOnly->assertSee($pltWithProof->nomor_registrasi);
+        $respWithProofOnly->assertDontSee($trxWithoutProof->nomor_transaksi);
+        $respWithProofOnly->assertDontSee($odWithoutProof->nomor_order);
+
+        // Filter has_bukti = 0
+        $respWithoutProofOnly = $this->actingAsAdmin($admin)->get(route('bimbingan.pembayaran.index', ['has_bukti' => '0']));
+        $respWithoutProofOnly->assertStatus(200);
+        $respWithoutProofOnly->assertSee($trxWithoutProof->nomor_transaksi);
+        $respWithoutProofOnly->assertSee($odWithoutProof->nomor_order);
+        $respWithoutProofOnly->assertDontSee($trxWithProof->nomor_transaksi);
+        $respWithoutProofOnly->assertDontSee($pltWithProof->nomor_registrasi);
+    }
+
+    public function test_admin_can_verify_olahdata_and_pelatihan_payment()
+    {
+        $admin = $this->getAdminUser();
+
+        // 1. Olah Data payment verification
+        $od = TransaksiOlahdata::create([
+            'nomor_order'        => 'OD-VERIF-' . uniqid(),
+            'user_id'            => 1,
+            'nama_mahasiswa'     => 'Verif Olah Data',
+            'email'              => 'verif_od@test.com',
+            'judul_penelitian'   => 'Pengaruh Inflasi Terhadap Saham',
+            'software_digunakan' => 'EViews',
+            'total_biaya'        => 450000,
+            'admin_fee'          => 5000,
+            'total_bayar'        => 455000,
+            'status_pengerjaan'  => 'Menunggu Verifikasi',
+            'status_pembayaran'  => 'Menunggu Verifikasi',
+            'bukti_pembayaran'  => 'bukti_pembayaran/od_verif.jpg',
+        ]);
+
+        $respVerifyOd = $this->actingAsAdmin($admin)->post(route('bimbingan.pembayaran.update-status', $od->id), [
+            'status_pembayaran' => 'Lunas',
+            'jenis'             => 'olahdata',
+            'catatan'           => 'Transfer Olah Data valid terverifikasi.',
+        ]);
+        $respVerifyOd->assertRedirect();
+
+        $od->refresh();
+        $this->assertEquals('Lunas', $od->status_pembayaran);
+        $this->assertEquals('Proses Running Data', $od->status_pengerjaan);
+        $this->assertEquals('Transfer Olah Data valid terverifikasi.', $od->catatan_pembayaran);
+
+        // 2. Pelatihan payment verification
+        $pelatihan = TransaksiPelatihan::create([
+            'nomor_registrasi'  => 'REG-VERIF-' . uniqid(),
+            'user_id'           => 1,
+            'judul_kelas'       => 'Workshop Regresi Data Panel',
+            'instruktur'        => 'Deny Aditya Pratama, S.Stat.',
+            'status'            => 'Menunggu Verifikasi',
+            'nama_pemesan'      => 'Verif Pelatihan',
+            'email_pemesan'     => 'verif_plt@test.com',
+            'biaya'             => 350000,
+            'admin_fee'         => 5000,
+            'total_bayar'       => 355000,
+            'status_pembayaran' => 'Menunggu Verifikasi',
+            'bukti_pembayaran'  => 'bukti_pembayaran/plt_verif.jpg',
+        ]);
+
+        $respVerifyPlt = $this->actingAsAdmin($admin)->post(route('bimbingan.pembayaran.update-status', $pelatihan->id), [
+            'status_pembayaran' => 'Lunas',
+            'jenis'             => 'pelatihan',
+            'catatan'           => 'Peserta kelas workshop terverifikasi aktif.',
+        ]);
+        $respVerifyPlt->assertRedirect();
+
+        $pelatihan->refresh();
+        $this->assertEquals('Lunas', $pelatihan->status_pembayaran);
+        $this->assertEquals('Aktif Berjalan', $pelatihan->status);
+        $this->assertEquals('Peserta kelas workshop terverifikasi aktif.', $pelatihan->catatan);
     }
 
     public function test_admin_can_view_invoice_detail_and_print()
@@ -308,4 +545,29 @@ class InvoiceAndPembayaranProgramTest extends TestCase
         ]);
         $forbiddenUpdate->assertStatus(403);
     }
+
+    public function test_per_page_filter_and_selector_works_on_invoices_and_pembayaran()
+    {
+        $admin = $this->getAdminUser();
+
+        // 1. Invoices per_page 25
+        $respInv = $this->actingAsAdmin($admin)->get(route('bimbingan.invoices.index', ['per_page' => 25]));
+        $respInv->assertStatus(200);
+        $this->assertEquals(25, $respInv->viewData('invoices')->perPage());
+        $respInv->assertSee('Baris per halaman:');
+        $respInv->assertSee('changePerPage');
+
+        // 2. Pembayaran per_page 50
+        $respPay = $this->actingAsAdmin($admin)->get(route('bimbingan.pembayaran.index', ['per_page' => 50]));
+        $respPay->assertStatus(200);
+        $this->assertEquals(50, $respPay->viewData('pembayarans')->perPage());
+        $respPay->assertSee('Baris per halaman:');
+        $respPay->assertSee('changePerPage');
+
+        // 3. Fallback on invalid per_page defaults to 10
+        $respFallback = $this->actingAsAdmin($admin)->get(route('bimbingan.invoices.index', ['per_page' => 999]));
+        $respFallback->assertStatus(200);
+        $this->assertEquals(10, $respFallback->viewData('invoices')->perPage());
+    }
 }
+

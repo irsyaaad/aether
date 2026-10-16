@@ -34,11 +34,11 @@
             <div class="flex items-start justify-between pb-6 border-b border-gray-200">
                 <div>
                     <h1 class="text-2xl font-black text-[#102654] tracking-tight">AETHER RESEARCH LAB</h1>
-                    <p class="text-xs text-gray-500 mt-0.5">Platform Bimbingan &amp; Analisis Riset Skripsi Indonesia</p>
+                    <p class="text-xs text-gray-500 mt-0.5">Platform Akademik, Riset, Olah Data &amp; Workshop Indonesia</p>
                     <p class="text-[11px] text-gray-400 mt-1">support@aether.test • www.aether.test</p>
                 </div>
                 <div class="text-right">
-                    <span class="text-xs uppercase font-bold text-gray-400 block tracking-widest">OFFICIAL INVOICE</span>
+                    <span class="text-xs uppercase font-bold text-gray-400 block tracking-widest">OFFICIAL INVOICE ({{ strtoupper($transaksi->jenis_label) }})</span>
                     <span class="text-lg font-mono font-black text-gray-900">{{ $transaksi->nomor_transaksi }}</span>
                     <div class="mt-1">
                         @if($transaksi->status_pembayaran === 'Lunas')
@@ -67,6 +67,7 @@
                 </div>
                 <div class="text-right">
                     <span class="font-bold text-gray-400 uppercase tracking-wider block mb-1 text-[10px]">Rincian Faktur:</span>
+                    <p><span class="text-gray-500">Kategori:</span> <span class="font-bold text-[#1768B5]">{{ $transaksi->jenis_label }}</span></p>
                     <p><span class="text-gray-500">Tanggal Transaksi:</span> <span class="font-bold">{{ $transaksi->tanggal_pembelian ? $transaksi->tanggal_pembelian->translatedFormat('d M Y, H:i') : ($transaksi->created_at ? $transaksi->created_at->translatedFormat('d M Y, H:i') : '-') }} WIB</span></p>
                     <p><span class="text-gray-500">Metode Bayar:</span> <span class="font-bold">{{ $transaksi->metode_pembayaran ?: 'Virtual Account' }}</span></p>
                     @if($transaksi->kode_pembayaran)
@@ -80,8 +81,8 @@
                 <table class="w-full text-left text-xs border border-gray-200">
                     <thead class="bg-gray-50 text-gray-600 font-bold uppercase text-[10px]">
                         <tr class="border-b border-gray-200">
-                            <th class="py-2.5 px-3">Deskripsi Item</th>
-                            <th class="py-2.5 px-3 text-center w-20">Sesi</th>
+                            <th class="py-2.5 px-3">Deskripsi Layanan</th>
+                            <th class="py-2.5 px-3 text-center w-20">Kuantitas</th>
                             <th class="py-2.5 px-3 text-right w-32">Harga</th>
                             <th class="py-2.5 px-3 text-right w-32">Total</th>
                         </tr>
@@ -90,7 +91,7 @@
                         <tr>
                             <td class="py-3 px-3">
                                 <div class="font-bold text-gray-900">{{ $transaksi->nama_program }}</div>
-                                <div class="text-[11px] text-gray-500">Sesi Konsultasi &amp; Bimbingan Riset Skripsi Bersama Mentor</div>
+                                <div class="text-[11px] text-gray-500">{{ $transaksi->detail_layanan }}</div>
                             </td>
                             <td class="py-3 px-3 text-center font-bold text-gray-700">{{ $transaksi->total_sesi }}x</td>
                             <td class="py-3 px-3 text-right">Rp {{ number_format($transaksi->biaya, 0, ',', '.') }}</td>

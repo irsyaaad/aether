@@ -5,103 +5,42 @@ namespace Modules\Bimbingan\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Modules\Bimbingan\Entities\TransaksiProgram;
+use Modules\Bimbingan\Traits\NormalizesProgramTransactions;
 
 class ProgramPembayaranController extends Controller
 {
+    use NormalizesProgramTransactions;
+
     public function index(Request $request)
     {
         $isRole99 = ((int)(session('role')['id_role'] ?? 0) === 99);
         $userId = Auth::id();
 
-        // Menu Pembayaran khusus menampilkan bukti bayar yang diupload user
-        $query = TransaksiProgram::with(['program', 'user'])
-            ->whereNotNull('bukti_pembayaran')
-            ->where('bukti_pembayaran', '!=', '')
-            ->orderBy('id', 'desc');
+        $unified = $this->getUnifiedPembayaran($request, $isRole99, $userId);
 
-        if ($isRole99) {
-            $query->where('user_id', $userId);
-        }
-
-        // Filter: Search Keyword
-        if ($request->filled('search')) {
-            $search = trim($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->where('nomor_transaksi', 'like', "%{$search}%")
-                    ->orWhere('nama_pemesan', 'like', "%{$search}%")
-                    ->orWhere('kode_pembayaran', 'like', "%{$search}%")
-                    ->orWhere('telepon_pemesan', 'like', "%{$search}%")
-                    ->orWhere('metode_pembayaran', 'like', "%{$search}%")
-                    ->orWhere('nama_program', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter: Status Pembayaran / Verifikasi
-        if ($request->filled('status_pembayaran') && $request->status_pembayaran !== 'Semua') {
-            $query->where('status_pembayaran', $request->status_pembayaran);
-        }
-
-        // Filter: Metode Pembayaran
-        if ($request->filled('metode_pembayaran') && $request->metode_pembayaran !== 'Semua') {
-            $query->where('metode_pembayaran', $request->metode_pembayaran);
-        }
-
-        // Filter: Date Range
-        if ($request->filled('start_date')) {
-            $query->whereDate('tanggal_pembelian', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->whereDate('tanggal_pembelian', '<=', $request->end_date);
-        }
-
-        // Summary Statistics untuk Bukti Pembayaran
-        $statsQuery = clone $query;
-        $totalBuktiUploaded = (clone $statsQuery)->count();
-        $totalNominalMasuk = (float) (clone $statsQuery)->where('status_pembayaran', 'Lunas')->sum('total_bayar');
-
-        $totalLunasCount = (clone $statsQuery)->where('status_pembayaran', 'Lunas')->count();
-        $totalMenungguVerifikasiCount = (clone $statsQuery)->whereIn('status_pembayaran', ['Menunggu Verifikasi', 'Menunggu Pembayaran'])->count();
-        $totalMenungguVerifikasiNominal = (float) (clone $statsQuery)->whereIn('status_pembayaran', ['Menunggu Verifikasi', 'Menunggu Pembayaran'])->sum('total_bayar');
-        $totalDitolakCount = (clone $statsQuery)->where('status_pembayaran', 'Ditolak')->count();
-
-        $summary = [
-            'total_bukti_uploaded'             => $totalBuktiUploaded,
-            'total_nominal_masuk'              => $totalNominalMasuk,
-            'total_lunas_count'                => $totalLunasCount,
-            'total_menunggu_verifikasi_count'  => $totalMenungguVerifikasiCount,
-            'total_menunggu_verifikasi_nominal'=> $totalMenungguVerifikasiNominal,
-            'total_ditolak_count'              => $totalDitolakCount,
-        ];
-
-        $pembayarans = $query->paginate(15)->appends($request->query());
-
-        $metodeList = TransaksiProgram::whereNotNull('bukti_pembayaran')
-            ->where('bukti_pembayaran', '!=', '')
-            ->whereNotNull('metode_pembayaran')
-            ->where('metode_pembayaran', '!=', '')
-            ->select('metode_pembayaran')
-            ->distinct()
-            ->pluck('metode_pembayaran');
+        $pembayarans = $unified['pembayarans'];
+        $summary = $unified['summary'];
+        $metodeList = $unified['metodeList'];
 
         return view('bimbingan::pembayaran.index', compact('pembayarans', 'summary', 'metodeList', 'isRole99'));
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $isRole99 = ((int)(session('role')['id_role'] ?? 0) === 99);
         $userId = Auth::id();
 
-        $transaksi = TransaksiProgram::with(['program', 'user'])
-            ->whereNotNull('bukti_pembayaran')
-            ->where('bukti_pembayaran', '!=', '')
-            ->findOrFail($id);
+        $transaksi = $this->findUnifiedTransaction($id, $request->query('jenis'));
+
+        if (!$transaksi || !$transaksi->has_bukti) {
+            abort(404, 'Data bukti pembayaran tidak ditemukan.');
+        }
 
         if ($isRole99 && (int)$transaksi->user_id !== (int)$userId) {
             abort(403, 'Anda tidak memiliki hak akses melihat transaksi pembayaran ini.');
         }
 
-        if (request()->wantsJson()) {
+        if ($request->wantsJson()) {
             return response()->json([
                 'success'   => true,
                 'transaksi' => $transaksi,
@@ -118,34 +57,25 @@ class ProgramPembayaranController extends Controller
             abort(403, 'Akses ditolak. Hanya administrator atau bagian keuangan yang dapat mengubah status pembayaran.');
         }
 
-        $transaksi = TransaksiProgram::with('program')->findOrFail($id);
-
         $validated = $request->validate([
             'status_pembayaran' => 'required|in:Lunas,Menunggu Verifikasi,Ditolak,Menunggu Pembayaran',
-            'catatan'          => 'nullable|string|max:255',
+            'jenis'             => 'nullable|in:bimbingan,olahdata,pelatihan',
+            'catatan'           => 'nullable|string|max:255',
         ]);
 
-        $transaksi->status_pembayaran = $validated['status_pembayaran'];
+        $jenis = $validated['jenis'] ?? $request->input('jenis', 'bimbingan');
 
-        if ($validated['status_pembayaran'] === 'Lunas') {
-            $transaksi->status = 'Aktif';
-            if (!$transaksi->tanggal_pembelian) {
-                $transaksi->tanggal_pembelian = now();
-            }
-        } elseif ($validated['status_pembayaran'] === 'Ditolak') {
-            $transaksi->status = 'Menunggu Pembayaran';
-        } elseif ($validated['status_pembayaran'] === 'Menunggu Verifikasi') {
-            $transaksi->status = 'Menunggu Verifikasi';
-        } else {
-            $transaksi->status = 'Menunggu Pembayaran';
+        $result = $this->performPaymentVerification(
+            $jenis,
+            $id,
+            $validated['status_pembayaran'],
+            $request->input('catatan')
+        );
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($result);
         }
 
-        if ($request->filled('catatan')) {
-            $transaksi->catatan = $validated['catatan'];
-        }
-
-        $transaksi->save();
-
-        return redirect()->back()->with('success', 'Status verifikasi bukti pembayaran ' . $transaksi->nomor_transaksi . ' berhasil diperbarui menjadi [' . $transaksi->status_pembayaran . '].');
+        return redirect()->back()->with('success', $result['message']);
     }
 }
