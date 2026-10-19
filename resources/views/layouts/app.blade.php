@@ -9,9 +9,9 @@
     <meta name="description" content="@yield('meta_description', '')"/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo_aether.jpeg') }}"/>
-    <link rel="shortcut icon" type="image/jpeg" href="{{ asset('images/logo_aether.jpeg') }}"/>
-    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.jpeg') }}"/>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_aether.png') }}"/>
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_aether.png') }}"/>
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.png') }}"/>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet"/>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -139,7 +139,7 @@
                 <!-- Brand Header -->
                 <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
                     <a href="{{ route('dashboard') }}" class="flex items-center">
-                        <img class="h-9 w-auto object-contain" src="{{ asset('images/logo_aether.jpeg') }}" alt="Aether"/>
+                        <img class="h-9 w-auto object-contain" src="{{ asset('images/logo_aether.png') }}" alt="Aether"/>
                     </a>
                     <button id="logis-sidebar-close" class="lg:hidden text-gray-500 hover:text-gray-700">
                         <i data-lucide="x" class="h-5 w-5"></i>

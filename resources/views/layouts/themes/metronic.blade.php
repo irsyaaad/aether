@@ -9,9 +9,9 @@
     <meta name="description" content="@yield('meta_description', '')"/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link rel="apple-touch-icon" href="{{ asset('images/logo_persada_duta.png') }}"/>
-    <link rel="icon" type="image/png" href="{{ asset('images/logo_persada_duta.png') }}"/>
-    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_persada_duta.png') }}"/>
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.png') }}"/>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_aether.png') }}"/>
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_aether.png') }}"/>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="{{ asset('assets/vendors/apexcharts/apexcharts.css') }}" rel="stylesheet"/>

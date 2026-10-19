@@ -8,9 +8,9 @@
     <meta name="description" content="Portal Logistik dan Kargo Persada Duta Express">
     <meta name="keywords" content="Logistik, Ekspedisi, Kargo Nusantara, Persada Duta Express, Pengiriman Cepat">
     <meta name="author" content="Persada Duta Express">
-    <link rel="icon" type="image/png" href="{{ asset('images/logo_persada_duta.png') }}">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_persada_duta.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo_persada_duta.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_aether.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_aether.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.png') }}">
     <title>Lupa Password | Persada Duta Express - Solusi Ekspedisi Logistik</title>
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap"
         rel="stylesheet">
@@ -62,8 +62,8 @@
                     <div>
                         <div>
                             <a class="logo" href="{{ url('/') }}">
-                                <img class="img-fluid" src="{{ asset('images/logo_persada_duta.png') }}"
-                                    alt="Persada Duta Express" style="max-height: 52px; width: auto; object-fit: contain;">
+                                <img class="img-fluid" src="{{ asset('images/logo_aether.png') }}"
+                                    alt="Aether" style="max-height: 52px; width: auto; object-fit: contain;">
                             </a>
                         </div>
                         <div>

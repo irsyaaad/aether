@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karir | PAP Hardware - PT Putera Adhi Perkasa</title>
-    <link rel="icon" href="{{ asset('images/logo_persada_duta.png') }}" type="image/png">
-    <link rel="shortcut icon" href="{{ asset('images/logo_persada_duta.png') }}" type="image/png">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo_persada_duta.png') }}">
+    <link rel="icon" href="{{ asset('images/logo_aether.png') }}" type="image/png">
+    <link rel="shortcut icon" href="{{ asset('images/logo_aether.png') }}" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.png') }}">
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap"
@@ -226,7 +226,7 @@
     <div class="container-fluid px-4">
         <div class="glass-card">
             <div class="header-section">
-                <img src="{{ asset('images/logo_persada_duta.png') }}" alt="Logo" class="logo-img" style="max-height: 55px; width: auto; object-fit: contain;">
+                <img src="{{ asset('images/logo_aether.png') }}" alt="Logo" class="logo-img" style="max-height: 55px; width: auto; object-fit: contain;">
                 <h2 class="fw-bold mb-1">Bergabung Bersama Kami</h2>
                 <p class="mb-0 opacity-75">Isi formulir di bawah ini untuk menjadi bagian dari PT Putera Adhi Perkasa (PAP Hardware)</p>
             </div>

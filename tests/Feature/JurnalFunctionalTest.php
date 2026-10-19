@@ -280,7 +280,7 @@ class JurnalFunctionalTest extends TestCase
 
         $response = $this->get(route('jurnal.cetak'));
         $response->assertStatus(200);
-        $response->assertSee('images/logo_aether.jpeg');
+        $response->assertSee('images/logo_aether.png');
         $response->assertSee('LAPORAN JURNAL UMUM');
         $response->assertSee('AETHER ACADEMIC & RESEARCH', false);
         $response->assertSee('TOTAL JURNAL UMUM');

@@ -9,9 +9,9 @@
     <meta name="description" content="@yield('meta_description', 'Sistem Operasional Logistik & Kargo Persada Duta Express')"/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link rel="icon" type="image/png" href="{{ asset('images/logo_persada_duta.png') }}"/>
-    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_persada_duta.png') }}"/>
-    <link rel="apple-touch-icon" href="{{ asset('images/logo_persada_duta.png') }}"/>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_aether.png') }}"/>
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_aether.png') }}"/>
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.png') }}"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -55,7 +55,7 @@
                 <!-- Brand Header -->
                 <div class="flex items-center justify-between h-16 px-6 border-b border-slate-200">
                     <a href="{{ route('dashboard') }}" class="flex items-center">
-                        <img class="h-9 w-auto object-contain" src="{{ asset('images/logo_persada_duta.png') }}" alt="Persada Duta Express"/>
+                        <img class="h-9 w-auto object-contain" src="{{ asset('images/logo_aether.png') }}" alt="Aether"/>
                     </a>
                     <button id="logis-sidebar-close" class="lg:hidden text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100">
                         <i data-lucide="x" class="h-5 w-5"></i>

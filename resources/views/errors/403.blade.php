@@ -10,9 +10,9 @@
     <meta name="keywords"
         content="admin template, Cuba admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="pixelstrap">
-    <link rel="icon" type="image/png" href="{{ asset('images/logo_persada_duta.png') }}">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_persada_duta.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo_persada_duta.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_aether.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_aether.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.png') }}">
     <title>403 Forbidden | Persada Duta Express</title>
 
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i&amp;display=swap"

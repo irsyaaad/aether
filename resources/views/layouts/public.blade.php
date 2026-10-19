@@ -22,18 +22,18 @@
     <meta property="og:description" content="@yield('meta_description', 'Bimbingan dan olah data skripsi, tesis, dan riset akademik sampai paham dengan mentor ahli.')">
     <meta property="og:url" content="@yield('canonical', url()->current())">
     <meta property="og:site_name" content="Aether Data Lab">
-    <meta property="og:image" content="@yield('og_image', asset('images/logo_aether.jpeg'))">
+    <meta property="og:image" content="@yield('og_image', asset('images/logo_aether.png'))">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', 'Aether Data Lab | Solusi Riset & Olah Data Terpercaya')">
     <meta name="twitter:description" content="@yield('meta_description', 'Bimbingan dan olah data skripsi, tesis, dan riset akademik sampai paham dengan mentor ahli.')">
-    <meta name="twitter:image" content="@yield('og_image', asset('images/logo_aether.jpeg'))">
+    <meta name="twitter:image" content="@yield('og_image', asset('images/logo_aether.png'))">
 
     <!-- Favicon & Touch Icons -->
-    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo_aether.jpeg') }}">
-    <link rel="shortcut icon" type="image/jpeg" href="{{ asset('images/logo_aether.jpeg') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.jpeg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_aether.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_aether.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.png') }}">
 
     <!-- Schema.org Base Organization & WebSite JSON-LD -->
     <script type="application/ld+json">
@@ -49,7 +49,7 @@
           'logo' => [
             '@type' => 'ImageObject',
             '@id' => url('/') . '/#logo',
-            'url' => asset('images/logo_aether.jpeg'),
+            'url' => asset('images/logo_aether.png'),
             'caption' => 'Aether Data Lab Logo',
           ],
           'contactPoint' => [
@@ -156,7 +156,7 @@
             <!-- Brand Logo -->
             <div class="flex items-center">
                 <a href="{{ url('/') }}" class="inline-flex items-center gap-3" aria-label="Beranda Aether Data Lab">
-                    <img src="{{ asset('images/logo_aether.jpeg') }}"
+                    <img src="{{ asset('images/logo_aether.png') }}"
                          alt="Logo Resmi Aether Data Lab"
                          width="180"
                          height="48"
@@ -252,7 +252,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
             <div class="lg:col-span-2 space-y-4">
                 <a href="{{ url('/') }}" class="inline-block bg-white p-2.5 rounded-2xl shadow-md" aria-label="Kembali ke Beranda Aether Data Lab">
-                    <img src="{{ asset('images/logo_aether.jpeg') }}"
+                    <img src="{{ asset('images/logo_aether.png') }}"
                          alt="Logo Aether Data Lab"
                          width="200"
                          height="40"

@@ -6,7 +6,7 @@
     <!-- Sidebar Header -->
     <div class="hidden lg:flex items-center justify-center shrink-0 pt-8 pb-3.5" id="sidebar_header">
         <a href="{{ route('dashboard') }}">
-            <img class="max-h-12 w-auto object-contain px-2" src="{{ asset('images/logo_persada_duta.png') }}" alt="Persada Duta Express"/>
+            <img class="max-h-12 w-auto object-contain px-2" src="{{ asset('images/logo_aether.png') }}" alt="Aether"/>
         </a>
     </div>
     <!-- End of Sidebar Header -->

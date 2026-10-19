@@ -67,11 +67,7 @@
         <!-- Header Kop -->
         <div class="border-b-2 border-slate-900 pb-4 flex items-start justify-between">
             <div class="flex items-center gap-3">
-                @php
-                    $logoPath = public_path('images/logo_aether.png');
-                    $logoSrc = file_exists($logoPath) ? asset('images/logo_aether.png') : asset('images/logo_aether.jpeg');
-                @endphp
-                <img src="{{ $logoSrc }}" alt="Aether" class="h-12 w-auto object-contain">
+                <img src="{{ asset('images/logo_aether.png') }}" alt="Aether" class="h-12 w-auto object-contain">
                 <div>
                     <h2 class="text-lg font-black tracking-tight text-slate-900 uppercase">AETHER ACADEMIC & RESEARCH</h2>
                     <p class="text-[11px] text-slate-500 font-medium">Pusat Bimbingan Skripsi, Konsultasi Riset & Publikasi Ilmiah</p>

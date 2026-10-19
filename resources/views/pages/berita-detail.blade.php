@@ -53,7 +53,7 @@
         'name' => 'Aether Data Lab',
         'logo' => [
           '@type' => 'ImageObject',
-          'url' => asset('images/logo_aether.jpeg'),
+          'url' => asset('images/logo_aether.png'),
         ],
       ],
       'mainEntityOfPage' => [

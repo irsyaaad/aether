@@ -87,7 +87,7 @@
     <table width="100%">
         <tr>
             <td>
-                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo_persada_duta.png'))) }}"
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo_aether.png'))) }}"
                     style="height: 70px; object-fit: contain;">
             </td>
             <td style="text-align: center">

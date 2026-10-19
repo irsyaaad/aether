@@ -4,9 +4,9 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>Aether Data Lab — Data &amp; Research Analytics</title>
-<link rel="icon" type="image/jpeg" href="{{ asset('images/logo_aether.jpeg') }}">
-<link rel="shortcut icon" type="image/jpeg" href="{{ asset('images/logo_aether.jpeg') }}">
-<link rel="apple-touch-icon" href="{{ asset('images/logo_aether.jpeg') }}">
+<link rel="icon" type="image/png" href="{{ asset('images/logo_aether.png') }}">
+<link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_aether.png') }}">
+<link rel="apple-touch-icon" href="{{ asset('images/logo_aether.png') }}">
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
@@ -840,7 +840,7 @@ footer a:hover{color:#FFD978}
 <header>
   <div class="wrap nav1">
     <a class="brand-link" href="{{ url('/') }}" aria-label="Aether Data Lab">
-      <img src="{{ asset('images/logo_aether.jpeg') }}" alt="Aether Data Lab" class="brand-logo-img">
+      <img src="{{ asset('images/logo_aether.png') }}" alt="Aether Data Lab" class="brand-logo-img">
     </a>
 
     <form class="search" action="{{ route('landing.berita') }}" method="GET">
@@ -922,7 +922,7 @@ footer a:hover{color:#FFD978}
         </div>
 
         <div class="person-wrap">
-          <img alt="Visual utama Aether" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=80"/>
+          <img alt="Visual utama Aether" src="{{ asset('images/foto-tasya.png') }}"/>
         </div>
 
         <div class="float-card card-join">
@@ -1405,7 +1405,7 @@ footer a:hover{color:#FFD978}
       <div>
         <a class="brand-link" href="{{ url('/') }}" style="margin-bottom:14px;display:inline-block" aria-label="Aether Science Publisher">
           <div style="background:#fff;padding:6px 14px;border-radius:12px;display:inline-flex;align-items:center;box-shadow:0 4px 14px rgba(0,0,0,0.12)">
-            <img src="{{ asset('images/logo_aether.jpeg') }}" alt="Aether Science Publisher" style="height:40px;width:auto;object-fit:contain">
+            <img src="{{ asset('images/logo_aether.png') }}" alt="Aether Science Publisher" style="height:40px;width:auto;object-fit:contain">
           </div>
         </a>
         <p>Data • Research Analytics • Interpretation • Publishing</p>

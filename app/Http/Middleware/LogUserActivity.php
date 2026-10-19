@@ -29,17 +29,21 @@ class LogUserActivity
             return $response;
         }
 
-        $user = Auth::user();
+        try {
+            $user = Auth::user();
 
-        UserActivity::create([
-            'user_id'    => $user ? $user->id_user : null,
-            'activity'   => $this->getActivityDescription($request),
-            'url'        => $request->fullUrl(),
-            'method'     => $request->method(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'payload'    => $this->getSanitizedPayload($request),
-        ]);
+            UserActivity::create([
+                'user_id'    => $user ? $user->id_user : null,
+                'activity'   => $this->getActivityDescription($request),
+                'url'        => $request->fullUrl(),
+                'method'     => $request->method(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'payload'    => $this->getSanitizedPayload($request),
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('LogUserActivity error: ' . $e->getMessage());
+        }
 
         return $response;
     }

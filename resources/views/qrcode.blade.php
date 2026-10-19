@@ -47,7 +47,7 @@
             text: "https://suket-bpkad.surabaya.go.id/",
             width: 125,
             height: 125,
-            logo: "{{ asset('images/logo_persada_duta.png') }}", // Ganti dengan URL logo
+            logo: "{{ asset('images/logo_aether.png') }}", // Ganti dengan URL logo
             logoWidth: 20,
             logoHeight: 20,
             quietZone: 10

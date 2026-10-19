@@ -64,7 +64,7 @@
         <!-- Header Kop Surat -->
         <div class="border-b-2 border-slate-900 pb-4 flex items-start justify-between">
             <div class="flex items-center gap-3">
-                <img src="{{ asset('images/logo_aether.jpeg') }}" alt="Aether" class="h-12 w-auto object-contain rounded-lg border border-slate-100">
+                <img src="{{ asset('images/logo_aether.png') }}" alt="Aether" class="h-12 w-auto object-contain rounded-lg border border-slate-100">
                 <div>
                     <h2 class="text-lg font-black tracking-tight text-slate-900 uppercase">AETHER ACADEMIC &amp; RESEARCH</h2>
                     <p class="text-[11px] text-slate-500 font-medium">Pusat Bimbingan Skripsi, Konsultasi Riset &amp; Publikasi Ilmiah</p>

@@ -8,9 +8,9 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
     <meta name="author" content="pixelstrap">
-    <link rel="icon" href="{{ asset('images/logo_persada_duta.png') }}" type="image/png">
-    <link rel="shortcut icon" href="{{ asset('images/logo_persada_duta.png') }}" type="image/png">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo_persada_duta.png') }}">
+    <link rel="icon" href="{{ asset('images/logo_aether.png') }}" type="image/png">
+    <link rel="shortcut icon" href="{{ asset('images/logo_aether.png') }}" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.png') }}">
     <title>Cetak Konsep Surat</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">

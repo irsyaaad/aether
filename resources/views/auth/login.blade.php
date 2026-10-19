@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Masuk | Aether Data Lab — Portal Riset & Olah Data</title>
-    <link rel="icon" type="image/jpeg" href="{{ asset('images/logo_aether.jpeg') }}">
-    <link rel="shortcut icon" type="image/jpeg" href="{{ asset('images/logo_aether.jpeg') }}">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.jpeg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_aether.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo_aether.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo_aether.png') }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -78,7 +78,7 @@
             <!-- Top Brand Badge -->
             <div class="relative z-10 flex items-center justify-between">
                 <a href="{{ url('/') }}" class="inline-flex items-center gap-3 bg-white/95 px-3.5 py-2 rounded-2xl shadow-xl backdrop-blur hover:bg-white transition group border border-white/20">
-                    <img src="{{ asset('images/logo_aether.jpeg') }}" alt="Aether Data Lab" class="h-9 w-auto object-contain rounded-lg">
+                    <img src="{{ asset('images/logo_aether.png') }}" alt="Aether Data Lab" class="h-9 w-auto object-contain rounded-lg">
                     <div class="leading-tight">
                         <div class="text-[13px] font-extrabold text-[#102654] tracking-tight">Aether Data Lab</div>
                         <div class="text-[10px] font-bold text-[#2B8BD1] tracking-wider uppercase">Research &amp; Analytics</div>
@@ -144,7 +144,7 @@
                 <!-- Mobile Header Brand -->
                 <div class="mb-6 flex items-center gap-3 lg:hidden">
                     <a href="{{ url('/') }}" class="inline-flex items-center gap-2.5">
-                        <img src="{{ asset('images/logo_aether.jpeg') }}" alt="Aether" class="h-10 w-auto object-contain rounded-lg">
+                        <img src="{{ asset('images/logo_aether.png') }}" alt="Aether" class="h-10 w-auto object-contain rounded-lg">
                         <div>
                             <div class="text-base font-extrabold text-[#102654]">Aether Data Lab</div>
                             <div class="text-[11px] font-semibold text-[#2B8BD1]">Research &amp; Analytics</div>
