@@ -3,8 +3,21 @@
 include 'admin.php';
 
 Route::get('/', 'LandingController@index')->name('landing');
+Route::get('/promo', 'LandingController@promo')->name('landing.promo');
 Route::get('/layanan', 'LandingController@layanan')->name('landing.layanan');
+Route::get('/paket-olah-data', 'LandingController@paketOlahData')->name('landing.paket-olah-data');
+Route::get('/jurnal-aether', 'LandingController@jurnalAether')->name('landing.jurnal-aether');
+Route::get('/cek-turnitin', 'LandingController@cekTurnitin')->name('landing.cek-turnitin');
+Route::get('/workshop-pelatihan', 'LandingController@workshopPelatihan')->name('landing.workshop-pelatihan');
+Route::get('/mentoring-penelitian', 'LandingController@mentoringPenelitian')->name('landing.mentoring-penelitian');
+Route::get('/mentoring-karir', 'LandingController@mentoringKarir')->name('landing.mentoring-karir');
+Route::get('/mentoring-beasiswa', 'LandingController@mentoringBeasiswa')->name('landing.mentoring-beasiswa');
+Route::get('/mentoring-lomba', 'LandingController@mentoringLomba')->name('landing.mentoring-lomba');
+Route::get('/ai-research', 'LandingController@aiResearch')->name('landing.ai-research');
+Route::get('/quiz', 'LandingController@quiz')->name('landing.quiz');
 Route::get('/keunggulan', 'LandingController@keunggulan')->name('landing.keunggulan');
+Route::get('/testimoni', 'LandingController@testimoni')->name('landing.testimoni');
+Route::get('/faq', 'LandingController@faq')->name('landing.faq');
 Route::get('/berita', 'LandingController@berita')->name('landing.berita');
 Route::get('/berita/{slug}', 'LandingController@beritaDetail')->name('landing.berita.detail');
 Route::get('/login', 'Auth\LoginController@showLogin');

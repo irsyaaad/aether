@@ -110,9 +110,114 @@ header{
   background:#1b3591;
 }
 .auth-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
-.nav2{display:flex;gap:28px;align-items:center;padding:10px 0 14px;font-size:14px;border-top:1px solid #F1F5F9}
-.nav2 a{font-weight:600;color:#334155;transition:color 0.2s ease}
-.nav2 a:hover{color:var(--aether-blue)}
+.nav2{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  width:100%;
+  padding:12px 0 14px;
+  font-size:14px;
+  border-top:1px solid #F1F5F9;
+  position:relative;
+}
+.nav2 > a{
+  font-weight:600;
+  color:#334155;
+  transition:color 0.2s ease;
+  text-decoration:none;
+  padding:6px 2px;
+  white-space:nowrap;
+}
+.nav2 > a:hover{
+  color:var(--aether-blue);
+}
+
+.nav2-dropdown{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  padding:4px 0;
+}
+.nav2-dropdown-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-weight:600;
+  color:#334155;
+  background:transparent;
+  border:none;
+  padding:6px 6px;
+  border-radius:8px;
+  font-size:14px;
+  font-family:inherit;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  white-space:nowrap;
+}
+.nav2-dropdown-toggle:hover,
+.nav2-dropdown.is-open .nav2-dropdown-toggle{
+  color:var(--aether-blue);
+  background:rgba(43,139,209,0.08);
+}
+.nav2-dropdown-toggle svg{
+  transition:transform 0.2s ease;
+}
+.nav2-dropdown:hover .nav2-dropdown-toggle svg,
+.nav2-dropdown.is-open .nav2-dropdown-toggle svg{
+  transform:rotate(180deg);
+}
+
+/* Dropdown Menu with zero-gap hitbox bridge */
+.nav2-dropdown-menu{
+  position:absolute;
+  top:100%;
+  left:0;
+  margin-top:2px;
+  min-width:275px;
+  background:#ffffff;
+  border:1px solid #E2E8F0;
+  border-radius:14px;
+  box-shadow:0 18px 40px rgba(15,23,42,0.14);
+  padding:8px 0;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(6px);
+  transition:opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+  pointer-events:none;
+  z-index:1000;
+}
+/* Invisible hover bridge between toggle and menu */
+.nav2-dropdown-menu::before{
+  content:"";
+  position:absolute;
+  top:-14px;
+  left:0;
+  right:0;
+  height:16px;
+  background:transparent;
+}
+.nav2-dropdown:hover .nav2-dropdown-menu,
+.nav2-dropdown.is-open .nav2-dropdown-menu{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+.nav2-dropdown-menu a{
+  display:block;
+  padding:10px 18px;
+  font-size:13.5px;
+  color:#334155;
+  font-weight:500;
+  transition:all 0.15s ease;
+  white-space:nowrap;
+  text-decoration:none;
+}
+.nav2-dropdown-menu a:hover{
+  background:#F1F5F9;
+  color:var(--aether-blue);
+  padding-left:22px;
+}
 
 /* HERO */
 .hero{
@@ -137,8 +242,8 @@ header{
   ) !important;
   z-index:0 !important;
 }
-.hero .wrap{display:grid;grid-template-columns:1.02fr .98fr;gap:20px;align-items:center;min-height:520px;position:relative;z-index:2 !important}
-.left-hero{padding:42px 0;position:relative;z-index:3}
+.hero .wrap{display:grid;grid-template-columns:1.02fr .98fr;gap:20px;align-items:stretch;min-height:580px;position:relative;z-index:2 !important}
+.left-hero{padding:42px 0 36px;position:relative;z-index:3}
 .kicker{
   font-size:13px;
   font-weight:800;
@@ -213,51 +318,77 @@ header{
 }
 .btn.white:hover{background:#F8FAFC !important}
 
-.right-hero{position:relative;align-self:end;padding-top:38px;min-height:520px}
-.person-wrap{position:absolute;inset:auto 0 0 0;display:flex;justify-content:center;align-items:flex-end;height:100%}
-.person-wrap img{height:500px;object-fit:contain;filter:drop-shadow(0 18px 35px rgba(11,28,92,.20))}
+.right-hero{
+  position:relative;
+  align-self:stretch;
+  height:100%;
+  min-height:580px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+}
+.person-wrap{
+  position:absolute;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  pointer-events:none;
+  z-index:1;
+}
+.person-wrap img{
+  height:575px;
+  max-height:100%;
+  width:auto;
+  object-fit:contain;
+  object-position:bottom center;
+  filter:drop-shadow(0 20px 40px rgba(11,28,92,.26));
+  transform:translateY(0);
+}
 .float-card{
   position:absolute;
   background:rgba(255,255,255,.97) !important;
   color:#111f41;
   border-radius:22px;
   box-shadow:var(--shadow);
+  z-index:2;
 }
-.card-target{left:24px;top:190px;padding:16px 20px;min-width:190px}
+.card-target{left:14px;top:150px;padding:15px 18px;min-width:180px}
 .card-target .mini{font-size:13px;color:var(--muted)}
-.card-target b{display:block;font-size:32px;color:#F29B3A !important;margin:6px 0 0}
-.bar{height:6px;background:#d8e0f7;border-radius:999px;margin-top:10px;overflow:hidden}
+.card-target b{display:block;font-size:30px;color:#F29B3A !important;margin:4px 0 0}
+.bar{height:6px;background:#d8e0f7;border-radius:999px;margin-top:8px;overflow:hidden}
 .card-target .bar span{
   display:block;
   height:100%;
   width:99%;
   background:linear-gradient(90deg,#2B8BD1,#58B7EA,#F29B3A) !important;
 }
-.card-join{right:0;bottom:18px;padding:18px 18px 14px;min-width:320px}
-.card-join .top{font-weight:800;font-size:14px;margin-bottom:8px}
-.card-join .row{display:grid;grid-template-columns:78px 1fr;gap:14px;align-items:center}
+.card-join{right:0;bottom:16px;padding:16px 18px 12px;min-width:310px}
+.card-join .top{font-weight:800;font-size:13.5px;margin-bottom:8px}
+.card-join .row{display:grid;grid-template-columns:74px 1fr;gap:12px;align-items:center}
 .card-join .badge{
   background:linear-gradient(135deg,#FFD978,#F29B3A) !important;
   color:#23405D !important;
   border-radius:18px;
-  padding:12px 10px;
+  padding:10px 8px;
   text-align:center;
 }
-.card-join .badge small{display:block;font-weight:700}
-.card-join .badge b{font-size:32px;line-height:1}
+.card-join .badge small{display:block;font-weight:700;font-size:11px}
+.card-join .badge b{font-size:30px;line-height:1}
 .chat-bubble{
   position:absolute;
-  right:70px;
-  top:118px;
+  right:24px;
+  top:64px;
   background:linear-gradient(135deg,#58B7EA,#8ED7F6) !important;
   color:#174E76 !important;
-  padding:18px 20px;
-  border-radius:22px 22px 22px 6px;
+  padding:16px 18px;
+  border-radius:20px 20px 20px 6px;
   font-weight:700;
-  max-width:245px;
+  max-width:235px;
   box-shadow:0 14px 32px rgba(8,27,93,.18);
-  font-size:14px;
-  line-height:1.5;
+  font-size:13.5px;
+  line-height:1.45;
+  z-index:2;
 }
 
 section{padding:78px 0}
@@ -798,6 +929,7 @@ footer a:hover{color:#FFD978}
   .search{max-width:none}
   .nav1{flex-wrap:wrap}
   .auth-actions{margin-left:0}
+  .nav2{flex-wrap:wrap;justify-content:center;gap:12px 18px}
   .flow:not(:last-child):after{display:none}
   .quiz-shell{grid-template-columns:1fr}
   .quiz-intro h2{font-size:36px}
@@ -806,14 +938,14 @@ footer a:hover{color:#FFD978}
 @media(max-width:640px){
   .brand-logo-img{height:38px}
   .search{order:3;width:100%}
-  .nav2{overflow:auto;white-space:nowrap;padding-bottom:12px}
+  .nav2{overflow:visible;flex-wrap:wrap;gap:8px 12px;justify-content:flex-start;padding-bottom:12px}
   .hero .wrap,.card-grid,.pack-grid,.help-box,.mentor-grid,.testi-grid,.flow-grid,.footer-grid,.usp-grid{grid-template-columns:1fr}
-  .right-hero{min-height:460px}
+  .right-hero{min-height:480px}
   .card-join{min-width:unset;left:16px;right:16px}
   .chat-bubble{right:20px;top:80px}
   .card-target{left:16px;top:190px}
   .help-copy h2,.cta-box h2{font-size:32px}
-  .person-wrap img{height:420px}
+  .person-wrap img{height:440px}
   .answer-grid{grid-template-columns:1fr}
   .quiz-progress{max-width:62vw}
   .kahoot-card{padding:20px}
@@ -824,54 +956,7 @@ footer a:hover{color:#FFD978}
 </head>
 <body>
 
-<!-- TOP TICKER -->
-<div class="top-testi">
-  <div class="wrap">
-    <span class="tag">★ TESTIMONI</span>
-    <div class="scroll">
-      <div class="move">
-        “Pendampingannya sangat membantu memahami alur riset.” • “Penjelasan analisis data lebih mudah dipahami.” • “Diskusinya enak, tidak kaku, dan tetap profesional.” • “Aether bantu olah sampai paham untuk skripsi, tesis, dan publikasi ilmiah.” • “Dari data mentah hingga interpretasi siap submit.” •
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- HEADER -->
-<header>
-  <div class="wrap nav1">
-    <a class="brand-link" href="{{ url('/') }}" aria-label="Aether Data Lab">
-      <img src="{{ asset('images/logo_aether.png') }}" alt="Aether Data Lab" class="brand-logo-img">
-    </a>
-
-    <form class="search" action="{{ route('landing.berita') }}" method="GET">
-      <input name="q" placeholder="Cari: SPSS, SmartPLS, AMOS, NVivo, data panel..." type="text"/>
-      <button type="submit">Cari</button>
-    </form>
-
-    <div class="auth-actions">
-      @auth
-        <a href="{{ url('/dashboard') }}" class="btn yellow" style="padding:9px 18px;border-radius:999px;font-size:13px">Dashboard</a>
-      @else
-        <a href="{{ route('login') }}" class="btn white" style="padding:8px 18px;border-radius:999px;font-size:13px">Masuk</a>
-        @if (Route::has('register'))
-          <a href="{{ route('register') }}" class="btn yellow" style="padding:9px 18px;border-radius:999px;font-size:13px">Daftar</a>
-        @endif
-      @endauth
-    </div>
-  </div>
-
-  <div class="wrap nav2">
-    <a href="{{ url('/') }}#hero">Home</a>
-    <a href="{{ url('/layanan') }}">Layanan Data</a>
-    <a href="{{ url('/keunggulan') }}">Keunggulan &amp; Alur</a>
-    <a href="{{ url('/') }}#data-packages">Paket Olah Data</a>
-    <a href="{{ url('/') }}#quiz">Quiz Data</a>
-    <a href="{{ url('/') }}#tools">Tools</a>
-    <a href="{{ url('/') }}#mentor">Mentor</a>
-    <a href="{{ url('/') }}#faq">FAQ</a>
-    <a href="{{ route('landing.berita') }}">Wawasan &amp; Artikel</a>
-  </div>
-</header>
+@include('partials.public-header')
 
 <main>
   <!-- HERO SECTION -->

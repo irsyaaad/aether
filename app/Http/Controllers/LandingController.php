@@ -264,4 +264,110 @@ class LandingController extends Controller
 
         return view('pages.berita-detail', compact('article', 'relatedArticles'));
     }
+
+    /**
+     * Halaman Promo Program Riset & Olah Data.
+     */
+    public function promo()
+    {
+        return view('pages.promo');
+    }
+
+    /**
+     * Halaman Paket Olah Data Riset.
+     */
+    public function paketOlahData()
+    {
+        $services = self::getServices();
+        return view('pages.paket-olah-data', compact('services'));
+    }
+
+    /**
+     * Halaman Publikasi Jurnal Aether.
+     */
+    public function jurnalAether()
+    {
+        return view('pages.jurnal-aether');
+    }
+
+    /**
+     * Halaman Cek Turnitin & Parafrase Ilmiah.
+     */
+    public function cekTurnitin()
+    {
+        return view('pages.cek-turnitin');
+    }
+
+    /**
+     * Halaman Workshop & Pelatihan.
+     */
+    public function workshopPelatihan()
+    {
+        return view('pages.workshop-pelatihan');
+    }
+
+    /**
+     * Halaman Mentoring Penelitian (Skripsi, Tesis, Disertasi).
+     */
+    public function mentoringPenelitian()
+    {
+        return view('pages.mentoring-penelitian');
+    }
+
+    /**
+     * Halaman Mentoring Persiapan Karir.
+     */
+    public function mentoringKarir()
+    {
+        return view('pages.mentoring-karir');
+    }
+
+    /**
+     * Halaman Mentoring Beasiswa.
+     */
+    public function mentoringBeasiswa()
+    {
+        return view('pages.mentoring-beasiswa');
+    }
+
+    /**
+     * Halaman Mentoring Lomba Karya Tulis & Riset.
+     */
+    public function mentoringLomba()
+    {
+        return view('pages.mentoring-lomba');
+    }
+
+    /**
+     * Halaman AI Research & Academic Tools.
+     */
+    public function aiResearch()
+    {
+        return view('pages.ai-research');
+    }
+
+    /**
+     * Halaman Quiz Aether.
+     */
+    public function quiz()
+    {
+        return view('pages.quiz');
+    }
+
+    /**
+     * Halaman Testimoni & Kisah Sukses Klien.
+     */
+    public function testimoni()
+    {
+        return view('pages.testimoni');
+    }
+
+    /**
+     * Halaman FAQ (Pertanyaan yang Sering Diajukan).
+     */
+    public function faq()
+    {
+        return view('pages.faq');
+    }
 }
+
