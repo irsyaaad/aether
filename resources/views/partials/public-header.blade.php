@@ -360,6 +360,7 @@
   </div>
 
   <div class="pub-header-wrap pub-nav2">
+    <a href="{{ route('landing') }}" class="{{ request()->routeIs('landing') ? 'active' : '' }}">Home</a>
     <a href="{{ route('landing.promo') }}" class="{{ request()->routeIs('landing.promo') ? 'active' : '' }}">Promo Program</a>
 
     <div class="pub-nav2-dropdown {{ request()->routeIs('landing.paket-olah-data', 'landing.jurnal-aether', 'landing.cek-turnitin') ? 'active' : '' }}">

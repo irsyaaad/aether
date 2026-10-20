@@ -47,7 +47,12 @@ class LoginController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required',
             'password' => 'required',
-            'captcha' => 'required|captcha',
+            'captcha' => config('captcha.disable') ? 'nullable' : 'required|captcha',
+        ], [
+            'email.required' => 'Email atau username wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
+            'captcha.required' => 'Kode keamanan captcha wajib diisi.',
+            'captcha.captcha' => 'Kode captcha tidak cocok atau sudah kadaluarsa. Silakan refresh dan coba lagi.',
         ]);
         if ($validator->fails()) {
             return redirect()->back()

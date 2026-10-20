@@ -1324,7 +1324,7 @@ footer a:hover{color:#FFD978}
           <img alt="Nur Atika Rochmah" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=500&q=80"/>
           <div class="body">
             <b>Nur Atika Rochmah</b>
-            <span>Strategy • Operations • Digital</span>
+            <span>Mentor • Manajemen Bisnis & Development</span>
           </div>
         </article>
 
@@ -1332,7 +1332,7 @@ footer a:hover{color:#FFD978}
           <img alt="Deny Aditya Pratama" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=500&q=80"/>
           <div class="body">
             <b>Deny Aditya Pratama</b>
-            <span>Business Strategy • Financial Advisory • Operations</span>
+            <span>Mentor • Manajemen Bisnis & Teknik</span>
           </div>
         </article>
 
@@ -1340,7 +1340,15 @@ footer a:hover{color:#FFD978}
           <img alt="Alessandra Natasya Panie" src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=500&q=80"/>
           <div class="body">
             <b>Alessandra Natasya Panie</b>
-            <span>Finance • Admin • Legal</span>
+            <span>Mentor • Manajemen Pemasaran</span>
+          </div>
+        </article>
+
+        <article class="mentor">
+          <img alt="Nasya Ummi Syarifah" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=500&q=80"/>
+          <div class="body">
+            <b>Nasywa Ummi Syarifah</b>
+            <span>Mentor • Manajemen Keuangan</span>
           </div>
         </article>
 
@@ -1348,7 +1356,7 @@ footer a:hover{color:#FFD978}
           <img alt="Arrum Rochmani Hidayah" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=500&q=80"/>
           <div class="body">
             <b>Arrum Rochmani Hidayah</b>
-            <span>Marketing • Communication</span>
+            <span>Mentor • Manajemen Keuangan</span>
           </div>
         </article>
       </div>

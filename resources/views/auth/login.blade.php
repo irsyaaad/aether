@@ -62,7 +62,7 @@
 
     <div class="flex min-h-screen">
         <!-- Left Panel - Aether Data Lab Visual & Branding -->
-        <div class="relative hidden w-1/2 lg:flex flex-col justify-between overflow-hidden p-12 pattern-bg text-white">
+        <div class="relative hidden w-1/2 lg:flex flex-col justify-between overflow-hidden p-8 lg:p-12 pattern-bg text-white lg:sticky lg:top-0 lg:h-screen">
             <!-- Background Image with Overlay -->
             <div class="absolute inset-0">
                 <img 
@@ -75,20 +75,34 @@
             <!-- Gradient Overlay for Deep Contrast -->
             <div class="absolute inset-0 bg-gradient-to-t from-[#102654] via-[#102654]/85 to-[#1768B5]/70"></div>
             
-            <!-- Top Brand Badge -->
+            <!-- Top Brand Bar -->
             <div class="relative z-10 flex items-center justify-between">
-                <a href="{{ url('/') }}" class="inline-flex items-center gap-3 bg-white/95 px-3.5 py-2 rounded-2xl shadow-xl backdrop-blur hover:bg-white transition group border border-white/20">
-                    <img src="{{ asset('images/logo_aether.png') }}" alt="Aether Data Lab" class="h-9 w-auto object-contain rounded-lg">
-                    <div class="leading-tight">
-                        <div class="text-[13px] font-extrabold text-[#102654] tracking-tight">Aether Data Lab</div>
-                        <div class="text-[10px] font-bold text-[#2B8BD1] tracking-wider uppercase">Research &amp; Analytics</div>
-                    </div>
+                <a href="{{ url('/') }}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white backdrop-blur border border-white/15 transition-all text-xs font-semibold group">
+                    <span class="w-2 h-2 rounded-full bg-[#58B7EA] group-hover:scale-125 transition-transform"></span>
+                    <span>Aether Data Lab</span>
                 </a>
 
                 <a href="{{ url('/') }}" class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white backdrop-blur border border-white/15 transition-all">
                     <span>Beranda</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </a>
+            </div>
+
+            <!-- Center Hero Logo -->
+            <div class="relative z-10 my-auto flex flex-col items-center justify-center text-center py-6 px-4">
+                <div class="relative group max-w-sm sm:max-w-md w-full">
+                    <!-- Ambient Glow behind card matching Aether brand colors -->
+                    <div class="absolute -inset-2 bg-gradient-to-r from-sky-400/35 via-[#F6C75A]/25 to-sky-300/35 rounded-3xl blur-2xl opacity-75 group-hover:opacity-100 transition duration-700"></div>
+                    
+                    <!-- White Glassmorphism Card for Logo -->
+                    <div class="relative bg-white/95 backdrop-blur-xl px-8 py-8 sm:px-12 sm:py-10 rounded-3xl shadow-2xl shadow-sky-950/40 border border-white/40 flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-[1.02]">
+                        <img 
+                            src="{{ asset('images/logo_aether.png') }}" 
+                            alt="Aether Data Lab" 
+                            class="h-20 sm:h-24 md:h-28 lg:h-32 w-auto object-contain max-w-full drop-shadow-sm transition-transform duration-300"
+                        />
+                    </div>
+                </div>
             </div>
 
             <!-- Bottom Content & Testimonial -->
@@ -142,13 +156,13 @@
                 </a>
 
                 <!-- Mobile Header Brand -->
-                <div class="mb-6 flex items-center gap-3 lg:hidden">
-                    <a href="{{ url('/') }}" class="inline-flex items-center gap-2.5">
-                        <img src="{{ asset('images/logo_aether.png') }}" alt="Aether" class="h-10 w-auto object-contain rounded-lg">
-                        <div>
-                            <div class="text-base font-extrabold text-[#102654]">Aether Data Lab</div>
-                            <div class="text-[11px] font-semibold text-[#2B8BD1]">Research &amp; Analytics</div>
-                        </div>
+                <div class="mb-6 flex items-center justify-between lg:hidden">
+                    <a href="{{ url('/') }}" class="inline-flex items-center">
+                        <img src="{{ asset('images/logo_aether.png') }}" alt="Aether Data Lab" class="h-10 w-auto object-contain">
+                    </a>
+                    <a href="{{ url('/') }}" class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-[#2B8BD1] transition-colors">
+                        <span>Beranda</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </a>
                 </div>
 
@@ -383,7 +397,7 @@
             }
 
             const newImg = new Image();
-            newImg.src = '{{ captcha_src("default") }}' + '?' + Math.random();
+            newImg.src = '{{ captcha_src("default") }}' + '&_t=' + Date.now();
             newImg.onload = function () {
                 if (img) img.src = newImg.src;
                 if (icon) {
