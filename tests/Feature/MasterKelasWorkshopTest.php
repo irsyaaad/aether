@@ -855,6 +855,224 @@ class MasterKelasWorkshopTest extends TestCase
         $resVerify->assertSee('75%');
         $resVerify->assertDontSee('Status: Terverifikasi Asli &amp; Sah', false);
     }
+
+    public function test_pelatihan_payment_page_shows_syllabus_and_only_user_data_form_without_payment_method_selection()
+    {
+        $kelas = MasterKelas::first() ?? MasterKelas::create([
+            'kode_kelas' => 'KLS-TEST-PAYMENT',
+            'judul' => 'Workshop Mastering Data Science untuk Tesis',
+            'level' => 'Intermediate',
+            'kategori' => 'Kuantitatif & Data Science',
+            'tipe_kelas' => 'Bootcamp Intensif',
+            'harga' => 250000,
+            'is_active' => true,
+        ]);
+
+        $materi = MasterMateri::create([
+            'kelas_id' => $kelas->id,
+            'urutan' => 1,
+            'judul_materi' => 'Modul 1: Pembersihan Dataset & Handling Outlier',
+            'tipe_materi' => 'Video',
+            'durasi_menit' => 45,
+            'deskripsi' => 'Panduan praktis deteksi outlier dan normalitas data.',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->user)->get(route('pelatihan.payment', $kelas->id));
+        $response->assertStatus(200);
+
+        // Harus menampilkan materi atau silabus workshop
+        $response->assertSee('Materi &amp; Silabus Workshop', false);
+        $response->assertSee('Modul 1: Pembersihan Dataset & Handling Outlier');
+        $response->assertSee('Panduan praktis deteksi outlier dan normalitas data.');
+
+        // Harus menampilkan isian data peserta
+        $response->assertSee('Data Diri Peserta');
+        $response->assertSee('name="nama_pemesan"', false);
+        $response->assertSee('name="email_pemesan"', false);
+        $response->assertSee('name="telepon_pemesan"', false);
+        $response->assertSee('name="universitas"', false);
+
+        // Jangan menampilkan pilihan metode pembayaran di halaman ini terlebih dahulu
+        $response->assertDontSee('name="metode_pembayaran"', false);
+        $response->assertDontSee('Pilih Metode Pembayaran');
+    }
+
+    public function test_pelatihan_payment_process_allows_submitting_only_data_and_redirects_to_instruction()
+    {
+        $kelas = MasterKelas::first() ?? MasterKelas::create([
+            'kode_kelas' => 'KLS-TEST-PROC',
+            'judul' => 'Workshop Regresi Lanjutan',
+            'level' => 'Intermediate',
+            'kategori' => 'Ekonometrika',
+            'tipe_kelas' => 'Bootcamp Intensif',
+            'harga' => 300000,
+            'is_active' => true,
+        ]);
+
+        $payload = [
+            'nama_pemesan' => 'Mochamad Irsyad',
+            'email_pemesan' => 'irsyad@example.com',
+            'telepon_pemesan' => '081234567890',
+            'universitas' => 'Universitas Indonesia',
+            'judul_skripsi' => 'Pengaruh Analisis X terhadap Y',
+        ];
+
+        // Submit form tanpa metode pembayaran
+        $response = $this->actingAs($this->user)->post(route('pelatihan.payment.process', $kelas->id), $payload);
+
+        $transaksi = TransaksiPelatihan::where('email_pemesan', 'irsyad@example.com')
+            ->where('kelas_id', $kelas->id)
+            ->latest()
+            ->first();
+
+        $this->assertNotNull($transaksi);
+        $this->assertEquals('Mochamad Irsyad', $transaksi->nama_pemesan);
+        $this->assertEquals('Universitas Indonesia', $transaksi->universitas);
+        $this->assertEquals('Menunggu Pembayaran', $transaksi->status_pembayaran);
+        // Default metode pembayaran telah disiapkan
+        $this->assertNotEmpty($transaksi->metode_pembayaran);
+
+        // Diarahkan ke halaman instruksi pembayaran
+        $response->assertRedirect(route('pelatihan.payment.instruction', $transaksi->id));
+
+        // Test halaman instruksi gaya Xendit
+        $instResponse = $this->actingAs($this->user)->get(route('pelatihan.payment.instruction', $transaksi->id));
+        $instResponse->assertStatus(200);
+        $instResponse->assertSee($transaksi->nomor_registrasi);
+        $instResponse->assertSee('Aether Edukasi');
+        $instResponse->assertSee('Total Pembayaran');
+        $instResponse->assertSee('Ringkasan Pesanan');
+        $instResponse->assertSee('Saya Sudah Membayar &amp; Kirim Bukti', false);
+    }
+
+    public function test_pelatihan_index_ikuti_pelatihan_button_links_to_detail_page()
+    {
+        $kelas = MasterKelas::create([
+            'kode_kelas' => 'TEST-INDEX-' . rand(100, 999),
+            'judul' => 'Workshop Structural Equation Modeling PLS 4',
+            'level' => 'Tingkat Menengah',
+            'kategori' => 'Kuantitatif & SEM',
+            'harga' => 250000,
+            'kuota_maksimal' => 50,
+            'status' => 'Dibuka',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($this->user)->get(route('pelatihan.index'));
+        $response->assertStatus(200);
+        $response->assertSee($kelas->judul);
+        // Link Ikuti Pelatihan sekarang mengarah ke detail page, bukan form payment
+        $response->assertSee(route('pelatihan.detail', $kelas->id));
+        $response->assertSee('Ikuti Pelatihan');
+    }
+
+    public function test_pelatihan_detail_page_renders_with_ebizmark_style_layout_and_daftar_action()
+    {
+        $mentor = \Modules\Master\Entities\MasterMentor::create([
+            'nama_lengkap' => 'Dr. Michael Musyaffi, M.Ak.',
+            'gelar' => 'M.Ak., Ph.D.',
+            'spesialisasi' => 'Struktur Equation Modeling & Publikasi Scopus',
+            'institusi' => 'Laboratorium Metodologi Riset',
+            'is_active' => true,
+        ]);
+
+        $kelas = MasterKelas::create([
+            'kode_kelas' => 'TEST-DETAIL-' . rand(100, 999),
+            'judul' => 'Disertasi Intensif dengan Claude AI & SmartPLS 4',
+            'level' => 'S1/S2/S3 & Dosen',
+            'kategori' => 'Disertasi & Publikasi Scopus',
+            'harga' => 300000,
+            'kuota_maksimal' => 40,
+            'status' => 'Dibuka',
+            'mentor_id' => $mentor->id,
+            'badge' => 'Intensif',
+            'silabus_singkat' => 'Pelatihan intensif metodologi riset dan drafting naskah disertasi menggunakan Claude AI.',
+            'deskripsi' => 'Panduan lengkap akselerasi disertasi, evaluasi outer model, inner model, dan perumusan prompt riset.',
+            'is_active' => true,
+        ]);
+
+        // Buat materi modul
+        $materi1 = MasterMateri::create([
+            'kelas_id' => $kelas->id,
+            'urutan' => 1,
+            'judul_materi' => 'Pengantar Framework Disertasi & Prompt Engineering Claude AI',
+            'tipe_materi' => 'Video',
+            'durasi_menit' => 45,
+            'is_free_preview' => true,
+            'deskripsi' => 'Teknik merumuskan prompt riset dan research gap.',
+        ]);
+
+        $materi2 = MasterMateri::create([
+            'kelas_id' => $kelas->id,
+            'urutan' => 2,
+            'judul_materi' => 'Dataset Latihan Disertasi & Template Word Bab 4 Siap Sidang',
+            'tipe_materi' => 'Dokumen PDF',
+            'durasi_menit' => 30,
+            'is_free_preview' => false,
+            'deskripsi' => 'File template format standar perguruan tinggi.',
+        ]);
+
+        $response = $this->actingAs($this->user)->get(route('pelatihan.detail', $kelas->id));
+        $response->assertStatus(200);
+
+        // Verifikasi konten Ebizmark-style detail page
+        $response->assertSee($kelas->judul);
+        $response->assertSee('Dr. Michael Musyaffi, M.Ak.');
+        $response->assertSee('Disertasi &amp; Publikasi Scopus', false);
+        $response->assertSee('S1/S2/S3 &amp; Dosen', false);
+        $response->assertSee('Pengantar Framework Disertasi &amp; Prompt Engineering Claude AI', false);
+        $response->assertSee('Free Preview');
+        $response->assertSee('E-Sertifikat Resmi 32 JP');
+        $response->assertSee('Rekaman Video Lifetime');
+        $response->assertSee('Dataset &amp; Template Bab 4', false);
+        $response->assertSee('Rp 300.000');
+
+        // Action "Daftar Sekarang" yang mengarah ke payment
+        $response->assertSee(route('pelatihan.payment', $kelas->id));
+        $response->assertSee('Daftar Sekarang');
+
+        // Test route pelatihan.daftar me-redirect ke detail page
+        $resDaftar = $this->actingAs($this->user)->post(route('pelatihan.daftar', $kelas->id));
+        $resDaftar->assertRedirect(route('pelatihan.detail', $kelas->id));
+    }
+
+    public function test_pelatihan_detail_page_shows_already_registered_when_user_purchased()
+    {
+        $kelas = MasterKelas::create([
+            'kode_kelas' => 'TEST-OWNED-' . rand(100, 999),
+            'judul' => 'Bootcamp Mahir Analisis Data',
+            'level' => 'Pemula',
+            'kategori' => 'Statistika Dasar',
+            'harga' => 150000,
+            'kuota_maksimal' => 30,
+            'status' => 'Dibuka',
+            'is_active' => true,
+        ]);
+
+        // Buat transaksi Lunas untuk user ini
+        TransaksiPelatihan::create([
+            'nomor_registrasi' => 'REG-OWNED-' . rand(100, 999),
+            'user_id' => $this->user->id_user ?? $this->user->id,
+            'kelas_id' => $kelas->id,
+            'judul_kelas' => $kelas->judul,
+            'kode_kelas' => $kelas->kode_kelas,
+            'nama_pemesan' => 'Peserta Terdaftar',
+            'email_pemesan' => 'peserta@example.com',
+            'telepon_pemesan' => '081234567890',
+            'biaya' => 150000,
+            'admin_fee' => 5000,
+            'total_bayar' => 155000,
+            'metode_pembayaran' => 'BCA Virtual Account',
+            'status_pembayaran' => 'Lunas',
+            'status' => 'Aktif Berjalan',
+        ]);
+
+        $response = $this->actingAs($this->user)->get(route('pelatihan.detail', $kelas->id));
+        $response->assertStatus(200);
+        $response->assertSee('Akses Ruang Belajar');
+        $response->assertSee(route('pelatihan.show', $kelas->id));
+    }
 }
 
 

@@ -41,6 +41,24 @@
     </script>
     <link href="{{ asset('assets-logistik/css/app.css') }}" rel="stylesheet"/>
 
+    <script>
+        // Apply collapsed state before render to prevent FOUC
+        if (localStorage.getItem('sidebar_collapsed') === 'true' && window.innerWidth >= 1024) {
+            document.documentElement.classList.add('sidebar-collapsed');
+        }
+    </script>
+    <style>
+        @media (min-width: 1024px) {
+            #logis-sidebar {
+                transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            #logis-sidebar.is-collapsed,
+            html.sidebar-collapsed #logis-sidebar {
+                margin-left: -18.25rem !important; /* -288px - 1px border */
+            }
+        }
+    </style>
+
     @stack('styles')
 </head>
 <body class="app-theme antialiased h-full text-slate-900 bg-slate-50/50 font-sans">
@@ -57,8 +75,9 @@
                     <a href="{{ route('dashboard') }}" class="flex items-center">
                         <img class="h-9 w-auto object-contain" src="{{ asset('images/logo_aether.png') }}" alt="Aether"/>
                     </a>
-                    <button id="logis-sidebar-close" class="lg:hidden text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100">
-                        <i data-lucide="x" class="h-5 w-5"></i>
+                    <button id="logis-sidebar-close" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors" title="Tutup / Sembunyikan Sidebar">
+                        <i data-lucide="x" class="h-5 w-5 lg:hidden"></i>
+                        <i data-lucide="panel-left-close" class="h-5 w-5 hidden lg:block"></i>
                     </button>
                 </div>
 
@@ -224,7 +243,7 @@
             <!-- Header -->
             <header class="flex items-center justify-between gap-4 h-16 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200 shadow-sm z-10 shrink-0">
                 <div class="flex items-center gap-3">
-                    <button id="logis-sidebar-toggle" class="lg:hidden text-slate-500 hover:text-slate-700 p-2 rounded-lg hover:bg-slate-100">
+                    <button id="logis-sidebar-toggle" class="text-slate-500 hover:text-slate-700 p-2 rounded-lg hover:bg-slate-100 transition-colors" title="Toggle Sidebar">
                         <i data-lucide="menu" class="h-6 w-6"></i>
                     </button>
                     
@@ -295,7 +314,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ asset('assets-logistik/js/logistik.js') }}?v=1.3"></script>
+    <script src="{{ asset('assets-logistik/js/logistik.js') }}?v=1.4"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof lucide !== 'undefined') {

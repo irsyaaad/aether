@@ -123,7 +123,27 @@
             padding: 0 !important;
             pointer-events: none !important;
         }
+
+        @media (min-width: 1024px) {
+            #logis-sidebar {
+                transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            #logis-sidebar.is-collapsed,
+            html.sidebar-collapsed #logis-sidebar {
+                margin-left: -18.25rem !important;
+            }
+        }
     </style>
+
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('sidebar_collapsed') === 'true' && window.innerWidth >= 1024) {
+                    document.documentElement.classList.add('sidebar-collapsed');
+                }
+            } catch (e) {}
+        })();
+    </script>
 
     @stack('styles')
 </head>
@@ -134,15 +154,16 @@
         <div id="logis-sidebar-backdrop" class="fixed inset-0 z-40 bg-gray-900/80 backdrop-blur-sm hidden lg:hidden"></div>
 
         <!-- Sidebar -->
-        <aside id="logis-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 transform -translate-x-full lg:translate-x-0 border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out lg:static shrink-0 flex flex-col justify-between">
+        <aside id="logis-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 transform -translate-x-full lg:translate-x-0 border-r border-gray-200 bg-white transition-all duration-300 ease-in-out lg:static shrink-0 flex flex-col justify-between">
             <div>
                 <!-- Brand Header -->
                 <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
                     <a href="{{ route('dashboard') }}" class="flex items-center">
                         <img class="h-9 w-auto object-contain" src="{{ asset('images/logo_aether.png') }}" alt="Aether"/>
                     </a>
-                    <button id="logis-sidebar-close" class="lg:hidden text-gray-500 hover:text-gray-700">
-                        <i data-lucide="x" class="h-5 w-5"></i>
+                    <button id="logis-sidebar-close" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none" title="Tutup / Sembunyikan Sidebar">
+                        <i data-lucide="panel-left-close" class="h-5 w-5 hidden lg:block"></i>
+                        <i data-lucide="x" class="h-5 w-5 lg:hidden"></i>
                     </button>
                 </div>
 
@@ -510,8 +531,8 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
             <header class="flex items-center gap-4 h-16 px-4 sm:px-6 lg:px-8 bg-white border-b border-gray-200 shadow-sm z-10 shrink-0">
-                <button id="logis-sidebar-toggle" class="lg:hidden text-gray-500 hover:text-gray-700">
-                    <i data-lucide="menu" class="h-6 w-6"></i>
+                <button id="logis-sidebar-toggle" class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+                    <i data-lucide="menu" class="h-5 w-5"></i>
                 </button>
                 
                 <div class="flex-1">
@@ -558,7 +579,7 @@
     <script src="{{ asset('assets/vendors/select2/select2.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/datatables-net/dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/apexcharts/apexcharts.min.js') }}"></script>
-    <script src="{{ asset('assets-logistik/js/logistik.js') }}?v=1.3"></script>
+    <script src="{{ asset('assets-logistik/js/logistik.js') }}?v=1.4"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof lucide !== 'undefined') {

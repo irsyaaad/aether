@@ -23,6 +23,11 @@ Route::post('/transaksi/{id}/verifikasi', [PelatihanController::class, 'verifika
 Route::post('/transaksi/{id}/selesaikan', [PelatihanController::class, 'selesaikanPelatihan'])->name('transaksi.selesaikan');
 Route::post('/transaksi/{id}/batalkan', [PelatihanController::class, 'batalkanPembayaran'])->name('transaksi.batalkan');
 
+// Detail Kelas & Workshop (Landing Page sebelum pendaftaran / payment)
+Route::get('/detail/{id}', [PelatihanController::class, 'detail'])->name('detail');
+Route::get('/workshop/{id}', [PelatihanController::class, 'detail'])->name('workshop.detail');
+Route::get('/kelas/{id}/detail', [PelatihanController::class, 'detail']);
+
 Route::get('/{id}', [PelatihanController::class, 'show'])->name('show');
 Route::post('/{id}/daftar', [PelatihanController::class, 'daftar'])->name('daftar');
 Route::post('/materi/{id}/selesai', [PelatihanController::class, 'markMateriSelesai'])->name('materi.selesai');

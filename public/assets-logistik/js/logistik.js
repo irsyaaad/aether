@@ -7,13 +7,23 @@ document.addEventListener('DOMContentLoaded', function () {
         lucide.createIcons();
     }
 
-    // 2. Mobile Sidebar Toggle
+    // 2. Sidebar Toggle & Collapse Handlers (Mobile & Desktop)
     const sidebarToggleBtn = document.getElementById('logis-sidebar-toggle');
     const sidebarCloseBtn = document.getElementById('logis-sidebar-close');
     const sidebar = document.getElementById('logis-sidebar');
     const sidebarBackdrop = document.getElementById('logis-sidebar-backdrop');
 
-    function openSidebar() {
+    // Sync initial desktop collapsed state
+    if (sidebar && window.innerWidth >= 1024) {
+        try {
+            if (localStorage.getItem('sidebar_collapsed') === 'true' || document.documentElement.classList.contains('sidebar-collapsed')) {
+                sidebar.classList.add('is-collapsed');
+                document.documentElement.classList.add('sidebar-collapsed');
+            }
+        } catch (e) {}
+    }
+
+    function openMobileSidebar() {
         if (sidebar) sidebar.classList.remove('-translate-x-full');
         if (sidebarBackdrop) sidebarBackdrop.classList.remove('hidden');
         if (typeof scrollActiveSidebarMenu === 'function') {
@@ -23,14 +33,79 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function closeSidebar() {
+    function closeMobileSidebar() {
         if (sidebar) sidebar.classList.add('-translate-x-full');
         if (sidebarBackdrop) sidebarBackdrop.classList.add('hidden');
     }
 
-    if (sidebarToggleBtn) sidebarToggleBtn.addEventListener('click', openSidebar);
-    if (sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
-    if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebar);
+    function toggleSidebar() {
+        if (!sidebar) return;
+
+        if (window.innerWidth < 1024) {
+            if (sidebar.classList.contains('-translate-x-full')) {
+                openMobileSidebar();
+            } else {
+                closeMobileSidebar();
+            }
+        } else {
+            const isCollapsed = sidebar.classList.toggle('is-collapsed');
+            if (isCollapsed) {
+                document.documentElement.classList.add('sidebar-collapsed');
+            } else {
+                document.documentElement.classList.remove('sidebar-collapsed');
+            }
+            try {
+                localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
+            } catch (e) {}
+
+            setTimeout(function () {
+                window.dispatchEvent(new Event('resize'));
+            }, 320);
+        }
+    }
+
+    function handleSidebarClose() {
+        if (!sidebar) return;
+
+        if (window.innerWidth < 1024) {
+            closeMobileSidebar();
+        } else {
+            sidebar.classList.add('is-collapsed');
+            document.documentElement.classList.add('sidebar-collapsed');
+            try {
+                localStorage.setItem('sidebar_collapsed', 'true');
+            } catch (e) {}
+
+            setTimeout(function () {
+                window.dispatchEvent(new Event('resize'));
+            }, 320);
+        }
+    }
+
+    document.querySelectorAll('#logis-sidebar-toggle, [data-logis-sidebar-toggle]').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            toggleSidebar();
+        });
+    });
+
+    document.querySelectorAll('#logis-sidebar-close, [data-logis-sidebar-close]').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            handleSidebarClose();
+        });
+    });
+
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+    }
+
+    // Keyboard ESC to close sidebar drawer on mobile
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && window.innerWidth < 1024 && sidebar && !sidebar.classList.contains('-translate-x-full')) {
+            closeMobileSidebar();
+        }
+    });
 
     // 3. Dropdown Toggles (data-logis-dropdown)
     document.addEventListener('click', function (e) {

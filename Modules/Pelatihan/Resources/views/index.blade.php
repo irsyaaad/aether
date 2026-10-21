@@ -35,7 +35,7 @@
         <div class="bg-white rounded-2xl border border-gray-200/90 overflow-hidden shadow-xs hover:shadow-xl hover:border-[#1768B5]/40 transition-all duration-300 group flex flex-col justify-between">
             <div>
                 <!-- Card Thumbnail Header -->
-                <div class="relative w-full h-48 sm:h-52 bg-slate-100 overflow-hidden">
+                <a href="{{ route('pelatihan.detail', $c['id']) }}" class="block relative w-full h-48 sm:h-52 bg-slate-100 overflow-hidden cursor-pointer">
                     @if(!empty($c['thumbnail_url']))
                         <img src="{{ $c['thumbnail_url'] }}" 
                              alt="{{ $c['judul'] }}" 
@@ -77,13 +77,15 @@
                         </span>
                         @endif
                     </div>
-                </div>
+                </a>
 
                 <!-- Card Body -->
                 <div class="p-6 space-y-4">
-                    <h3 class="text-base sm:text-lg font-bold text-gray-900 group-hover:text-[#1768B5] transition-colors leading-snug line-clamp-2">
-                        {{ $c['judul'] }}
-                    </h3>
+                    <a href="{{ route('pelatihan.detail', $c['id']) }}" class="block group-hover:text-[#1768B5]">
+                        <h3 class="text-base sm:text-lg font-bold text-gray-900 group-hover:text-[#1768B5] transition-colors leading-snug line-clamp-2">
+                            {{ $c['judul'] }}
+                        </h3>
+                    </a>
 
                     <div class="space-y-2.5 text-xs text-gray-600">
                         <div class="flex items-center gap-2">
@@ -113,13 +115,10 @@
                     <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
                     <span><strong class="text-gray-900 text-sm font-black">{{ $c['peserta'] }}</strong> Peserta</span>
                 </div>
-                <form action="{{ route('pelatihan.daftar', $c['id']) }}" method="POST">
-                    @csrf
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#102654] hover:bg-[#1768B5] text-white text-xs font-bold transition-all shadow-sm hover:shadow-md inline-flex items-center gap-1.5 cursor-pointer">
-                        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-                        <span>Ikuti Pelatihan</span>
-                    </button>
-                </form>
+                <a href="{{ route('pelatihan.detail', $c['id']) }}" class="px-5 py-2.5 rounded-xl bg-[#102654] hover:bg-[#1768B5] text-white text-xs font-bold transition-all shadow-sm hover:shadow-md inline-flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="compass" class="w-3.5 h-3.5"></i>
+                    <span>Ikuti Pelatihan</span>
+                </a>
             </div>
         </div>
         @endforeach

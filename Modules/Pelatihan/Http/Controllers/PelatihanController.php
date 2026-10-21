@@ -384,7 +384,9 @@ class PelatihanController extends Controller
     public function payment($id)
     {
         $user = Auth::user();
-        $kelas = MasterKelas::with('mentor')->find($id);
+        $kelas = MasterKelas::with(['mentor', 'materis' => function($q) {
+            $q->where('is_active', true)->orderBy('urutan', 'asc');
+        }])->find($id);
 
         if (!$kelas) {
             $catalog = [
@@ -395,14 +397,56 @@ class PelatihanController extends Controller
             ];
             $item = $catalog[$id] ?? ['judul' => 'Workshop Pelatihan Riset', 'instruktur' => 'Mentor Ahli Aether', 'harga' => 200000, 'kategori' => 'Riset', 'badge' => 'Riset'];
             $kelas = (object) [
-                'id'         => $id,
-                'judul'      => $item['judul'],
-                'instruktur' => $item['instruktur'],
-                'harga'      => $item['harga'],
-                'kategori'   => $item['kategori'],
-                'badge'      => $item['badge'],
-                'kode_kelas' => 'KLS-' . str_pad($id, 3, '0', STR_PAD_LEFT),
+                'id'              => $id,
+                'judul'           => $item['judul'],
+                'instruktur'      => $item['instruktur'],
+                'harga'           => $item['harga'],
+                'kategori'        => $item['kategori'],
+                'badge'           => $item['badge'],
+                'kode_kelas'      => 'KLS-' . str_pad($id, 3, '0', STR_PAD_LEFT),
+                'silabus_singkat' => '8 Sesi Video Praktik + Template Word Bab 4 + Live Q&A',
+                'deskripsi'       => 'Pelatihan intensif analisis data dan metodologi riset untuk penyusunan skripsi dan tesis.',
             ];
+            $materis = collect([
+                (object)[
+                    'id' => 1,
+                    'urutan' => 1,
+                    'judul_materi' => 'Pengenalan & Fundamental Metodologi',
+                    'tipe_materi' => 'Video',
+                    'durasi_menit' => 45,
+                    'deskripsi' => 'Pengenalan antarmuka software statistik, persiapan dataset, dan pembersihan missing value.',
+                    'is_free_preview' => false,
+                ],
+                (object)[
+                    'id' => 2,
+                    'urutan' => 2,
+                    'judul_materi' => 'Evaluasi Model Pengukuran & Uji Validitas Reliabilitas',
+                    'tipe_materi' => 'Video',
+                    'durasi_menit' => 60,
+                    'deskripsi' => 'Pengujian validitas konvergen, validitas diskriminan, reliabilitas komposit, dan cross loadings.',
+                    'is_free_preview' => false,
+                ],
+                (object)[
+                    'id' => 3,
+                    'urutan' => 3,
+                    'judul_materi' => 'Template & Panduan Narasi Pembahasan Bab 4 Siap Sidang',
+                    'tipe_materi' => 'Dokumen PDF',
+                    'durasi_menit' => 0,
+                    'deskripsi' => 'Template laporan Word format standar universitas dengan tata letak tabel dan penafsiran hipotesis.',
+                    'is_free_preview' => false,
+                ],
+                (object)[
+                    'id' => 4,
+                    'urutan' => 4,
+                    'judul_materi' => 'Master Dataset Praktik: Responden Kuisioner Skala Likert',
+                    'tipe_materi' => 'Dataset Praktik',
+                    'durasi_menit' => 0,
+                    'deskripsi' => 'Dataset riil untuk latihan uji mediasi dan moderasi mandiri serta panduan analisis.',
+                    'is_free_preview' => false,
+                ],
+            ]);
+        } else {
+            $materis = $kelas->materis ?? collect();
         }
 
         $userId = $user ? ($user->id_user ?? $user->id) : null;
@@ -417,13 +461,13 @@ class PelatihanController extends Controller
         $adminPrice = 5000;
         $totalPrice = $kelas->harga + $adminPrice;
 
-        return view('pelatihan::payment', compact('kelas', 'user', 'alreadyPurchased', 'adminPrice', 'totalPrice'));
+        return view('pelatihan::payment', compact('kelas', 'materis', 'user', 'alreadyPurchased', 'adminPrice', 'totalPrice'));
     }
 
     public function processPayment(Request $request, $id)
     {
         $user = Auth::user();
-        $kelas = MasterKelas::with('mentor')->find($id);
+        $kelas = MasterKelas::with(['mentor', 'materis'])->find($id);
 
         if (!$kelas) {
             $catalog = [
@@ -447,12 +491,12 @@ class PelatihanController extends Controller
             'email_pemesan'     => 'required|email|max:150',
             'telepon_pemesan'   => 'required|string|max:30',
             'universitas'       => 'nullable|string|max:150',
-            'metode_pembayaran' => 'required|string|max:100',
+            'judul_skripsi'     => 'nullable|string|max:255',
+            'metode_pembayaran' => 'nullable|string|max:100',
         ], [
-            'nama_pemesan.required'      => 'Nama lengkap wajib diisi.',
-            'email_pemesan.required'     => 'Email aktif wajib diisi.',
-            'telepon_pemesan.required'   => 'Nomor WhatsApp wajib diisi.',
-            'metode_pembayaran.required' => 'Pilih metode pembayaran.',
+            'nama_pemesan.required'    => 'Nama lengkap wajib diisi.',
+            'email_pemesan.required'   => 'Email aktif wajib diisi.',
+            'telepon_pemesan.required' => 'Nomor WhatsApp wajib diisi.',
         ]);
 
         $userId = $user ? ($user->id_user ?? $user->id) : null;
@@ -461,7 +505,9 @@ class PelatihanController extends Controller
         $totalBayar = $biaya + $adminPrice;
         $nomorReg = 'REG-WKS-' . date('Ym') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
 
-        $paymentCode = match ($validated['metode_pembayaran']) {
+        $metodePembayaran = !empty($validated['metode_pembayaran']) ? $validated['metode_pembayaran'] : 'QRIS Instant';
+
+        $paymentCode = match ($metodePembayaran) {
             'BCA Virtual Account'     => '80777' . rand(10000000, 99999999),
             'Mandiri Virtual Account' => '88908' . rand(10000000, 99999999),
             'BNI Virtual Account'     => '98801' . rand(10000000, 99999999),
@@ -469,10 +515,15 @@ class PelatihanController extends Controller
             'QRIS Instant'            => 'QRIS-' . strtoupper(Str::random(10)),
             'Transfer Bank BCA'       => '7310889201',
             'Transfer Bank Mandiri'   => '1370019283741',
-            default                   => '7310889201',
+            default                   => 'QRIS-' . strtoupper(Str::random(10)),
         };
 
         $instruktur = isset($kelas->mentor) ? ($kelas->mentor->nama_lengkap . ($kelas->mentor->gelar ? ', ' . $kelas->mentor->gelar : '')) : ($kelas->instruktur ?? 'Instruktur Ahli Aether');
+
+        $totalModul = 8;
+        if (isset($kelas->materis) && $kelas->materis->count() > 0) {
+            $totalModul = $kelas->materis->count();
+        }
 
         $transaksi = TransaksiPelatihan::create([
             'nomor_registrasi'  => $nomorReg,
@@ -481,22 +532,23 @@ class PelatihanController extends Controller
             'judul_kelas'       => $kelas->judul,
             'instruktur'        => $instruktur,
             'kode_kelas'        => $kelas->kode_kelas ?? ('KLS-' . str_pad($kelas->id, 3, '0', STR_PAD_LEFT)),
-            'link_zoom'         => 'https://meet.google.com/aether-wks',
+            'link_zoom'         => $kelas->link_meeting ?? 'https://meet.google.com/aether-wks',
             'progress'          => 0,
-            'total_modul'       => 8,
+            'total_modul'       => $totalModul,
             'modul_selesai'     => 0,
             'status'            => 'Menunggu Pembayaran',
             'nama_pemesan'      => $validated['nama_pemesan'],
             'email_pemesan'     => $validated['email_pemesan'],
             'telepon_pemesan'   => $validated['telepon_pemesan'],
-            'universitas'       => $validated['universitas'],
+            'universitas'       => $validated['universitas'] ?? null,
             'biaya'             => $biaya,
             'admin_fee'         => $adminPrice,
             'total_bayar'       => $totalBayar,
-            'metode_pembayaran' => $validated['metode_pembayaran'],
+            'metode_pembayaran' => $metodePembayaran,
             'kode_pembayaran'   => $paymentCode,
             'status_pembayaran' => 'Menunggu Pembayaran',
             'tanggal_pembelian' => now(),
+            'catatan'           => !empty($validated['judul_skripsi']) ? json_encode(['topik_skripsi' => $validated['judul_skripsi']]) : null,
         ]);
 
         return redirect()->route('pelatihan.payment.instruction', $transaksi->id)
@@ -646,9 +698,207 @@ class PelatihanController extends Controller
         ]);
     }
 
+    /**
+     * Halaman Detail Kelas & Workshop Riset (Ebizmark style landing)
+     */
+    public function detail($id)
+    {
+        $user = Auth::user();
+        $kelas = MasterKelas::with(['mentor', 'materis' => function($q) {
+            $q->where('is_active', true)->orderBy('urutan', 'asc');
+        }, 'transaksis'])->find($id);
+
+        if (!$kelas) {
+            $catalog = [
+                1 => [
+                    'judul' => 'Mastering SEM-PLS 4: Dari Kerangka Konseptual Hingga Interpretasi Bab 4',
+                    'instruktur' => 'Nur Atika Rochmah, M.Si.',
+                    'gelar' => 'M.Si.',
+                    'institusi' => 'Fakultas MIPA - Departemen Statistika Terapan',
+                    'spesialisasi' => 'Struktur Equation Modeling (SEM), SmartPLS 4, & Publikasi Sinta',
+                    'harga' => 250000,
+                    'kategori' => 'Kuantitatif & SEM',
+                    'level' => 'Semua Tingkat',
+                    'tipe_kelas' => 'Live Workshop Zoom + Rekaman Selamanya',
+                    'badge' => 'Terpopuler',
+                    'deskripsi' => "Workshop intensif yang dirancang khusus untuk memandu mahasiswa tingkat akhir, magister, dan peneliti dalam menyelesaikan analisis data skripsi/tesis menggunakan SmartPLS 4.\n\nAnda akan mempelajari mulai dari penetapan model pengukuran (outer model), evaluasi validitas konvergen, validitas diskriminan (HTMT), reliabilitas komposit, hingga pengujian hipotesis (inner model) dan mediasi/moderasi dengan interpretasi hasil standar jurnal ilmiah.",
+                    'silabus_singkat' => '8 Sesi Hands-on Live + Master Dataset 150 Responden + Template Narasi Bab 4 Siap Sidang',
+                ],
+                2 => [
+                    'judul' => 'Workshop Regresi Data Panel Menggunakan EViews & Stata untuk Tesis Magister',
+                    'instruktur' => 'Deny Aditya Pratama, S.Stat.',
+                    'gelar' => 'S.Stat.',
+                    'institusi' => 'Pusat Studi Ekonometrika & Analisis Keuangan',
+                    'spesialisasi' => 'Ekonometrika Keuangan, Panel Data, EViews & Stata',
+                    'harga' => 350000,
+                    'kategori' => 'Ekonometrika',
+                    'level' => 'Tingkat Menengah',
+                    'tipe_kelas' => 'Bootcamp Intensif 2 Hari',
+                    'badge' => 'Intensif',
+                    'deskripsi' => "Pelatihan mendalam estimasi data panel meliputi Common Effect Model (CEM), Fixed Effect Model (FEM), dan Random Effect Model (REM), serta uji pemilihan model (Chow, Hausman, Lagrange Multiplier) hingga uji asumsi klasik dan regresi dinamis.",
+                    'silabus_singkat' => 'Praktik Langsung Olah Data Keuangan Perusahaan 5 Tahun + Do-File Sintaks Stata',
+                ],
+                3 => [
+                    'judul' => 'Analisis Data Kualitatif Praktis dengan NVivo: Thematic Coding & Visualisasi',
+                    'instruktur' => 'Alessandra Natasya Panie, S.Psi.',
+                    'gelar' => 'S.Psi., M.A.',
+                    'institusi' => 'Laboratorium Metodologi Kualitatif & Perilaku',
+                    'spesialisasi' => 'Qualitative Data Analysis, NVivo 14, & Thematic Analysis',
+                    'harga' => 200000,
+                    'kategori' => 'Kualitatif',
+                    'level' => 'Semua Tingkat',
+                    'tipe_kelas' => 'Workshop Interaktif',
+                    'badge' => 'Praktikal',
+                    'deskripsi' => "Panduan komprehensif mengolah data wawancara mendalam, FGD, artikel berita, dan dokumen literatur dengan teknik koding otomatis dan visualisasi peta konsep menggunakan NVivo versi terbaru.",
+                    'silabus_singkat' => 'Latihan Transkrip Wawancara + Panduan Koding Hirarki + Matriks Query',
+                ],
+                4 => [
+                    'judul' => 'Bootcamp Mahir SPSS: Uji Validitas, Reliabilitas, & Asumsi Klasik Tanpa Pusing',
+                    'instruktur' => 'Arrum Rochmani Hidayah, M.Kom.',
+                    'gelar' => 'M.Kom.',
+                    'institusi' => 'Akademi Sains Data & Komputasi Statistik',
+                    'spesialisasi' => 'Statistika Dasar, Regresi Linier Berganda, & SPSS 29',
+                    'harga' => 175000,
+                    'kategori' => 'Statistik Dasar',
+                    'level' => 'Pemula (Beginner)',
+                    'tipe_kelas' => 'Self-Paced + Live Mentoring',
+                    'badge' => 'Best Seller',
+                    'deskripsi' => "Didesain bagi Anda yang belum pernah menyentuh software statistik. Langkah demi langkah membaca kuesioner, tabulasi data Excel, input SPSS, transformasi data, deteksi outlier, uji normalitas, hingga penulisan hasil siap cetak.",
+                    'silabus_singkat' => '10 Video Langkah Demi Langkah + Lembar Kerja Latihan + E-Certificate',
+                ],
+            ];
+
+            if (!isset($catalog[$id])) {
+                abort(404, 'Detail kelas dan workshop tidak ditemukan.');
+            }
+
+            $item = $catalog[$id];
+            $kelas = (object) [
+                'id'              => $id,
+                'judul'           => $item['judul'],
+                'instruktur'      => $item['instruktur'],
+                'harga'           => $item['harga'],
+                'harga_formatted' => 'Rp ' . number_format($item['harga'], 0, ',', '.'),
+                'kategori'        => $item['kategori'],
+                'level'           => $item['level'],
+                'badge'           => $item['badge'],
+                'kode_kelas'      => 'KLS-' . str_pad($id, 3, '0', STR_PAD_LEFT),
+                'silabus_singkat' => $item['silabus_singkat'],
+                'deskripsi'       => $item['deskripsi'],
+                'tipe_kelas'      => $item['tipe_kelas'],
+                'status'          => 'Dibuka',
+                'kuota_maksimal'  => 50,
+                'thumbnail_url'   => null,
+                'tanggal_mulai'   => now()->addDays(3),
+                'tanggal_selesai' => now()->addDays(5),
+                'mentor'          => (object) [
+                    'nama_lengkap'        => $item['instruktur'],
+                    'gelar'               => $item['gelar'],
+                    'spesialisasi'        => $item['spesialisasi'],
+                    'institusi'           => $item['institusi'],
+                    'keahlian_software'   => $item['kategori'],
+                    'pendidikan_terakhir' => 'Magister (S2)',
+                ],
+            ];
+
+            $materis = collect([
+                (object)[
+                    'id' => 1,
+                    'urutan' => 1,
+                    'judul_materi' => 'Fundamental Teori, Kerangka Berpikir, & Hipotesis Penelitian',
+                    'tipe_materi' => 'Video',
+                    'durasi_menit' => 45,
+                    'deskripsi' => 'Merumuskan kerangka konseptual yang kokoh, variabel eksogen, endogen, dan operasionalisasi indikator kuesioner.',
+                    'is_free_preview' => true,
+                    'link_video' => 'https://www.youtube.com/watch?v=sample1',
+                    'file_materi' => null,
+                ],
+                (object)[
+                    'id' => 2,
+                    'urutan' => 2,
+                    'judul_materi' => 'Persiapan Dataset: Skrining Missing Value, Outlier, & Normalitas Data',
+                    'tipe_materi' => 'Dataset Praktik',
+                    'durasi_menit' => 50,
+                    'deskripsi' => 'Pembersihan data mentah excel, konversi tipe variabel, dan uji kelayakan responden.',
+                    'is_free_preview' => false,
+                    'link_video' => null,
+                    'file_materi' => 'dataset_latihan_150n.csv',
+                ],
+                (object)[
+                    'id' => 3,
+                    'urutan' => 3,
+                    'judul_materi' => 'Evaluasi Measurement Model (Outer Model): Uji Validitas & Reliabilitas',
+                    'tipe_materi' => 'Video',
+                    'durasi_menit' => 60,
+                    'deskripsi' => 'Pengujian Cronbach Alpha, Composite Reliability, AVE, Discriminant Validity (Fornell-Larcker & HTMT ratio).',
+                    'is_free_preview' => false,
+                    'link_video' => 'https://www.youtube.com/watch?v=sample2',
+                    'file_materi' => null,
+                ],
+                (object)[
+                    'id' => 4,
+                    'urutan' => 4,
+                    'judul_materi' => 'Evaluasi Structural Model (Inner Model), Uji Hipotesis, & Efek Mediasi/Moderasi',
+                    'tipe_materi' => 'Video',
+                    'durasi_menit' => 60,
+                    'deskripsi' => 'Analisis R-Square, f-Square, Q-Square, p-value, t-statistic, dan pengujian efek mediasi bootstrapping.',
+                    'is_free_preview' => false,
+                    'link_video' => 'https://www.youtube.com/watch?v=sample3',
+                    'file_materi' => null,
+                ],
+                (object)[
+                    'id' => 5,
+                    'urutan' => 5,
+                    'judul_materi' => 'Master Template & Panduan Penulisan Narasi Hasil Penelitian Bab 4 Standar Sidang',
+                    'tipe_materi' => 'Dokumen PDF',
+                    'durasi_menit' => 30,
+                    'deskripsi' => 'Template Word lengkap format tata letak tabel baku dan narasi penolakan/penerimaan hipotesis siap dikonsultasikan ke dosen pembimbing.',
+                    'is_free_preview' => false,
+                    'link_video' => null,
+                    'file_materi' => 'template_narasi_bab4.docx',
+                ],
+            ]);
+            $terdaftarCount = 18;
+            $sisaKuota = 32;
+        } else {
+            $materis = $kelas->materis ?? collect();
+            $terdaftarCount = $kelas->transaksis ? $kelas->transaksis->whereIn('status_pembayaran', ['Lunas', 'Menunggu Verifikasi'])->count() : 0;
+            $kuotaMaksimal = $kelas->kuota_maksimal ?: 50;
+            $sisaKuota = max(0, $kuotaMaksimal - $terdaftarCount);
+            if ($sisaKuota === 0 && $kelas->status === 'Dibuka') {
+                $sisaKuota = 5;
+            }
+        }
+
+        $userId = $user ? ($user->id_user ?? $user->id) : null;
+        $alreadyPurchased = false;
+        if ($userId) {
+            $alreadyPurchased = TransaksiPelatihan::where('user_id', $userId)
+                ->where('kelas_id', $id)
+                ->where('status_pembayaran', 'Lunas')
+                ->exists();
+        }
+
+        $kuotaMaksimal = $kelas->kuota_maksimal ?: 50;
+        $totalDurasiMenit = $materis->sum('durasi_menit');
+        $totalSesi = $materis->count();
+
+        return view('pelatihan::detail', compact(
+            'kelas',
+            'materis',
+            'user',
+            'alreadyPurchased',
+            'kuotaMaksimal',
+            'terdaftarCount',
+            'sisaKuota',
+            'totalDurasiMenit',
+            'totalSesi'
+        ));
+    }
+
     public function daftar($id)
     {
-        return redirect()->route('pelatihan.payment', $id);
+        return redirect()->route('pelatihan.detail', $id);
     }
 }
 

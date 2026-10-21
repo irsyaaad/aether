@@ -14,6 +14,11 @@
                 <span>Kelas Saya</span>
             </a>
             <span class="text-gray-300">/</span>
+            <a href="{{ route('pelatihan.detail', $kelas->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#1768B5] bg-sky-50 hover:bg-sky-100 border border-sky-100 transition">
+                <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                <span>Detail Workshop</span>
+            </a>
+            <span class="text-gray-300">/</span>
             <span class="text-xs font-medium text-gray-500 truncate max-w-xs sm:max-w-md">{{ $kelas->judul }}</span>
         </div>
 
