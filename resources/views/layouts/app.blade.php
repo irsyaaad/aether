@@ -157,9 +157,9 @@
         <aside id="logis-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 transform -translate-x-full lg:translate-x-0 border-r border-gray-200 bg-white transition-all duration-300 ease-in-out lg:static shrink-0 flex flex-col justify-between">
             <div>
                 <!-- Brand Header -->
-                <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-                    <a href="{{ route('dashboard') }}" class="flex items-center">
-                        <img class="h-9 w-auto object-contain" src="{{ asset('images/logo_aether.png') }}" alt="Aether"/>
+                <div class="flex items-center justify-between h-16 px-5 sm:px-6 border-b border-gray-200 shrink-0">
+                    <a href="{{ route('dashboard') }}" class="flex items-center py-1 group" title="Aether - Dashboard">
+                        <img class="h-11 sm:h-12 w-auto max-w-[175px] sm:max-w-[190px] object-contain transition-all group-hover:opacity-90" src="{{ asset('images/logo_aether.png') }}" alt="Aether"/>
                     </a>
                     <button id="logis-sidebar-close" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none" title="Tutup / Sembunyikan Sidebar">
                         <i data-lucide="panel-left-close" class="h-5 w-5 hidden lg:block"></i>
@@ -194,9 +194,30 @@
                             Layanan Akademik
                         </div>
 
-                        <!-- 1. Bimbingan -->
-                        @if($hasBimbingan)
+                        <!-- 1. Olah Data Riset (Nomor 2 di Sidebar, di atas Bimbingan) -->
+                        @if($hasOlahdata)
                         <div class="flex flex-col">
+                            <a href="{{ route('olahdata.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('olahdata*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="bar-chart-2" class="h-4 w-4 {{ request()->is('olahdata*') ? 'text-[#1768B5]' : 'text-gray-500' }}"></i>
+                                    <span>Olah Data Riset</span>
+                                </div>
+                                <span class="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full font-bold">SPSS/PLS</span>
+                            </a>
+                            <div class="ml-7 flex flex-col gap-0.5 border-l border-gray-200 pl-2 mt-0.5">
+                                <a href="{{ route('olahdata.create') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('olahdata/upload-dataset*') ? 'active text-[#1768B5] font-bold' : '' }}">
+                                    <span>• Upload Dataset Baru</span>
+                                </a>
+                                <a href="{{ route('olahdata.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ (request()->routeIs('olahdata.index') || request()->is('olahdata')) && !request()->is('olahdata/upload-dataset*') ? 'active text-[#1768B5] font-bold' : '' }}">
+                                    <span>• Progres &amp; Output Bab 4</span>
+                                </a>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- 2. Bimbingan Skripsi -->
+                        @if($hasBimbingan)
+                        <div class="flex flex-col mt-1">
                             <a href="{{ route('bimbingan.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('bimbingan*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
                                 <div class="flex items-center gap-3">
                                     <i data-lucide="graduation-cap" class="h-4 w-4 {{ request()->is('bimbingan*') ? 'text-[#1768B5]' : 'text-gray-500' }}"></i>
@@ -219,27 +240,6 @@
                                 </a>
                                 <a href="{{ route('bimbingan.pembayaran.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('bimbingan/pembayaran*') ? 'active text-[#1768B5] font-bold' : '' }}">
                                     <span>• List Pembayaran Program</span>
-                                </a>
-                            </div>
-                        </div>
-                        @endif
-
-                        <!-- 2. Olah Data -->
-                        @if($hasOlahdata)
-                        <div class="flex flex-col mt-1">
-                            <a href="{{ route('olahdata.index') }}" class="flex items-center justify-between px-3 py-2 rounded-md transition-colors font-medium text-sm {{ request()->is('olahdata*') ? 'active bg-[#1768B5]/10 text-[#1768B5] font-bold' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900' }}">
-                                <div class="flex items-center gap-3">
-                                    <i data-lucide="bar-chart-2" class="h-4 w-4 {{ request()->is('olahdata*') ? 'text-[#1768B5]' : 'text-gray-500' }}"></i>
-                                    <span>Olah Data Riset</span>
-                                </div>
-                                <span class="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full font-bold">SPSS/PLS</span>
-                            </a>
-                            <div class="ml-7 flex flex-col gap-0.5 border-l border-gray-200 pl-2 mt-0.5">
-                                <a href="{{ route('olahdata.create') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ request()->is('olahdata/upload-dataset*') ? 'active text-[#1768B5] font-bold' : '' }}">
-                                    <span>• Upload Dataset Baru</span>
-                                </a>
-                                <a href="{{ route('olahdata.index') }}" class="px-2 py-1 text-xs text-gray-500 hover:text-[#1768B5] transition flex items-center gap-1.5 {{ (request()->routeIs('olahdata.index') || request()->is('olahdata')) && !request()->is('olahdata/upload-dataset*') ? 'active text-[#1768B5] font-bold' : '' }}">
-                                    <span>• Progres &amp; Output Bab 4</span>
                                 </a>
                             </div>
                         </div>

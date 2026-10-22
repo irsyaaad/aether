@@ -71,9 +71,9 @@
         <aside id="logis-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 transform -translate-x-full lg:translate-x-0 border-r border-slate-200 bg-white transition-transform duration-300 ease-in-out lg:static shrink-0 flex flex-col justify-between">
             <div>
                 <!-- Brand Header -->
-                <div class="flex items-center justify-between h-16 px-6 border-b border-slate-200">
-                    <a href="{{ route('dashboard') }}" class="flex items-center">
-                        <img class="h-9 w-auto object-contain" src="{{ asset('images/logo_aether.png') }}" alt="Aether"/>
+                <div class="flex items-center justify-between h-16 px-5 sm:px-6 border-b border-slate-200 shrink-0">
+                    <a href="{{ route('dashboard') }}" class="flex items-center py-1 group" title="Aether - Dashboard">
+                        <img class="h-11 sm:h-12 w-auto max-w-[175px] sm:max-w-[190px] object-contain transition-all group-hover:opacity-90" src="{{ asset('images/logo_aether.png') }}" alt="Aether"/>
                     </a>
                     <button id="logis-sidebar-close" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors" title="Tutup / Sembunyikan Sidebar">
                         <i data-lucide="x" class="h-5 w-5 lg:hidden"></i>
