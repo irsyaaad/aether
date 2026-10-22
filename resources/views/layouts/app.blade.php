@@ -142,6 +142,48 @@
                     document.documentElement.classList.add('sidebar-collapsed');
                 }
             } catch (e) {}
+
+            window.toggleLogisSidebar = function () {
+                var sb = document.getElementById('logis-sidebar');
+                var bd = document.getElementById('logis-sidebar-backdrop');
+                var fab = document.getElementById('logis-mobile-fab');
+                if (!sb) return;
+                if (window.innerWidth < 1024) {
+                    var isClosed = sb.classList.contains('-translate-x-full');
+                    if (isClosed) {
+                        sb.classList.remove('-translate-x-full');
+                        sb.classList.add('translate-x-0');
+                        if (bd) bd.classList.remove('hidden');
+                        if (fab) fab.classList.add('hidden');
+                    } else {
+                        sb.classList.add('-translate-x-full');
+                        sb.classList.remove('translate-x-0');
+                        if (bd) bd.classList.add('hidden');
+                        if (fab) fab.classList.remove('hidden');
+                    }
+                } else {
+                    var isCollapsed = sb.classList.toggle('is-collapsed');
+                    if (isCollapsed) {
+                        document.documentElement.classList.add('sidebar-collapsed');
+                    } else {
+                        document.documentElement.classList.remove('sidebar-collapsed');
+                    }
+                    try { localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false'); } catch (e) {}
+                    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 320);
+                }
+            };
+
+            window.closeMobileSidebar = function () {
+                var sb = document.getElementById('logis-sidebar');
+                var bd = document.getElementById('logis-sidebar-backdrop');
+                var fab = document.getElementById('logis-mobile-fab');
+                if (sb) {
+                    sb.classList.add('-translate-x-full');
+                    sb.classList.remove('translate-x-0');
+                }
+                if (bd) bd.classList.add('hidden');
+                if (fab) fab.classList.remove('hidden');
+            };
         })();
     </script>
 
@@ -151,19 +193,28 @@
 
     <div class="flex h-screen overflow-hidden bg-gray-50/50">
         <!-- Sidebar for Mobile -->
-        <div id="logis-sidebar-backdrop" class="fixed inset-0 z-40 bg-gray-900/80 backdrop-blur-sm hidden lg:hidden"></div>
+        <div id="logis-sidebar-backdrop" onclick="closeMobileSidebar();" class="fixed inset-0 z-40 bg-gray-900/80 backdrop-blur-sm hidden lg:hidden cursor-pointer"></div>
 
         <!-- Sidebar -->
-        <aside id="logis-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 transform -translate-x-full lg:translate-x-0 border-r border-gray-200 bg-white transition-all duration-300 ease-in-out lg:static shrink-0 flex flex-col justify-between">
+        <aside id="logis-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 transform -translate-x-full lg:translate-x-0 border-r border-gray-200 bg-white transition-all duration-300 ease-in-out lg:static shrink-0 flex flex-col justify-between shadow-xl lg:shadow-none">
             <div>
                 <!-- Brand Header -->
                 <div class="flex items-center justify-between h-16 px-5 sm:px-6 border-b border-gray-200 shrink-0">
                     <a href="{{ route('dashboard') }}" class="flex items-center py-1 group" title="Aether - Dashboard">
                         <img class="h-11 sm:h-12 w-auto max-w-[175px] sm:max-w-[190px] object-contain transition-all group-hover:opacity-90" src="{{ asset('images/logo_aether.png') }}" alt="Aether"/>
                     </a>
-                    <button id="logis-sidebar-close" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none" title="Tutup / Sembunyikan Sidebar">
-                        <i data-lucide="panel-left-close" class="h-5 w-5 hidden lg:block"></i>
-                        <i data-lucide="x" class="h-5 w-5 lg:hidden"></i>
+                    <button id="logis-sidebar-close" onclick="closeMobileSidebar();" class="flex items-center justify-center p-2 rounded-lg text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors focus:outline-none cursor-pointer" title="Tutup / Sembunyikan Sidebar" aria-label="Tutup Sidebar">
+                        <!-- Desktop collapse icon -->
+                        <svg class="h-5 w-5 hidden lg:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="18" x="3" y="3" rx="2"/>
+                            <path d="M9 3v18"/>
+                            <path d="m16 15-3-3 3-3"/>
+                        </svg>
+                        <!-- Mobile close icon (X) -->
+                        <svg class="h-5 w-5 lg:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
                     </button>
                 </div>
 
@@ -530,18 +581,30 @@
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <header class="flex items-center gap-4 h-16 px-4 sm:px-6 lg:px-8 bg-white border-b border-gray-200 shadow-sm z-10 shrink-0">
-                <button id="logis-sidebar-toggle" class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none" title="Toggle Sidebar" aria-label="Toggle Sidebar">
-                    <i data-lucide="menu" class="h-5 w-5"></i>
-                </button>
-                
-                <div class="flex-1">
-                    <h1 class="text-lg font-semibold text-gray-900">
-                        @yield('page_title', 'Dashboard')
-                    </h1>
+            <header class="flex items-center justify-between gap-3 h-16 px-3 sm:px-6 lg:px-8 bg-white border-b border-gray-200 shadow-sm z-10 shrink-0">
+                <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                    <!-- Toggle Sidebar Button (Always visible & styled with direct inline SVG) -->
+                    <button id="logis-sidebar-toggle" onclick="toggleLogisSidebar(); return false;" class="flex items-center justify-center h-10 w-10 rounded-xl bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-800 border border-gray-200/90 shadow-xs focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer shrink-0" title="Buka / Tutup Sidebar" aria-label="Toggle Sidebar">
+                        <svg class="h-5 w-5 text-gray-800 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+
+                    <!-- Mobile Brand Logo (Visible on mobile/tablet screens when sidebar is hidden) -->
+                    <a href="{{ route('dashboard') }}" class="flex items-center lg:hidden shrink-0 ml-0.5" title="Aether">
+                        <img class="h-8 sm:h-9 w-auto max-w-[120px] sm:max-w-[140px] object-contain" src="{{ asset('images/logo_aether.png') }}" alt="Aether"/>
+                    </a>
+                    
+                    <div class="min-w-0 flex-1">
+                        <h1 class="text-sm sm:text-lg font-semibold text-gray-900 truncate">
+                            @yield('page_title', 'Dashboard')
+                        </h1>
+                    </div>
                 </div>
 
-                <div>
+                <div class="shrink-0">
                     @yield('toolbar_actions')
                 </div>
             </header>
@@ -573,13 +636,23 @@
         </div>
     </div>
 
+    <!-- Floating Mobile Navigation Trigger Button (Visible only on mobile/tablet) -->
+    <button id="logis-mobile-fab" onclick="toggleLogisSidebar(); return false;" class="lg:hidden fixed bottom-5 right-5 z-40 flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#102654] to-[#1768B5] text-white rounded-full shadow-lg border border-sky-400/40 hover:shadow-xl active:scale-95 transition-all focus:outline-none cursor-pointer" title="Buka Menu Sidebar" aria-label="Buka Menu Navigasi">
+        <svg class="h-5 w-5 text-white shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <span class="text-xs font-bold tracking-wide">Menu</span>
+    </button>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/vendors/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/select2/select2.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/datatables-net/dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/vendors/apexcharts/apexcharts.min.js') }}"></script>
-    <script src="{{ asset('assets-logistik/js/logistik.js') }}?v=1.4"></script>
+    <script src="{{ asset('assets-logistik/js/logistik.js') }}?v=1.5"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof lucide !== 'undefined') {
