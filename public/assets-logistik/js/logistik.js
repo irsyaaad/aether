@@ -24,13 +24,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function openMobileSidebar() {
-        if (sidebar) {
-            sidebar.classList.remove('-translate-x-full');
-            sidebar.classList.add('translate-x-0');
-        }
+        if (sidebar) sidebar.classList.remove('-translate-x-full');
         if (sidebarBackdrop) sidebarBackdrop.classList.remove('hidden');
-        var fab = document.getElementById('logis-mobile-fab');
-        if (fab) fab.classList.add('hidden');
         if (typeof scrollActiveSidebarMenu === 'function') {
             setTimeout(function () {
                 scrollActiveSidebarMenu({ smooth: true });
@@ -39,13 +34,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function closeMobileSidebar() {
-        if (sidebar) {
-            sidebar.classList.add('-translate-x-full');
-            sidebar.classList.remove('translate-x-0');
-        }
+        if (sidebar) sidebar.classList.add('-translate-x-full');
         if (sidebarBackdrop) sidebarBackdrop.classList.add('hidden');
-        var fab = document.getElementById('logis-mobile-fab');
-        if (fab) fab.classList.remove('hidden');
     }
 
     function toggleSidebar() {
@@ -91,11 +81,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 320);
         }
     }
-
-    // Expose globally for instant button handlers
-    window.openMobileSidebar = openMobileSidebar;
-    window.closeMobileSidebar = closeMobileSidebar;
-    window.toggleLogisSidebar = toggleSidebar;
 
     document.querySelectorAll('#logis-sidebar-toggle, [data-logis-sidebar-toggle]').forEach(function (btn) {
         btn.addEventListener('click', function (e) {
